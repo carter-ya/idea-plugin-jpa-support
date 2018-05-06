@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.generator.tree.visitor;
 
+import com.ifengxue.plugin.entity.Table;
+import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.tree.Element;
 import com.ifengxue.plugin.generator.tree.EntitySourceFile;
 import com.ifengxue.plugin.generator.tree.Extends;
@@ -10,6 +12,13 @@ import java.io.Serializable;
 public class VisitorSupport implements Visitor {
 
   protected com.ifengxue.plugin.generator.tree.Import anImport;
+  protected final Table table;
+  protected final TablesConfig tablesConfig;
+
+  public VisitorSupport(Table table, TablesConfig tablesConfig) {
+    this.table = table;
+    this.tablesConfig = tablesConfig;
+  }
 
   @Override
   public void visit(com.ifengxue.plugin.generator.tree.Package aPackage) {
@@ -35,7 +44,8 @@ public class VisitorSupport implements Visitor {
     }
     aClass.getAnImplements().getImplementSet().forEach(anImport::addImportClass);
     Extends anExtends = aClass.getAnExtends();
-    if (anExtends != null && !anExtends.getPackageName().isEmpty()) {
+    if (anExtends != null && !anExtends.getPackageName().isEmpty() &&
+        !anExtends.getPackageName().equals(table.getPackageName())) {
       anImport.addImportClass(anExtends.getPackageName() + "." + anExtends.getEntityName());
     }
   }

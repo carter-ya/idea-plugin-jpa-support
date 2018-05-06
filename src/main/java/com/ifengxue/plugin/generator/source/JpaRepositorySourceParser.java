@@ -37,8 +37,7 @@ public class JpaRepositorySourceParser implements SourceParser, VelocityEngineAw
             .map(Class::getSimpleName)
             .orElse("Void"));
     StringWriter writer = new StringWriter();
-    try (InputStream input = getClass().getClassLoader()
-        .getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + "/JpaRepository.vm")) {
+    try (InputStream input = getClass().getClassLoader().getResourceAsStream("template/JpaRepository.vm")) {
       byte[] buffer = new byte[input.available()];
       input.read(buffer);
       velocityEngine.evaluate(context, writer, "repository", new String(buffer, encoding));

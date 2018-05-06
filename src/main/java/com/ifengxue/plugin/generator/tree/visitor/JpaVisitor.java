@@ -12,13 +12,10 @@ import java.util.NoSuchElementException;
 
 public class JpaVisitor extends VisitorSupport {
 
-  private final Table table;
-  private final TablesConfig tablesConfig;
   private final Vendor vendor;
 
   public JpaVisitor(Table table, TablesConfig tablesConfig, Vendor vendor) {
-    this.table = table;
-    this.tablesConfig = tablesConfig;
+    super(table, tablesConfig);
     this.vendor = vendor;
   }
 

@@ -1,15 +1,14 @@
 package com.ifengxue.plugin.generator.tree.visitor;
 
+import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.tree.Class;
 import com.ifengxue.plugin.generator.tree.Element;
 
 public class BasicVisitor extends VisitorSupport {
 
-  private TablesConfig tablesConfig;
-
-  public BasicVisitor(TablesConfig tablesConfig) {
-    this.tablesConfig = tablesConfig;
+  public BasicVisitor(Table table, TablesConfig tablesConfig) {
+    super(table, tablesConfig);
   }
 
   @Override

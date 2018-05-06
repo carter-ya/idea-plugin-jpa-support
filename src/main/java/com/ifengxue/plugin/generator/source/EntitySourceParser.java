@@ -75,10 +75,10 @@ public class EntitySourceParser implements SourceParser {
     });
     switch (config.getTablesConfig().getOrm()) {
       case BASIC:
-        sourceFile.accept(new BasicVisitor(config.getTablesConfig()));
+        sourceFile.accept(new BasicVisitor(table, config.getTablesConfig()));
         break;
       case MYBATIS:
-        sourceFile.accept(new MybatisVisitor());
+        sourceFile.accept(new MybatisVisitor(table, config.getTablesConfig()));
         break;
       case JPA:
         sourceFile.accept(new JpaVisitor(table, config.getTablesConfig(), config.getDriverConfig().getVendor()));

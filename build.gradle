@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.ifengxue'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 apply plugin: 'java'
 
@@ -26,6 +26,6 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+       Generate entity/repository class for JPA/Lombok/Spring Data JPA.
+      """
 }
