@@ -1,0 +1,12 @@
+#if(!$package.isEmpty())
+package $package;
+#end
+
+import org.springframework.data.jpa.repository.JpaRepository;
+#foreach($importClass in $importClassList)
+import $importClass;
+#end
+
+public interface $simpleName extends JpaRepository<$entitySimpleName, $primaryKeyDataType> {
+
+}

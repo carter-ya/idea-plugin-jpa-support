@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.ifengxue.plugin.component.AutoGeneratorSettings">
+  <grid id="27dc6" binding="rootComponent" layout-manager="FormLayout">
+    <rowspec value="center:d:noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <colspec value="fill:d:noGrow"/>
+    <colspec value="left:4dlu:noGrow"/>
+    <colspec value="fill:d:grow"/>
+    <constraints>
+      <xy x="20" y="20" width="547" height="371"/>
+    </constraints>
+    <properties/>
+    <border type="none" title="自动生成选项"/>
+    <children>
+      <component id="1bd31" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="移除表名前缀："/>
+        </properties>
+      </component>
+      <component id="bee83" class="javax.swing.JTextField" binding="textRemoveTablePrefix">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+          <forms defaultalign-horz="false"/>
+        </constraints>
+        <properties>
+          <text value="t_"/>
+          <toolTipText value="移除的表名前缀。如表名为t_example，前缀是t_，则最终实体名称是Example"/>
+        </properties>
+      </component>
+      <component id="48cbd" class="javax.swing.JTextField" binding="textRemoveFieldPrefix">
+        <constraints>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+          <forms defaultalign-horz="false"/>
+        </constraints>
+        <properties>
+          <text value="f_"/>
+          <toolTipText value="移除字段名前缀。如果字段名是f_example，且前缀是f_，则最终字段名是example"/>
+        </properties>
+      </component>
+      <component id="a8efa" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="移除字段名前缀："/>
+        </properties>
+      </component>
+      <component id="e001e" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="继承的基类："/>
+        </properties>
+      </component>
+      <grid id="fc457" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+        <constraints>
+          <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="c7679" class="javax.swing.JCheckBox" binding="chkBoxUseLombok">
+            <constraints/>
+            <properties>
+              <horizontalAlignment value="10"/>
+              <selected value="true"/>
+              <text value="使用Lombok"/>
+            </properties>
+          </component>
+          <component id="3b39b" class="javax.swing.JCheckBox" binding="chkBoxGenerateRepository">
+            <constraints/>
+            <properties>
+              <selected value="true"/>
+              <text value="生成Repository"/>
+            </properties>
+          </component>
+          <component id="25144" class="javax.swing.JCheckBox" binding="chkBoxGenerateService">
+            <constraints/>
+            <properties>
+              <enabled value="false"/>
+              <selected value="false"/>
+              <text value="生成Service"/>
+            </properties>
+          </component>
+          <component id="5f283" class="javax.swing.JCheckBox" binding="chkBoxSerializable">
+            <constraints/>
+            <properties>
+              <selected value="true"/>
+              <text value="Serializable"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="33c2b" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="实体包："/>
+        </properties>
+      </component>
+      <component id="9a4fc" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="Repository包："/>
+        </properties>
+      </component>
+      <grid id="de01c" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
+        <constraints>
+          <grid row="16" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="c7267" class="javax.swing.JButton" binding="btnCancel">
+            <constraints/>
+            <properties>
+              <text value="取消"/>
+            </properties>
+          </component>
+          <component id="c999d" class="javax.swing.JButton" binding="btnNext">
+            <constraints/>
+            <properties>
+              <text value="下一步"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="55e8e" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+        <constraints>
+          <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="616d6" class="javax.swing.JCheckBox" binding="chkBoxGenerateClassComment">
+            <constraints/>
+            <properties>
+              <selected value="true"/>
+              <text value="生成类注释"/>
+            </properties>
+          </component>
+          <component id="bf211" class="javax.swing.JCheckBox" binding="chkBoxGenerateFieldComment">
+            <constraints/>
+            <properties>
+              <selected value="true"/>
+              <text value="生成字段注释"/>
+            </properties>
+          </component>
+          <component id="d9c83" class="javax.swing.JCheckBox" binding="chkBoxGenerateMethodComment">
+            <constraints/>
+            <properties>
+              <selected value="true"/>
+              <text value="生成方法注释"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="74ec0" layout-manager="FormLayout">
+        <rowspec value="center:d:noGrow"/>
+        <colspec value="fill:d:grow"/>
+        <colspec value="left:4dlu:noGrow"/>
+        <colspec value="fill:d:noGrow"/>
+        <constraints>
+          <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="66d8f" class="javax.swing.JTextField" binding="textEntityPackage">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+              <forms defaultalign-horz="false"/>
+            </constraints>
+            <properties>
+              <editable value="false"/>
+            </properties>
+          </component>
+          <component id="9a3a3" class="javax.swing.JButton" binding="btnChooseEntityPackage">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <forms/>
+            </constraints>
+            <properties>
+              <hideActionText value="false"/>
+              <horizontalAlignment value="0"/>
+              <text value="浏览"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="b6f" layout-manager="FormLayout">
+        <rowspec value="center:d:noGrow"/>
+        <colspec value="fill:d:grow"/>
+        <colspec value="left:4dlu:noGrow"/>
+        <colspec value="fill:d:noGrow"/>
+        <constraints>
+          <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="5d81f" class="javax.swing.JTextField" binding="txtRepositoryPackage">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+              <forms defaultalign-horz="false"/>
+            </constraints>
+            <properties>
+              <editable value="false"/>
+            </properties>
+          </component>
+          <component id="be4be" class="javax.swing.JButton" binding="btnChooseRepositoryPackage">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <forms/>
+            </constraints>
+            <properties>
+              <text value="浏览"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="cda69" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="排除的属性："/>
+        </properties>
+      </component>
+      <component id="3c808" class="javax.swing.JTextField" binding="textExcludeFields">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+          <forms defaultalign-horz="false"/>
+        </constraints>
+        <properties>
+          <text value="id,version,createdAt,updatedAt"/>
+          <toolTipText value="每个属性之间用&quot;,&quot;隔开"/>
+        </properties>
+      </component>
+      <grid id="8aaa" layout-manager="FormLayout">
+        <rowspec value="center:d:noGrow"/>
+        <colspec value="fill:d:grow"/>
+        <colspec value="left:4dlu:noGrow"/>
+        <colspec value="fill:d:noGrow"/>
+        <constraints>
+          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="7d367" class="javax.swing.JTextField" binding="textExtendBaseClass">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="150" height="-1"/>
+              </grid>
+              <forms defaultalign-horz="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="46dd3" class="javax.swing.JButton" binding="btnChooseSuperClass">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <forms/>
+            </constraints>
+            <properties>
+              <text value="浏览"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

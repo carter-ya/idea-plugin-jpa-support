@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.ifengxue.plugin.component.SelectTables">
+  <grid id="27dc6" binding="rootComponent" layout-manager="FormLayout">
+    <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:d:grow"/>
+    <colspec value="fill:d:grow"/>
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none" title="选择表"/>
+    <children>
+      <grid id="c33f4" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="3bb41" class="javax.swing.JButton" binding="btnSelectOther">
+            <constraints/>
+            <properties>
+              <text value="反选"/>
+            </properties>
+          </component>
+          <component id="edb7" class="javax.swing.JButton" binding="btnSelectAll">
+            <constraints/>
+            <properties>
+              <text value="全选"/>
+            </properties>
+          </component>
+          <component id="11a54" class="javax.swing.JButton" binding="btnSelectNone">
+            <constraints/>
+            <properties>
+              <text value="全不选"/>
+            </properties>
+          </component>
+          <component id="33010" class="javax.swing.JButton" binding="btnCancel">
+            <constraints/>
+            <properties>
+              <text value="取消"/>
+            </properties>
+          </component>
+          <component id="2ea2c" class="javax.swing.JButton" binding="btnGenerate">
+            <constraints/>
+            <properties>
+              <text value="开始生成"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <scrollpane id="d11fb">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms defaultalign-horz="false" defaultalign-vert="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="428f4" class="javax.swing.JTable" binding="tblTableSchema">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
+    </children>
+  </grid>
+</form>

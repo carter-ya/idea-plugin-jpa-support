@@ -1,0 +1,36 @@
+<idea-plugin>
+  <id>com.ifengxue.plugin.jpa-support</id>
+  <name>Jpa Support</name>
+  <version>1.0</version>
+  <vendor email="liukefeng2008@hotmail.com" url="http://www.ifengxue.com">www.ifengxue.com</vendor>
+
+  <description><![CDATA[
+      JPA/Lombok Support.
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Generate entity/repository class for JPA/Lombok/Spring Data JPA.
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="173.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+    <action id="JPASupport.NewEntities" class="com.ifengxue.plugin.JpaSupport"
+      text="Jpa Entities" description="create new jpa entities.">
+      <add-to-group group-id="GenerateGroup" anchor="last"/>
+    </action>
+  </actions>
+
+</idea-plugin>
