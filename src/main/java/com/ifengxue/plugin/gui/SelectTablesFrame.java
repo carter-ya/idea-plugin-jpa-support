@@ -236,7 +236,6 @@ public class SelectTablesFrame {
           column.setNullable("NO".equalsIgnoreCase(columnSchema.getIsNullable()));
           column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
           column.setColumnComment(columnSchema.getColumnComment());
-          column.setDefaultValue(columnSchema.getColumnDefault());
           ColumnUtil.parseColumn(column, config.getRemoveFieldPrefix(), true);
           if (column.isPrimary()) {
             table.setPrimaryKeyClassType(column.getJavaDataType());

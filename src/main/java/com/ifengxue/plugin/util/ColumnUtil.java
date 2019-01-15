@@ -25,12 +25,7 @@ public class ColumnUtil {
       if (primitiveClass == double.class) {
         column.setDefaultValue(column.getDefaultValue() + "D");
       }
-      if (primitiveClass == Date.class) {
-        column.setDefaultValue("new Date()");
-      }
-      if (primitiveClass == Timestamp.class) {
-        column.setDefaultValue("new Timestamp(System.currentTimeMillis())");
-      }
+      // 跳过设置 Date/Timestamp/BigDecimal等数据类型的默认值
       column.setHasDefaultValue(true);
     }
   }
