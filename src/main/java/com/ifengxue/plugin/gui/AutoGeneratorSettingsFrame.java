@@ -140,7 +140,7 @@ public class AutoGeneratorSettingsFrame {
           assert vFile != null;
           for (TableSchema tableSchema : tableSchemaList) {
             String tableName = tableSchema.getTableName();
-            if (!config.getRemoveTablePrefix().isEmpty()) {
+            if (!config.getRemoveTablePrefix().isEmpty() && tableName.startsWith(config.getRemoveTablePrefix())) {
               tableName = tableName.substring(config.getRemoveTablePrefix().length());
             }
             String entityName = StringHelper.parseEntityName(tableName);
