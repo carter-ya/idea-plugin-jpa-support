@@ -19,6 +19,7 @@ import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.source.EntitySourceParser;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.util.ColumnUtil;
+import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -26,6 +27,7 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diagnostic.LogUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -135,8 +137,7 @@ public class SelectTablesFrame {
     table.getColumnModel().getColumn(1).setMaxWidth(40);
     frameHolder.setContentPane(selectTablesHolder.getRootComponent());
     frameHolder.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    frameHolder
-        .setLocationRelativeTo(WindowManager.getInstance().getIdeFrame(Holder.getEvent().getProject()).getComponent());
+    frameHolder.setLocationRelativeTo(WindowUtil.getParentWindow(Holder.getEvent().getProject()));
     frameHolder.pack();
     frameHolder.setVisible(true);
 
@@ -236,6 +237,7 @@ public class SelectTablesFrame {
           column.setNullable("NO".equalsIgnoreCase(columnSchema.getIsNullable()));
           column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
           column.setColumnComment(columnSchema.getColumnComment());
+          column.setDefaultValue(columnSchema.getColumnDefault());
           ColumnUtil.parseColumn(column, config.getRemoveFieldPrefix(), true);
           if (column.isPrimary()) {
             table.setPrimaryKeyClassType(column.getJavaDataType());

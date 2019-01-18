@@ -10,6 +10,7 @@ import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.util.Args;
 import com.ifengxue.plugin.util.StringHelper;
+import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.TreeClassChooser;
@@ -43,8 +44,7 @@ public class AutoGeneratorSettingsFrame {
     this.autoGeneratorSettingsHolder = new AutoGeneratorSettings();
     frameHolder.setContentPane(autoGeneratorSettingsHolder.getRootComponent());
     frameHolder.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    frameHolder
-        .setLocationRelativeTo(WindowManager.getInstance().getIdeFrame(Holder.getEvent().getProject()).getComponent());
+    frameHolder.setLocationRelativeTo(WindowUtil.getParentWindow(Holder.getEvent().getProject()));
     frameHolder.pack();
     AutoGeneratorConfig config = new AutoGeneratorConfig();
     initTextField(autoGeneratorSettingsHolder, config);
@@ -57,8 +57,8 @@ public class AutoGeneratorSettingsFrame {
     config.setProjectBasePath(project.getBasePath());
     // 选择父类
     autoGeneratorSettingsHolder.getBtnChooseSuperClass().addActionListener(event -> {
-      TreeClassChooser classChooser = new TreeJavaClassChooserDialog("选择父类", project);
-      ((TreeJavaClassChooserDialog) classChooser).show();
+      TreeJavaClassChooserDialog classChooser = new TreeJavaClassChooserDialog("选择父类", project);
+      classChooser.show();
       PsiClass selectedClass = classChooser.getSelected();
       if (selectedClass != null) {
         String qualifiedName = selectedClass.getQualifiedName();
