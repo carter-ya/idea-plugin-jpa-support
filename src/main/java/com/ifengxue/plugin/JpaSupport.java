@@ -10,6 +10,7 @@ import com.ifengxue.fastjdbc.SqlBuilder;
 import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
+import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -17,7 +18,10 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.util.IJSwingUtilities;
 import com.mysql.jdbc.Driver;
 import java.nio.charset.StandardCharsets;
 import java.sql.DriverManager;
@@ -26,23 +30,30 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
 
 /**
  * jpa support 入口
  */
 public class JpaSupport extends AnAction {
-
+  private Logger log = Logger.getInstance(JpaSupport.class);
   static {
     try {
       Class.forName(Driver.class.getName());
     } catch (ClassNotFoundException e) {
-      e.printStackTrace();
+      // ignore
     }
   }
 
   @Override
-  public void actionPerformed(AnActionEvent e) {
+  public void actionPerformed(@NotNull AnActionEvent e) {
+    if (e.getProject() == null) {
+      Messages.showWarningDialog("没有激活的Project!", "Jps Support");
+      return;
+    }
     Holder.registerEvent(e);// 注册事件
     Holder.registerApplicationProperties(PropertiesComponent.getInstance());
     Holder.registerProjectProperties(PropertiesComponent.getInstance(e.getProject()));
@@ -51,8 +62,7 @@ public class JpaSupport extends AnAction {
     DatabaseSettings databaseSettings = new DatabaseSettings();
     databaseSettingsFrame.setContentPane(databaseSettings.getRootComponent());
     databaseSettingsFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    databaseSettingsFrame.setLocationRelativeTo(WindowManager.getInstance().getIdeFrame(e.getProject())
-        .getComponent());
+    databaseSettingsFrame.setLocationRelativeTo(WindowUtil.getParentWindow(e.getProject()));
     databaseSettingsFrame.pack();
     // init text field
     initTextField(databaseSettings);
@@ -100,7 +110,7 @@ public class JpaSupport extends AnAction {
               .notify(new Notification("JpaSupport", "Error",
                   "连接数据库失败(" + se.getErrorCode() + "," + se.getSQLState() + "," + se
                       .getLocalizedMessage() + ")", NotificationType.ERROR)));
-          se.printStackTrace();
+          log.error("连接数据库失败", se);
           return;
         }
         Properties properties = new Properties();
