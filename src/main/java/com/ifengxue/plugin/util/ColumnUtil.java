@@ -27,7 +27,16 @@ public class ColumnUtil {
         column.setDefaultValue(column.getDefaultValue() + "D");
       }
       if (javaDataType == BigDecimal.class) {
-        column.setDefaultValue("new BigDecimal(\"" + column.getDefaultValue() + "\")");
+        BigDecimal amount = new BigDecimal(column.getDefaultValue());
+        if (amount.compareTo(BigDecimal.ZERO) == 0) {
+          column.setDefaultValue("BigDecimal.ZERO");
+        } else if (amount.compareTo(BigDecimal.ONE) == 0) {
+          column.setDefaultValue("BigDecimal.ONE");
+        } else if (amount.compareTo(BigDecimal.TEN) == 0) {
+          column.setDefaultValue("BigDecimal.TEN");
+        } else {
+          column.setDefaultValue("new BigDecimal(\"" + column.getDefaultValue() + "\")");
+        }
       }
       column.setHasDefaultValue(true);
 
