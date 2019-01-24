@@ -9,7 +9,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      Fix BigDecimal default value; Remove Date Timestamp default value.
+      Support BigDecimal default value and add support trigger action in NewGroup1.
       Fix bug with missing default value.
       Fix getting wrong table name when table prefix exits(Thanks for https://github.com/cqyisbug)
       Upgrade version to support IDEA 2018.3.
