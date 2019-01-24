@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.util;
 
 import com.ifengxue.plugin.entity.Column;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -25,8 +26,13 @@ public class ColumnUtil {
       if (primitiveClass == double.class) {
         column.setDefaultValue(column.getDefaultValue() + "D");
       }
-      // 跳过设置 Date/Timestamp/BigDecimal等数据类型的默认值
       column.setHasDefaultValue(true);
+
+      // 跳过设置 Date/Timestamp/BigDecimal等数据类型的默认值
+      if (javaDataType == BigDecimal.class || javaDataType == Date.class || javaDataType == Timestamp.class) {
+        column.setDefaultValue(null);
+        column.setHasDefaultValue(false);
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.ifengxue.plugin.jpa-support</id>
   <name>Jpa Support</name>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <vendor email="liukefeng2008@hotmail.com" url="https://www.ifengxue.com">www.ifengxue.com</vendor>
 
   <description><![CDATA[
@@ -9,6 +9,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      Fix BigDecimal default value; Remove Date Timestamp default value.
       Fix bug with missing default value.
       Fix getting wrong table name when table prefix exits(Thanks for https://github.com/cqyisbug)
       Upgrade version to support IDEA 2018.3.
@@ -31,7 +32,11 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="JPASupport.NewEntities" class="com.ifengxue.plugin.JpaSupport"
+    <action id="JPASupport.NewEntities1" class="com.ifengxue.plugin.JpaSupport"
+      text="Jpa Entities" description="create new jpa entities.">
+      <add-to-group group-id="NewGroup1" anchor="last"/>
+    </action>
+    <action id="JPASupport.NewEntities2" class="com.ifengxue.plugin.JpaSupport"
       text="Jpa Entities" description="create new jpa entities.">
       <add-to-group group-id="GenerateGroup" anchor="last"/>
     </action>

@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.ifengxue'
-version '1.0.4'
+version '1.0.5'
 
 apply plugin: 'java'
 
@@ -26,6 +26,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
+       Fix BigDecimal default value; Remove Date Timestamp default value.
        Fix bug with missing default value.
        Fix getting wrong table name when table prefix exits(Thanks for https://github.com/cqyisbug)
        Upgrade version to support IDEA 2018.3. 
