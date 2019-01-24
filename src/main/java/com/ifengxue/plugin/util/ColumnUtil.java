@@ -26,10 +26,13 @@ public class ColumnUtil {
       if (primitiveClass == double.class) {
         column.setDefaultValue(column.getDefaultValue() + "D");
       }
+      if (javaDataType == BigDecimal.class) {
+        column.setDefaultValue("new BigDecimal(\"" + column.getDefaultValue() + "\")");
+      }
       column.setHasDefaultValue(true);
 
-      // 跳过设置 Date/Timestamp/BigDecimal等数据类型的默认值
-      if (javaDataType == BigDecimal.class || javaDataType == Date.class || javaDataType == Timestamp.class) {
+      // 跳过设置 Date/Timestamp 的默认值
+      if (javaDataType == Date.class || javaDataType == Timestamp.class) {
         column.setDefaultValue(null);
         column.setHasDefaultValue(false);
       }
