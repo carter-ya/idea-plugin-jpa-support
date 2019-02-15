@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.ifengxue'
-version '1.0.5'
+version '1.0.6'
 
 apply plugin: 'java'
 
@@ -26,6 +26,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
+       If the data type is int and the comment contains true/false, modify the data type to boolean.
        Support BigDecimal default value and add support trigger action in NewGroup1.
        Fix bug with missing default value.
        Fix getting wrong table name when table prefix exits(Thanks for https://github.com/cqyisbug)

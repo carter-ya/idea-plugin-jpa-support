@@ -11,6 +11,14 @@ public class ColumnUtil {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
     Class<?> javaDataType = StringHelper
         .parseJavaDataType(column.getDbDataType(), column.getColumnName(), isUseWrapper);
+    if ((javaDataType == Integer.class || javaDataType == int.class)
+        && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
+      if (isUseWrapper) {
+        javaDataType = Boolean.class;
+      } else {
+        javaDataType = boolean.class;
+      }
+    }
     column.setJavaDataType(javaDataType);
     if (column.getDefaultValue() != null) {
       if (javaDataType == String.class) {
@@ -25,6 +33,21 @@ public class ColumnUtil {
       }
       if (primitiveClass == double.class) {
         column.setDefaultValue(column.getDefaultValue() + "D");
+      }
+      if (primitiveClass == boolean.class) {
+        if (column.getDefaultValue().equals("1")) {
+          if (isUseWrapper) {
+            column.setDefaultValue("Boolean.TRUE");
+          } else {
+            column.setDefaultValue("true");
+          }
+        } else {
+          if (isUseWrapper) {
+            column.setDefaultValue("Boolean.FALSE");
+          } else {
+            column.setDefaultValue("false");
+          }
+        }
       }
       if (javaDataType == BigDecimal.class) {
         BigDecimal amount = new BigDecimal(column.getDefaultValue());

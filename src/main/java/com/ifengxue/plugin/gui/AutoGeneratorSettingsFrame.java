@@ -145,6 +145,12 @@ public class AutoGeneratorSettingsFrame {
             }
             String entityName = StringHelper.parseEntityName(tableName);
             boolean selected = vFile.findChild(entityName + ".java") == null;
+            if (selected) {
+              // support flyway
+              if (tableName.equals("flyway_schema_history")) {
+                selected = false;
+              }
+            }
             tableList.add(Table.from(tableSchema, entityName, selected));
           }
           // 保存属性

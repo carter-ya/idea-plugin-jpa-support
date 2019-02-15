@@ -28,6 +28,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.LogUtil;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -53,7 +54,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 
 public class SelectTablesFrame {
-
+  private Logger log = Logger.getInstance(getClass());
   private final JFrame frameHolder;
 
   private SelectTablesFrame(List<Table> tableList, AutoGeneratorConfig config) {
@@ -319,6 +320,7 @@ public class SelectTablesFrame {
         VirtualFile vFile = psiFile.getVirtualFile();
         writeContent(sourceCode, vFile);
       }
+      ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
     }
 
     private void writeContent(String sourceCode, VirtualFile vFile) {
@@ -327,7 +329,7 @@ public class SelectTablesFrame {
         vFile.setCharset(StandardCharsets.UTF_8);
         vFile.setBinaryContent(sourceCode.getBytes(StandardCharsets.UTF_8));
       } catch (IOException e) {
-        e.printStackTrace();
+        log.error("生成源码失败", e);
       }
     }
   }

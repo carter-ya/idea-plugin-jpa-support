@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.ifengxue.plugin.jpa-support</id>
   <name>Jpa Support</name>
-  <version>1.0.5</version>
+  <version>1.0.6</version>
   <vendor email="liukefeng2008@hotmail.com" url="https://www.ifengxue.com">www.ifengxue.com</vendor>
 
   <description><![CDATA[
@@ -9,6 +9,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      If the data type is int and the comment contains true/false, modify the data type to boolean.
       Support BigDecimal default value and add support trigger action in NewGroup1.
       Fix bug with missing default value.
       Fix getting wrong table name when table prefix exits(Thanks for https://github.com/cqyisbug)
