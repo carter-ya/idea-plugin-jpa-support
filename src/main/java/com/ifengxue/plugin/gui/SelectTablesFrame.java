@@ -27,12 +27,10 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.diagnostic.LogUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -43,6 +41,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
@@ -50,10 +49,10 @@ import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 
 public class SelectTablesFrame {
+
   private Logger log = Logger.getInstance(getClass());
   private final JFrame frameHolder;
 
@@ -208,6 +207,9 @@ public class SelectTablesFrame {
 
       FastJdbc fastJdbc = new SimpleFastJdbc();
       EntitySourceParser sourceParser = new EntitySourceParser();
+
+      // 生成数量
+      AtomicInteger generatCount = new AtomicInteger(tableList.size());
       for (Table table : tableList) {
         Sql sql = SqlBuilder.newSelectBuilder(ColumnSchema.class)
             .select()
@@ -220,11 +222,12 @@ public class SelectTablesFrame {
         try {
           columnSchemaList = fastJdbc.find(sql.getSql(), ColumnSchema.class, sql.getArgs().toArray());
         } catch (SQLException se) {
-          se.printStackTrace();
+          log.error("读取数据库错误", se);
           ApplicationManager.getApplication()
               .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
                   se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
                   NotificationType.ERROR)));
+          ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
           return;
         }
         // 解析字段列表
@@ -285,12 +288,18 @@ public class SelectTablesFrame {
         WriteCommandAction.runWriteCommandAction(project, () -> {
           String filename = table.getEntityName() + ".java";
           writeContent(project, filename, config.getEntityDirectory(), sourceCode);
-          if (StringUtils.isBlank(table.getPackageName())) {
+          if (!config.isGenerateRepository()) {
+            if (generatCount.decrementAndGet() <= 0) {
+              ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
+            }
             return;
           }
           filename = table.getEntityName() + "Repository.java";
           String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
           writeContent(project, filename, config.getRepositoryDirectory(), repositorySourceCode);
+          if (generatCount.decrementAndGet() <= 0) {
+            ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
+          }
         });
       }
     }
@@ -320,7 +329,6 @@ public class SelectTablesFrame {
         VirtualFile vFile = psiFile.getVirtualFile();
         writeContent(sourceCode, vFile);
       }
-      ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
     }
 
     private void writeContent(String sourceCode, VirtualFile vFile) {

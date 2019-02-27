@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.util;
 
+import com.intellij.openapi.diagnostic.Logger;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
  */
 public class StringHelper {
 
+  private static Logger log = Logger.getInstance(StringHelper.class);
   private static final Map<Class<?>, Class<?>> WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE = new HashMap<>();
 
   static {
@@ -90,7 +92,9 @@ public class StringHelper {
         javaDataType = Timestamp.class;
         break;
       default:
-        throw new RuntimeException("不支持的数据类型");
+        javaDataType = String.class;
+        log.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
+        break;
     }
     if (columnName.startsWith("is_")) {
       javaDataType = Boolean.class;
