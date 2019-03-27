@@ -1,9 +1,5 @@
 package com.ifengxue.plugin.gui;
 
-import com.ifengxue.fastjdbc.FastJdbc;
-import com.ifengxue.fastjdbc.SimpleFastJdbc;
-import com.ifengxue.fastjdbc.Sql;
-import com.ifengxue.fastjdbc.SqlBuilder;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorConfig;
 import com.ifengxue.plugin.component.SelectTables;
@@ -35,6 +31,9 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.mysql.jdbc.Driver;
+import fastjdbc.FastJdbc;
+import fastjdbc.Sql;
+import fastjdbc.SqlBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -205,11 +204,11 @@ public class SelectTablesFrame {
       JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
       repositorySourceParser.setVelocityEngine(velocityEngine, encoding);
 
-      FastJdbc fastJdbc = new SimpleFastJdbc();
+      FastJdbc fastJdbc = Holder.getFastJdbc();
       EntitySourceParser sourceParser = new EntitySourceParser();
 
       // 生成数量
-      AtomicInteger generatCount = new AtomicInteger(tableList.size());
+      AtomicInteger generateCount = new AtomicInteger(tableList.size());
       for (Table table : tableList) {
         Sql sql = SqlBuilder.newSelectBuilder(ColumnSchema.class)
             .select()
@@ -289,7 +288,7 @@ public class SelectTablesFrame {
           String filename = table.getEntityName() + ".java";
           writeContent(project, filename, config.getEntityDirectory(), sourceCode);
           if (!config.isGenerateRepository()) {
-            if (generatCount.decrementAndGet() <= 0) {
+            if (generateCount.decrementAndGet() <= 0) {
               ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
             }
             return;
@@ -297,7 +296,7 @@ public class SelectTablesFrame {
           filename = table.getEntityName() + "Repository.java";
           String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
           writeContent(project, filename, config.getRepositoryDirectory(), repositorySourceCode);
-          if (generatCount.decrementAndGet() <= 0) {
+          if (generateCount.decrementAndGet() <= 0) {
             ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
           }
         });

@@ -14,10 +14,11 @@ repositories {
 }
 
 dependencies {
-    compile files('libs/fastjdbc-1.0-SNAPSHOT.jar')
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.11'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

@@ -2,11 +2,6 @@ package com.ifengxue.plugin;
 
 import static com.ifengxue.plugin.util.Key.createKey;
 
-import com.ifengxue.fastjdbc.FastJdbc;
-import com.ifengxue.fastjdbc.FastJdbcConfig;
-import com.ifengxue.fastjdbc.SimpleFastJdbc;
-import com.ifengxue.fastjdbc.Sql;
-import com.ifengxue.fastjdbc.SqlBuilder;
 import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
@@ -20,33 +15,27 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.wm.WindowManager;
-import com.intellij.util.IJSwingUtilities;
-import com.mysql.jdbc.Driver;
+import fastjdbc.FastJdbc;
+import fastjdbc.NoPoolDataSource;
+import fastjdbc.SimpleFastJdbc;
+import fastjdbc.Sql;
+import fastjdbc.SqlBuilder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Properties;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.LoggerFactory;
 
 /**
  * jpa support 入口
  */
 public class JpaSupport extends AnAction {
+
   private Logger log = Logger.getInstance(JpaSupport.class);
-  static {
-    try {
-      Class.forName(Driver.class.getName());
-    } catch (ClassNotFoundException e) {
-      // ignore
-    }
-  }
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
@@ -102,9 +91,20 @@ public class JpaSupport extends AnAction {
       String url =
           "jdbc:mysql://" + host + ":" + port + "/" + database + "?useUnicode=true&charset=utf8";
       new Thread(() -> {
-        // 尝试获取连接
+        String driverClass = "com.mysql.jdbc.Driver";
         try {
-          DriverManager.getConnection(url, username, password);
+          Class.forName(driverClass);
+        } catch (ClassNotFoundException e1) {
+          ApplicationManager.getApplication().invokeLater(() -> Bus
+              .notify(new Notification("JpaSupport", "Error",
+                  "数据库驱动 " + driverClass + " 不存在", NotificationType.ERROR)));
+          return;
+        }
+        // 尝试获取连接
+        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+          FastJdbc fastJdbc = new SimpleFastJdbc(
+              new NoPoolDataSource(driverClass, url, username, password));
+          Holder.registerFastJdbc(fastJdbc);
         } catch (SQLException se) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
               .notify(new Notification("JpaSupport", "Error",
@@ -113,31 +113,24 @@ public class JpaSupport extends AnAction {
           log.error("连接数据库失败", se);
           return;
         }
-        Properties properties = new Properties();
-        properties.setProperty("driverClass", Driver.class.getName());
-        properties.setProperty("writableUrl", url);
-        properties.setProperty("writableUsername", username);
-        properties.setProperty("writablePassword", password);
-        FastJdbcConfig.load(properties);
 
-        FastJdbc fastJdbc = new SimpleFastJdbc();
-        Sql sql = SqlBuilder.newSelectBuilder(TableSchema.class)
-            .select()
-            .from()
-            .where()
-            .equal("tableSchema", database)
-            .build();
-        List<TableSchema> tableSchemaList;
+        List<TableSchema> tableSchemaList = null;
         try {
-          tableSchemaList = fastJdbc
-              .find(sql.getSql(), TableSchema.class, sql.getArgs().toArray());
+          Sql sql = SqlBuilder.newSelectBuilder(TableSchema.class)
+              .select()
+              .from()
+              .where()
+              .equal("tableSchema", database)
+              .build();
+          tableSchemaList = Holder.getFastJdbc().find(sql.getSql(), TableSchema.class, sql.getArgs().toArray());
         } catch (SQLException se) {
+          StringBuilder sb = new StringBuilder();
+          sb.append("SQL error code: ").append(se.getErrorCode())
+              .append("\nSQL error state: ").append(se.getSQLState()).append("\n");
+          sb.append("Error message: ").append(se.getLocalizedMessage());
           ApplicationManager.getApplication()
               .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
-                  se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
-                  NotificationType.ERROR)));
-          se.printStackTrace();
-          return;
+                  sb.toString(), NotificationType.ERROR)));
         }
 
         // 显示自动生成器配置窗口
