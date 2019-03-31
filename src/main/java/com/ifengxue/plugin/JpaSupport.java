@@ -5,6 +5,8 @@ import static com.ifengxue.plugin.util.Key.createKey;
 import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
+import com.ifengxue.plugin.i18n.LocaleContextHolder;
+import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
@@ -13,6 +15,7 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import fastjdbc.FastJdbc;
@@ -20,12 +23,14 @@ import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
 import fastjdbc.Sql;
 import fastjdbc.SqlBuilder;
+import java.awt.event.ItemEvent;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import org.jetbrains.annotations.NotNull;
@@ -40,14 +45,15 @@ public class JpaSupport extends AnAction {
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
     if (e.getProject() == null) {
-      Messages.showWarningDialog("没有激活的Project!", "Jps Support");
+      Messages.showWarningDialog("Project not activated!", "Jps Support");
       return;
     }
     Holder.registerEvent(e);// 注册事件
     Holder.registerApplicationProperties(PropertiesComponent.getInstance());
     Holder.registerProjectProperties(PropertiesComponent.getInstance(e.getProject()));
+    initI18n();
 
-    JFrame databaseSettingsFrame = new JFrame("设置数据库属性");
+    JFrame databaseSettingsFrame = new JFrame(LocaleContextHolder.format("set_up_database_connection"));
     DatabaseSettings databaseSettings = new DatabaseSettings();
     databaseSettingsFrame.setContentPane(databaseSettings.getRootComponent());
     databaseSettingsFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -59,6 +65,19 @@ public class JpaSupport extends AnAction {
 
     // 注册取消事件
     databaseSettings.getBtnCancel().addActionListener(event -> databaseSettingsFrame.dispose());
+    // 注册语言切换事件
+    databaseSettings.getCbxSelectLanguage().addItemListener(itemEvent -> {
+      if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
+        return;
+      }
+      LocaleContextHolder.setCurrentLocale(((LocaleItem) itemEvent.getItem()).getLocale());
+      WriteCommandAction.runWriteCommandAction(e.getProject(), () -> {
+        PropertiesComponent applicationProperties = Holder.getApplicationProperties();
+        applicationProperties
+            .setValue(createKey("locale"),
+                ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
+      });
+    });
     // 注册下一步事件
     databaseSettings.getBtnNext().addActionListener(event -> {
       String host = databaseSettings.getTextHost().getText().trim();
@@ -87,7 +106,7 @@ public class JpaSupport extends AnAction {
         databaseSettings.getTextDatabase().requestFocus();
         return;
       }
-      saveTextField(host, port, username, password, database);
+      saveTextField(host, port, username, password, database, databaseSettings);
       String url =
           "jdbc:mysql://" + host + ":" + port + "/" + database + "?useUnicode=true&charset=utf8";
       new Thread(() -> {
@@ -97,7 +116,7 @@ public class JpaSupport extends AnAction {
         } catch (ClassNotFoundException e1) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
               .notify(new Notification("JpaSupport", "Error",
-                  "数据库驱动 " + driverClass + " 不存在", NotificationType.ERROR)));
+                  LocaleContextHolder.format("database_not_exists", driverClass), NotificationType.ERROR)));
           return;
         }
         // 尝试获取连接
@@ -108,8 +127,8 @@ public class JpaSupport extends AnAction {
         } catch (SQLException se) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
               .notify(new Notification("JpaSupport", "Error",
-                  "连接数据库失败(" + se.getErrorCode() + "," + se.getSQLState() + "," + se
-                      .getLocalizedMessage() + ")", NotificationType.ERROR)));
+                  LocaleContextHolder.format("connect_to_database_failed",
+                      se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR)));
           log.error("连接数据库失败", se);
           return;
         }
@@ -141,7 +160,8 @@ public class JpaSupport extends AnAction {
     });
   }
 
-  private void saveTextField(String host, String port, String username, String password, String database) {
+  private void saveTextField(String host, String port, String username, String password, String database,
+      DatabaseSettings databaseSettings) {
     PropertiesComponent applicationProperties = Holder.getApplicationProperties();
     applicationProperties.setValue(createKey("host"), host);
     applicationProperties.setValue(createKey("port"), port);
@@ -149,6 +169,9 @@ public class JpaSupport extends AnAction {
     applicationProperties
         .setValue(createKey("password"), Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8)));
     applicationProperties.setValue(createKey("database"), database);
+    applicationProperties
+        .setValue(createKey("locale"),
+            ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
   }
 
   private void initTextField(DatabaseSettings databaseSettings) {
@@ -160,5 +183,40 @@ public class JpaSupport extends AnAction {
         .setText(new String(Base64.getDecoder().decode(applicationProperties.getValue(createKey("password"), "")),
             StandardCharsets.UTF_8));
     databaseSettings.getTextDatabase().setText(applicationProperties.getValue(createKey("database"), ""));
+
+    // select language
+    Locale locale = LocaleContextHolder.getCurrentLocale();
+    databaseSettings.getCbxSelectLanguage().removeAllItems();
+    for (LocaleItem localeItem : LocaleContextHolder.LOCALE_ITEMS) {
+      databaseSettings.getCbxSelectLanguage().addItem(localeItem);
+      if (locale.equals(localeItem.getLocale())) {
+        databaseSettings.getCbxSelectLanguage().setSelectedItem(localeItem);
+      }
+    }
+  }
+
+  private void initI18n() {
+    PropertiesComponent applicationProperties = Holder.getApplicationProperties();
+    // select language
+    Locale locale = Locale.forLanguageTag(applicationProperties
+        .getValue(createKey("locale"), LocaleContextHolder.getCurrentLocale().toLanguageTag()));
+    int localeSelectIndex = -1;
+    for (int i = 0; i < LocaleContextHolder.LOCALE_ITEMS.length; i++) {
+      LocaleItem localeItem = LocaleContextHolder.LOCALE_ITEMS[i];
+      if (localeItem.getLocale().equals(locale)) {
+        localeSelectIndex = i;
+      }
+    }
+    // only compare by language
+    if (localeSelectIndex == -1) {
+      for (int i = 0; i < LocaleContextHolder.LOCALE_ITEMS.length; i++) {
+        LocaleItem localeItem = LocaleContextHolder.LOCALE_ITEMS[i];
+        if (localeItem.getLocale().getLanguage().equalsIgnoreCase(locale.getLanguage())) {
+          localeSelectIndex = i;
+          break;
+        }
+      }
+    }
+    LocaleContextHolder.setCurrentLocale(LocaleContextHolder.LOCALE_ITEMS[localeSelectIndex].getLocale());
   }
 }

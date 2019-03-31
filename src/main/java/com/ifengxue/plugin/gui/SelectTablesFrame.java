@@ -14,6 +14,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.source.EntitySourceParser;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.ColumnUtil;
 import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.DirectoryUtil;
@@ -59,13 +60,19 @@ public class SelectTablesFrame {
   private final JFrame frameHolder;
 
   private SelectTablesFrame(List<Table> tableList, AutoGeneratorConfig config) {
-    frameHolder = new JFrame("智能选择数据库表");
+    frameHolder = new JFrame(LocaleContextHolder.format("select_database_tables"));
     int rowCount = tableList.size();
     SelectTables selectTablesHolder = new SelectTables(tableList);
     JTable table = selectTablesHolder.getTblTableSchema();
     table.setModel(new AbstractTableModel() {
       private static final long serialVersionUID = 8974669315458199207L;
-      String[] columns = {"选中", "序号", "表名", "类名", "注释"};
+      String[] columns = {
+          LocaleContextHolder.format("table_selected"),
+          LocaleContextHolder.format("table_sequence"),
+          LocaleContextHolder.format("table_table_name"),
+          LocaleContextHolder.format("table_class_name"),
+          LocaleContextHolder.format("table_class_comment")
+      };
 
       @Override
       public int getRowCount() {
@@ -168,7 +175,9 @@ public class SelectTablesFrame {
     // 开始生成
     selectTablesHolder.getBtnGenerate().addActionListener(event -> {
       if (tableList.stream().noneMatch(Table::isSelected)) {
-        Messages.showWarningDialog(Holder.getEvent().getProject(), "没有选择任何待生成的表！", "提示");
+        Messages.showWarningDialog(Holder.getEvent().getProject(),
+            LocaleContextHolder.format("at_least_select_one_table"),
+            LocaleContextHolder.format("prompt"));
         return;
       }
       // 开始生成
@@ -368,7 +377,10 @@ public class SelectTablesFrame {
         // 切换UI线程
         ApplicationManager.getApplication().invokeLater(() -> {
           int selectButton = Messages
-              .showOkCancelDialog("文件" + filename + "已存在，是否覆盖？", "提示", Messages.getQuestionIcon());
+              .showOkCancelDialog(
+                  LocaleContextHolder.format("file_already_exists_overwritten", filename),
+                  LocaleContextHolder.format("prompt"),
+                  Messages.getQuestionIcon());
           // 不覆盖
           if (selectButton != Messages.OK) {
             return;

@@ -8,19 +8,18 @@ import com.ifengxue.plugin.component.AutoGeneratorConfig;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
+import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.Args;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.PackageChooser;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiField;
@@ -40,7 +39,7 @@ public class AutoGeneratorSettingsFrame {
   private final AutoGeneratorSettings autoGeneratorSettingsHolder;
 
   private AutoGeneratorSettingsFrame(List<TableSchema> tableSchemaList) {
-    this.frameHolder = new JFrame("自动生成选项");
+    this.frameHolder = new JFrame(LocaleContextHolder.format("auto_generation_settings"));
     this.autoGeneratorSettingsHolder = new AutoGeneratorSettings();
     frameHolder.setContentPane(autoGeneratorSettingsHolder.getRootComponent());
     frameHolder.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -57,7 +56,8 @@ public class AutoGeneratorSettingsFrame {
     config.setProjectBasePath(project.getBasePath());
     // 选择父类
     autoGeneratorSettingsHolder.getBtnChooseSuperClass().addActionListener(event -> {
-      TreeJavaClassChooserDialog classChooser = new TreeJavaClassChooserDialog("选择父类", project);
+      TreeJavaClassChooserDialog classChooser = new TreeJavaClassChooserDialog(
+          LocaleContextHolder.format("select_parent_class"), project);
       classChooser.show();
       PsiClass selectedClass = classChooser.getSelected();
       if (selectedClass != null) {
@@ -78,7 +78,8 @@ public class AutoGeneratorSettingsFrame {
     });
     // 选择entity包
     autoGeneratorSettingsHolder.getBtnChooseEntityPackage().addActionListener(event -> {
-      PackageChooser packageChooser = new PackageChooserDialog("选择实体包路径", project);
+      PackageChooser packageChooser = new PackageChooserDialog(LocaleContextHolder.format("select_entity_package"),
+          project);
       packageChooser.show();
       PsiPackage selectedPackage = packageChooser.getSelectedPackage();
       if (selectedPackage != null) {
@@ -92,7 +93,8 @@ public class AutoGeneratorSettingsFrame {
     });
     // 选择repository包
     autoGeneratorSettingsHolder.getBtnChooseRepositoryPackage().addActionListener(event -> {
-      PackageChooser packageChooser = new PackageChooserDialog("选择Repository包路径", project);
+      PackageChooser packageChooser = new PackageChooserDialog(
+          LocaleContextHolder.format("select_repository_package"), project);
       packageChooser.show();
       PsiPackage selectedPackage = packageChooser.getSelectedPackage();
       if (selectedPackage != null) {
