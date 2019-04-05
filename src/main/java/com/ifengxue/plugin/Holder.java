@@ -1,5 +1,6 @@
 package com.ifengxue.plugin;
 
+import com.ifengxue.plugin.adapter.DriverAdapter;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import fastjdbc.FastJdbc;
@@ -11,6 +12,7 @@ public class Holder {
   private static volatile AnActionEvent eventHolder;
   private static volatile PropertiesComponent applicationProperties;
   private static volatile PropertiesComponent projectProperties;
+  private static volatile DriverAdapter driverAdapter;
   private static volatile FastJdbc fastJdbc;
 
   public static synchronized void registerEvent(AnActionEvent event) {
@@ -36,6 +38,14 @@ public class Holder {
 
   public static synchronized PropertiesComponent getProjectProperties() {
     return projectProperties;
+  }
+
+  public static synchronized void registerDriverAdapter(DriverAdapter driverAdapter) {
+    Holder.driverAdapter = driverAdapter;
+  }
+
+  public static DriverAdapter getDriverAdapter() {
+    return driverAdapter;
   }
 
   public static synchronized void registerFastJdbc(FastJdbc fastJdbc) {

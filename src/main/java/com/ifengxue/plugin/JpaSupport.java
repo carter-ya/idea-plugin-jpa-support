@@ -1,7 +1,9 @@
 package com.ifengxue.plugin;
 
 import static com.ifengxue.plugin.util.Key.createKey;
+import static org.apache.commons.lang3.StringUtils.trim;
 
+import com.ifengxue.plugin.adapter.MysqlDriverAdapter;
 import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
@@ -33,6 +35,8 @@ import java.util.List;
 import java.util.Locale;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 public class JpaSupport extends AnAction {
 
   private Logger log = Logger.getInstance(JpaSupport.class);
+  private DatabaseSettings databaseSettings;
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
@@ -51,16 +56,21 @@ public class JpaSupport extends AnAction {
     Holder.registerEvent(e);// 注册事件
     Holder.registerApplicationProperties(PropertiesComponent.getInstance());
     Holder.registerProjectProperties(PropertiesComponent.getInstance(e.getProject()));
+    Holder.registerDriverAdapter(new MysqlDriverAdapter());
     initI18n();
 
     JFrame databaseSettingsFrame = new JFrame(LocaleContextHolder.format("set_up_database_connection"));
-    DatabaseSettings databaseSettings = new DatabaseSettings();
+    databaseSettings = new DatabaseSettings();
     databaseSettingsFrame.setContentPane(databaseSettings.getRootComponent());
     databaseSettingsFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     databaseSettingsFrame.setLocationRelativeTo(WindowUtil.getParentWindow(e.getProject()));
     databaseSettingsFrame.pack();
     // init text field
     initTextField(databaseSettings);
+    databaseSettings.getTextHost().getDocument().addDocumentListener(new ConnectionUrlUpdateListener());
+    databaseSettings.getTextPort().getDocument().addDocumentListener(new ConnectionUrlUpdateListener());
+    databaseSettings.getTextUsername().getDocument().addDocumentListener(new ConnectionUrlUpdateListener());
+    databaseSettings.getTextDatabase().getDocument().addDocumentListener(new ConnectionUrlUpdateListener());
     databaseSettingsFrame.setVisible(true);
 
     // 注册取消事件
@@ -106,9 +116,12 @@ public class JpaSupport extends AnAction {
         databaseSettings.getTextDatabase().requestFocus();
         return;
       }
-      saveTextField(host, port, username, password, database, databaseSettings);
-      String url =
-          "jdbc:mysql://" + host + ":" + port + "/" + database + "?useUnicode=true&charset=utf8";
+      String connectionUrl = databaseSettings.getTextConnectionUrl().getText().trim();
+      if (connectionUrl.isEmpty()) {
+        databaseSettings.getTextConnectionUrl().requestFocus();
+        return;
+      }
+      saveTextField(host, port, username, password, database, connectionUrl);
       new Thread(() -> {
         String driverClass = "com.mysql.jdbc.Driver";
         try {
@@ -120,9 +133,9 @@ public class JpaSupport extends AnAction {
           return;
         }
         // 尝试获取连接
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = DriverManager.getConnection(connectionUrl, username, password)) {
           FastJdbc fastJdbc = new SimpleFastJdbc(
-              new NoPoolDataSource(driverClass, url, username, password));
+              new NoPoolDataSource(driverClass, connectionUrl, username, password));
           Holder.registerFastJdbc(fastJdbc);
         } catch (SQLException se) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
@@ -160,8 +173,18 @@ public class JpaSupport extends AnAction {
     });
   }
 
+  private void updateConnectionUrl() {
+    String newConnectionUrl = Holder.getDriverAdapter().toConnectionUrl(
+        trim(databaseSettings.getTextConnectionUrl().getText()),
+        trim(databaseSettings.getTextHost().getText()),
+        trim(databaseSettings.getTextPort().getText()),
+        trim(databaseSettings.getTextUsername().getText()),
+        trim(databaseSettings.getTextDatabase().getText()));
+    databaseSettings.getTextConnectionUrl().setText(newConnectionUrl);
+  }
+
   private void saveTextField(String host, String port, String username, String password, String database,
-      DatabaseSettings databaseSettings) {
+      String connectionUrl) {
     PropertiesComponent applicationProperties = Holder.getApplicationProperties();
     applicationProperties.setValue(createKey("host"), host);
     applicationProperties.setValue(createKey("port"), port);
@@ -169,6 +192,7 @@ public class JpaSupport extends AnAction {
     applicationProperties
         .setValue(createKey("password"), Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8)));
     applicationProperties.setValue(createKey("database"), database);
+    applicationProperties.setValue(createKey("url"), connectionUrl);
     applicationProperties
         .setValue(createKey("locale"),
             ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
@@ -183,6 +207,7 @@ public class JpaSupport extends AnAction {
         .setText(new String(Base64.getDecoder().decode(applicationProperties.getValue(createKey("password"), "")),
             StandardCharsets.UTF_8));
     databaseSettings.getTextDatabase().setText(applicationProperties.getValue(createKey("database"), ""));
+    databaseSettings.getTextConnectionUrl().setText(applicationProperties.getValue(createKey("url"), ""));
 
     // select language
     Locale locale = LocaleContextHolder.getCurrentLocale();
@@ -218,5 +243,23 @@ public class JpaSupport extends AnAction {
       }
     }
     LocaleContextHolder.setCurrentLocale(LocaleContextHolder.LOCALE_ITEMS[localeSelectIndex].getLocale());
+  }
+
+  private class ConnectionUrlUpdateListener implements DocumentListener {
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      JpaSupport.this.updateConnectionUrl();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      JpaSupport.this.updateConnectionUrl();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      JpaSupport.this.updateConnectionUrl();
+    }
   }
 }

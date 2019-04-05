@@ -22,4 +22,5 @@ public class DatabaseSettings {
   private JTextField textPort;
   private JLabel lblSelectLanguage;
   private JComboBox<LocaleItem> cbxSelectLanguage;
+  private JTextField textConnectionUrl;
 }
