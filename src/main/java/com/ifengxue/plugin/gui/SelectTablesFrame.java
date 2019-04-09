@@ -32,9 +32,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.mysql.jdbc.Driver;
-import fastjdbc.FastJdbc;
-import fastjdbc.Sql;
-import fastjdbc.SqlBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -271,22 +268,15 @@ public class SelectTablesFrame {
       JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
       repositorySourceParser.setVelocityEngine(velocityEngine, encoding);
 
-      FastJdbc fastJdbc = Holder.getFastJdbc();
       EntitySourceParser sourceParser = new EntitySourceParser();
 
       // 生成数量
       AtomicInteger generateCount = new AtomicInteger(tableList.size());
       for (Table table : tableList) {
-        Sql sql = SqlBuilder.newSelectBuilder(ColumnSchema.class)
-            .select()
-            .from()
-            .where()
-            .equal("tableSchema", table.getTableSchema())
-            .and().equal("tableName", table.getTableName())
-            .build();
         List<ColumnSchema> columnSchemaList;
         try {
-          columnSchemaList = fastJdbc.find(sql.getSql(), ColumnSchema.class, sql.getArgs().toArray());
+          columnSchemaList = Holder.getDatabaseDrivers().getDriverAdapter()
+              .findTableSchemas(table.getTableSchema(), table.getTableName());
         } catch (SQLException se) {
           log.error("读取数据库错误", se);
           ApplicationManager.getApplication()

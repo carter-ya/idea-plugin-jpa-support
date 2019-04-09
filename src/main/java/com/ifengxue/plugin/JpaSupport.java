@@ -33,8 +33,6 @@ import com.intellij.util.lang.UrlClassLoader;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
-import fastjdbc.Sql;
-import fastjdbc.SqlBuilder;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
@@ -213,13 +211,7 @@ public class JpaSupport extends AnAction {
 
         List<TableSchema> tableSchemaList = null;
         try {
-          Sql sql = SqlBuilder.newSelectBuilder(TableSchema.class)
-              .select()
-              .from()
-              .where()
-              .equal("tableSchema", database)
-              .build();
-          tableSchemaList = Holder.getFastJdbc().find(sql.getSql(), TableSchema.class, sql.getArgs().toArray());
+          tableSchemaList = Holder.getDatabaseDrivers().getDriverAdapter().findDatabaseSchemas(database);
         } catch (SQLException se) {
           StringBuilder sb = new StringBuilder();
           sb.append("SQL error code: ").append(se.getErrorCode())

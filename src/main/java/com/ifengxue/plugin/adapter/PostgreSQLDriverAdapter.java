@@ -1,5 +1,9 @@
 package com.ifengxue.plugin.adapter;
 
+import com.ifengxue.plugin.entity.ColumnSchema;
+import com.ifengxue.plugin.entity.TableSchema;
+import java.sql.SQLException;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
@@ -12,5 +16,15 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
       connectionUrl += "?" + params;
     }
     return connectionUrl;
+  }
+
+  @Override
+  public List<TableSchema> findDatabaseSchemas(String database) throws SQLException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<ColumnSchema> findTableSchemas(String database, String table) throws SQLException {
+    throw new UnsupportedOperationException();
   }
 }
