@@ -2,6 +2,7 @@ package fastjdbc.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -30,7 +31,7 @@ public class EntityField implements Comparable<EntityField> {
   }
 
   @Override
-  public int compareTo(EntityField o) {
+  public int compareTo(@Nonnull EntityField o) {
     return Integer.compare(order, o.getOrder());
   }
 }

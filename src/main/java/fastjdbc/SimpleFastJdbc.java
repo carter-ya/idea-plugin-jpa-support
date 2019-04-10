@@ -7,6 +7,9 @@ import fastjdbc.entity.Entity;
 import fastjdbc.entity.EntityCacheManager;
 import fastjdbc.entity.EntityUtil;
 import fastjdbc.entity.ResultSetExtractor;
+import fastjdbc.handler.ResultSetHandler;
+import fastjdbc.handler.RowHandler;
+import fastjdbc.handler.SimpleResultSetHandler;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -354,12 +357,8 @@ public class SimpleFastJdbc implements FastJdbc {
     try {
       connection = datasource.getConnection();
       preStat = connection.prepareStatement(sql);
-      int index = 1;
-      for (Object arg : args) {
-        preStat.setObject(index++, arg);
-      }
+      rs = fillArgsAndQuery(preStat, args);
 
-      rs = preStat.executeQuery();
       Map<String, Integer> columnNameMap = null;
       Entity cacheEntity = EntityCacheManager.getEntity(entityClass);
       entities = new LinkedList<>();
@@ -386,6 +385,40 @@ public class SimpleFastJdbc implements FastJdbc {
   }
 
   @Override
+  public <T> List<T> find(String sql, ResultSetHandler<T> resultSetHandler, Object... args) throws SQLException {
+    Connection connection = null;
+    PreparedStatement preStat = null;
+    ResultSet rs = null;
+
+    try {
+      connection = datasource.getConnection();
+      preStat = connection.prepareStatement(sql);
+      rs = fillArgsAndQuery(preStat, args);
+
+      return resultSetHandler.handle(rs);
+    } finally {
+      IOUtil.close(rs, preStat, connection);
+    }
+  }
+
+  @Override
+  public <T> List<T> find(String sql, RowHandler<T> rowHandler, Object... args) throws SQLException {
+    Connection connection = null;
+    PreparedStatement preStat = null;
+    ResultSet rs = null;
+
+    try {
+      connection = datasource.getConnection();
+      preStat = connection.prepareStatement(sql);
+      rs = fillArgsAndQuery(preStat, args);
+
+      return new SimpleResultSetHandler<>(rowHandler).handle(rs);
+    } finally {
+      IOUtil.close(rs, preStat, connection);
+    }
+  }
+
+  @Override
   public <T> T findOne(String sql, Class<T> entityClass, Object... args) throws SQLException {
     List<T> entities = find(sql, entityClass, args);
     if (entities.isEmpty()) {
@@ -403,16 +436,20 @@ public class SimpleFastJdbc implements FastJdbc {
       connection = datasource.getConnection();
       preStat = connection.prepareStatement(sql);
 
-      int index = 1;
-      for (Object arg : args) {
-        preStat.setObject(index++, arg);
-      }
-      rs = preStat.executeQuery();
+      rs = fillArgsAndQuery(preStat, args);
       rs.next();
       return rs.getLong(1);
     } finally {
       IOUtil.close(rs, preStat, connection);
     }
+  }
+
+  private ResultSet fillArgsAndQuery(PreparedStatement preStat, Object... args) throws SQLException {
+    int index = 1;
+    for (Object arg : args) {
+      preStat.setObject(index++, arg);
+    }
+    return preStat.executeQuery();
   }
 
   @Override

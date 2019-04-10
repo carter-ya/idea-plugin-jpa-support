@@ -1,5 +1,7 @@
 package fastjdbc;
 
+import fastjdbc.handler.ResultSetHandler;
+import fastjdbc.handler.RowHandler;
 import java.io.Closeable;
 import java.sql.SQLException;
 import java.util.List;
@@ -161,6 +163,24 @@ public interface FastJdbc extends Closeable, AutoCloseable {
    * @param args 参数列表
    */
   <T> List<T> find(String sql, Class<T> entityClass, Object... args) throws SQLException;
+
+  /**
+   * 根据sql批量查询sql
+   *
+   * @param sql sql
+   * @param resultSetHandler result set handler
+   * @param args 参数列表
+   */
+  <T> List<T> find(String sql, ResultSetHandler<T> resultSetHandler, Object... args) throws SQLException;
+
+  /**
+   * 根据sql批量查询sql
+   *
+   * @param sql sql
+   * @param rowHandler row handler
+   * @param args 参数列表
+   */
+  <T> List<T> find(String sql, RowHandler<T> rowHandler, Object... args) throws SQLException;
 
   /**
    * 根据sql查询一个实体
