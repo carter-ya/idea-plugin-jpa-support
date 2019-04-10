@@ -10,21 +10,14 @@ import javax.sql.DataSource;
 
 public class NoPoolDataSource implements DataSource {
 
-  private final String driverClass;
   private final String url;
   private final String username;
   private final String password;
 
-  public NoPoolDataSource(String driverClass, String url, String username, String password) {
-    this.driverClass = driverClass;
+  public NoPoolDataSource(String url, String username, String password) {
     this.url = url;
     this.username = username;
     this.password = password;
-    try {
-      Class.forName(driverClass);
-    } catch (ClassNotFoundException e) {
-      throw new IllegalStateException("Can't find driver class " + driverClass);
-    }
   }
 
   @Override

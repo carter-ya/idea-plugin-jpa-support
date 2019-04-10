@@ -197,8 +197,7 @@ public class JpaSupport extends AnAction {
         }
         // 尝试获取连接
         try (Connection connection = DriverManager.getConnection(connectionUrl, username, password)) {
-          FastJdbc fastJdbc = new SimpleFastJdbc(
-              new NoPoolDataSource(Holder.getDatabaseDrivers().getDriverClass(), connectionUrl, username, password));
+          FastJdbc fastJdbc = new SimpleFastJdbc(new NoPoolDataSource(connectionUrl, username, password));
           Holder.registerFastJdbc(fastJdbc);
         } catch (SQLException se) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
