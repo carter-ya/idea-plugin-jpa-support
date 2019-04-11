@@ -61,11 +61,11 @@ public class JpaVisitor extends VisitorSupport {
         case MYSQL:
         case SQL_SERVER:
           generatedAnnotation
-              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.SEQUENCE"));
+              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.IDENTITY"));
           break;
         case ORACLE:
           generatedAnnotation
-              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.IDENTITY"));
+              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.SEQUENCE"));
           break;
         default:
           throw new IllegalStateException();
