@@ -60,6 +60,7 @@ public class JpaVisitor extends VisitorSupport {
       switch (vendor) {
         case MYSQL:
         case SQL_SERVER:
+        case POSTGRE_SQL:
           generatedAnnotation
               .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.IDENTITY"));
           break;

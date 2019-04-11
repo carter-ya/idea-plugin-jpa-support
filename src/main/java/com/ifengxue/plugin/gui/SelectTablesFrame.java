@@ -11,7 +11,6 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.LineSeparator;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
-import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.source.EntitySourceParser;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
@@ -312,7 +311,7 @@ public class SelectTablesFrame {
         // 配置源码生成信息
         GeneratorConfig generatorConfig = new GeneratorConfig();
         generatorConfig.setDriverConfig(new DriverConfig()
-            .setVendor(Vendor.MYSQL)
+            .setVendor(Holder.getDatabaseDrivers().getVendor2())
             .setDriverClass(Driver.class));
         int lastIndex;
         String basePackageName = config.getEntityPackage();
