@@ -278,7 +278,7 @@ public class SelectTablesFrame {
           columnSchemaList = Holder.getDatabaseDrivers().getDriverAdapter()
               .findTableSchemas(table.getTableSchema(), table.getTableName());
         } catch (SQLException se) {
-          log.error("读取数据库错误", se);
+          log.error("read table " + table.getTableName() + " schema failed", se);
           ApplicationManager.getApplication()
               .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
                   se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),

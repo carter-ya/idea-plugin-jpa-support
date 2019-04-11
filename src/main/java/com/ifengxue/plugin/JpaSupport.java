@@ -204,7 +204,7 @@ public class JpaSupport extends AnAction {
               .notify(new Notification("JpaSupport", "Error",
                   LocaleContextHolder.format("connect_to_database_failed",
                       se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR)));
-          log.error("连接数据库失败", se);
+          log.error("connect to database failed", se);
           return;
         }
 
