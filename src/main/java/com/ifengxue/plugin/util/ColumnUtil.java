@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.util;
 
+import com.ifengxue.plugin.adapter.DriverAdapter;
 import com.ifengxue.plugin.entity.Column;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -7,13 +8,13 @@ import java.util.Date;
 
 public class ColumnUtil {
 
-  public static void parseColumn(Column column, String removePrefix, boolean isUseWrapper) {
+  public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
     Class<?> javaDataType = StringHelper
-        .parseJavaDataType(column.getDbDataType(), column.getColumnName(), isUseWrapper);
+        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper);
     if ((javaDataType == Integer.class || javaDataType == int.class)
         && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
-      if (isUseWrapper) {
+      if (useWrapper) {
         javaDataType = Boolean.class;
       } else {
         javaDataType = boolean.class;
@@ -36,13 +37,13 @@ public class ColumnUtil {
       }
       if (primitiveClass == boolean.class) {
         if (column.getDefaultValue().equals("1")) {
-          if (isUseWrapper) {
+          if (useWrapper) {
             column.setDefaultValue("Boolean.TRUE");
           } else {
             column.setDefaultValue("true");
           }
         } else {
-          if (isUseWrapper) {
+          if (useWrapper) {
             column.setDefaultValue("Boolean.FALSE");
           } else {
             column.setDefaultValue("false");

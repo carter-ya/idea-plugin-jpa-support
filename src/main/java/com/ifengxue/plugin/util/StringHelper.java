@@ -1,5 +1,8 @@
 package com.ifengxue.plugin.util;
 
+import com.ifengxue.plugin.adapter.DriverAdapter;
+import com.ifengxue.plugin.adapter.MysqlDriverAdapter;
+import com.ifengxue.plugin.adapter.PostgreSQLDriverAdapter;
 import com.intellij.openapi.diagnostic.Logger;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -46,7 +49,19 @@ public class StringHelper {
     return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(clazz, clazz);
   }
 
-  public static Class<?> parseJavaDataType(String dbDataType, String columnName, boolean isUseWrapper) {
+  public static Class<?> parseJavaDataType(DriverAdapter driverAdapter, String dbDataType, String columnName,
+      boolean useWrapper) {
+    if (driverAdapter instanceof MysqlDriverAdapter) {
+      return parseJavaDataType((MysqlDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
+    }
+    if (driverAdapter instanceof PostgreSQLDriverAdapter) {
+      return parseJavaDataType((PostgreSQLDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
+    }
+    throw new IllegalStateException("不支持的类型:" + driverAdapter.getClass().getName());
+  }
+
+  private static Class<?> parseJavaDataType(MysqlDriverAdapter driverAdapter, String dbDataType,
+      String columnName, boolean useWrapper) {
     dbDataType = dbDataType.toUpperCase();
     Class<?> javaDataType;
     switch (dbDataType) {
@@ -99,7 +114,67 @@ public class StringHelper {
     if (columnName.startsWith("is_")) {
       javaDataType = Boolean.class;
     }
-    if (isUseWrapper) {
+    if (useWrapper) {
+      return javaDataType;
+    }
+    return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(javaDataType, javaDataType);
+  }
+
+  private static Class<?> parseJavaDataType(PostgreSQLDriverAdapter driverAdapter, String dbDataType,
+      String columnName, boolean useWrapper) {
+    dbDataType = dbDataType.toUpperCase();
+    Class<?> javaDataType;
+    switch (dbDataType) {
+      case "CHARACTER VARYING":
+      case "TEXT":
+      case "VARCHAR":
+      case "CHAR":
+        javaDataType = String.class;
+        break;
+      case "BYTEA":
+        javaDataType = byte[].class;
+        break;
+      case "BIGINT":
+      case "BIGSERIAL":
+        javaDataType = Long.class;
+        break;
+      case "INT":
+      case "SMALLINT":
+      case "INTEGER":
+        javaDataType = Integer.class;
+        break;
+      case "BIT":
+      case "BOOLEAN":
+        javaDataType = Boolean.class;
+        break;
+      case "REAL":
+        javaDataType = Float.class;
+        break;
+      case "DOUBLE PRECISION":
+        javaDataType = Double.class;
+        break;
+      case "DECIMAL":
+      case "NUMERIC":
+        javaDataType = BigDecimal.class;
+        break;
+      case "DATE":
+      case "TIME":
+      case "YEAR":
+      case "DATETIME":
+        javaDataType = Date.class;
+        break;
+      case "TIMESTAMP":
+        javaDataType = Timestamp.class;
+        break;
+      default:
+        javaDataType = String.class;
+        log.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
+        break;
+    }
+    if (columnName.startsWith("is_")) {
+      javaDataType = Boolean.class;
+    }
+    if (useWrapper) {
       return javaDataType;
     }
     return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(javaDataType, javaDataType);

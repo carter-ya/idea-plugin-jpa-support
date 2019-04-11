@@ -1,8 +1,10 @@
 package com.ifengxue.plugin.adapter;
 
 import com.ifengxue.plugin.Holder;
+import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.TableSchema;
+import com.ifengxue.plugin.util.ColumnUtil;
 import fastjdbc.Sql;
 import fastjdbc.SqlBuilder;
 import java.sql.SQLException;
@@ -42,5 +44,20 @@ public class MysqlDriverAdapter extends AbstractDriverAdapter {
         .and().equal("tableName", table)
         .build();
     return Holder.getFastJdbc().find(sql.getSql(), ColumnSchema.class, sql.getArgs().toArray());
+  }
+
+  @Override
+  public Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper) {
+    Column column = new Column();
+    column.setColumnName(columnSchema.getColumnName());
+    column.setSort(columnSchema.getOrdinalPosition());
+    column.setDbDataType(columnSchema.getDataType());
+    column.setPrimary("PRI".equalsIgnoreCase(columnSchema.getColumnKey()));
+    column.setNullable(!"NO".equalsIgnoreCase(columnSchema.getIsNullable()));
+    column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
+    column.setColumnComment(columnSchema.getColumnComment());
+    column.setDefaultValue(columnSchema.getColumnDefault());
+    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper);
+    return column;
   }
 }

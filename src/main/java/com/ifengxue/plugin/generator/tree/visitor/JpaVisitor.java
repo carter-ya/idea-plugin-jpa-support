@@ -86,7 +86,7 @@ public class JpaVisitor extends VisitorSupport {
     if (field.isPrimaryKey()) {
       columnAnnotation.addKeyValuePair(Element.KeyValuePair.newKeyValuePair("insertable", "false"));
     }
-    if (field.isNullable()) {
+    if (!field.isNullable()) {
       columnAnnotation.addKeyValuePair(Element.KeyValuePair.newKeyValuePair("nullable", "false"));
     }
     field.addChild(columnAnnotation);

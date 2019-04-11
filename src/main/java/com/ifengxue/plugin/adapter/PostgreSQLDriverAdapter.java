@@ -1,8 +1,10 @@
 package com.ifengxue.plugin.adapter;
 
 import com.ifengxue.plugin.Holder;
+import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.TableSchema;
+import com.ifengxue.plugin.util.ColumnUtil;
 import fastjdbc.FastJdbc;
 import java.sql.SQLException;
 import java.util.List;
@@ -78,12 +80,31 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
       columnSchema.setOrdinalPosition(row.getInt("ordinal_position"));
       columnSchema.setDataType(row.getString("data_type"));
       columnSchema.setColumnType("");
-      columnSchema.setExtra("");
+      columnSchema.setExtra(row.getString("is_identity"));
       columnSchema.setColumnComment(row.getString("comment"));
       columnSchema.setIsNullable(row.getString("is_nullable"));
       columnSchema.setColumnDefault(row.getString("column_default"));
-      columnSchema.setColumnKey("");
+      columnSchema.setColumnKey(row.getString("is_primary_key"));
       return columnSchema;
     }, table, table, table);
+  }
+
+  @Override
+  public Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper) {
+    Column column = new Column();
+    column.setColumnName(columnSchema.getColumnName());
+    column.setSort(columnSchema.getOrdinalPosition());
+    column.setDbDataType(columnSchema.getDataType());
+    column.setPrimary("1".equals(columnSchema.getColumnKey()));
+    column.setNullable("1".equals(columnSchema.getIsNullable()));
+    column.setAutoIncrement("1".equals(columnSchema.getExtra()));
+    column.setColumnComment(Optional.ofNullable(columnSchema.getColumnComment()).orElse(""));
+    if (columnSchema.getColumnDefault() != null) {
+      if (!columnSchema.getColumnDefault().contains("nextval(")) {
+        column.setDefaultValue(columnSchema.getColumnDefault());
+      }
+    }
+    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper);
+    return column;
   }
 }
