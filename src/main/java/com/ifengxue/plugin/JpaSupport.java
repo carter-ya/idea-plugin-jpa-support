@@ -231,6 +231,7 @@ public class JpaSupport extends AnAction {
 
   private void loadDriverClass(VirtualFile virtualFile, DatabaseDrivers databaseDrivers) {
     if (driverHasBeenLoaded(databaseDrivers)) {
+      Holder.registerDatabaseDrivers(databaseDrivers);
       ApplicationManager.getApplication().invokeLater(() -> updateConnectionUrl(true));
       return;
     }
@@ -336,6 +337,9 @@ public class JpaSupport extends AnAction {
         databaseSettings.getCbxSelectDatabase().setSelectedItem(databaseDrivers);
       }
     }
+
+    // update connection url
+    updateConnectionUrl(false);
   }
 
   private void initI18n() {
