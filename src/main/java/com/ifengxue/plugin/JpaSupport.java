@@ -337,6 +337,7 @@ public class JpaSupport extends AnAction {
       databaseSettings.getCbxSelectDatabase().addItem(databaseDrivers);
       if (databaseDrivers.getVendor().equalsIgnoreCase(databaseVendor)) {
         databaseSettings.getCbxSelectDatabase().setSelectedItem(databaseDrivers);
+        Holder.registerDatabaseDrivers(databaseDrivers);
       }
     }
 
