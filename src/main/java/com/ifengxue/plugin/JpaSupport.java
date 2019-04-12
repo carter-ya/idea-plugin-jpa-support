@@ -304,6 +304,8 @@ public class JpaSupport extends AnAction {
     applicationProperties
         .setValue(createKey("locale"),
             ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
+    applicationProperties.setValue(createKey("database_vendor"),
+        ((DatabaseDrivers) databaseSettings.getCbxSelectDatabase().getSelectedItem()).getVendor());
   }
 
   private void initTextField(DatabaseSettings databaseSettings) {

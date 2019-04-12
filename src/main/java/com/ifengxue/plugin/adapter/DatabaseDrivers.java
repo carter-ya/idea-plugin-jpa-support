@@ -7,7 +7,7 @@ public enum DatabaseDrivers {
   MYSQL("Mysql",
       Vendor.MYSQL,
       "6.0.6",
-      "com.mysql.jdbc.Driver",
+      "com.mysql.cj.jdbc.Driver",
       new MysqlDriverAdapter(),
       "http://central.maven.org/maven2/mysql/mysql-connector-java/6.0.6/mysql-connector-java-6.0.6.jar"),
   POSTGRE_SQL("PostgreSQL",
