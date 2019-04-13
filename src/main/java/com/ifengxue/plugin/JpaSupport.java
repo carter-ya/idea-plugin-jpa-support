@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -48,10 +49,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -110,41 +113,8 @@ public class JpaSupport extends AnAction {
       if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
         return;
       }
-      DatabaseDrivers databaseDrivers = (DatabaseDrivers) itemEvent.getItem();
-      WriteCommandAction.runWriteCommandAction(e.getProject(), () -> {
-        PsiDirectory driverVendorPath = DirectoryUtil
-            .mkdirs(PsiManager.getInstance(e.getProject()),
-                System.getProperty("user.dir") + File.separator + DRIVER_VENDOR_PATH);
-        PsiFile jarFile = driverVendorPath.findFile(databaseDrivers.getJarFilename());
-        // driver 不存在，需要下载
-        if (jarFile == null) {
-          DownloadableFileService downloadableFileService = DownloadableFileService.getInstance();
-          DownloadableFileDescription downloadableFileDescription = downloadableFileService
-              .createFileDescription(databaseDrivers.getUrl(), databaseDrivers.getJarFilename() + ".tmp");
-          FileDownloader fileDownloader = downloadableFileService
-              .createDownloader(Collections.singletonList(downloadableFileDescription),
-                  databaseDrivers.getJarFilename());
-          List<VirtualFile> virtualFiles = fileDownloader
-              .downloadFilesWithProgress(driverVendorPath.getVirtualFile().getPath(),
-                  e.getProject(), databaseSettingsFrame.getRootPane());
-          if (virtualFiles == null) {
-            return;
-          }
-          try {
-            virtualFiles.get(0).rename(this, databaseDrivers.getJarFilename());
-          } catch (IOException e1) {
-            log.error("rename driver error", e1);
-            ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-                new Notification("JpaSupport", "Error", "rename driver error " + databaseDrivers.getJarFilename(),
-                    NotificationType.ERROR))
-            );
-            return;
-          }
-          loadDriverClass(virtualFiles.get(0), databaseDrivers);
-        } else {
-          loadDriverClass(jarFile.getVirtualFile(), databaseDrivers);
-        }
-      });
+      new DownloadDriverRunnable(e.getProject(), null, (DatabaseDrivers) itemEvent.getItem())
+          .run();
     });
     // 注册下一步事件
     databaseSettings.getBtnNext().addActionListener(event -> {
@@ -183,6 +153,20 @@ public class JpaSupport extends AnAction {
       new Thread(() -> {
         try {
           if (!driverHasBeenLoaded(Holder.getDatabaseDrivers())) {
+            try {
+              Class.forName(Holder.getDatabaseDrivers().getDriverClass(), true, classLoaderRef.get());
+            } catch (ClassNotFoundException ex) {
+              // driver not loaded
+              ApplicationManager.getApplication().invokeAndWait(() -> {
+                int selectButton = Messages.showOkCancelDialog(e.getProject(),
+                    LocaleContextHolder.format("driver_not_found", Holder.getDatabaseDrivers().getDriverClass()),
+                    LocaleContextHolder.format("prompt"),
+                    Messages.getQuestionIcon());
+                if (selectButton == Messages.OK) {
+                  new DownloadDriverRunnable(e.getProject(), null, Holder.getDatabaseDrivers()).run();
+                }
+              });
+            }
             Driver driver = (Driver) Class
                 .forName(Holder.getDatabaseDrivers().getDriverClass(), true, classLoaderRef.get())
                 .newInstance();
@@ -246,6 +230,12 @@ public class JpaSupport extends AnAction {
       classLoaderRef.set(urlClassLoader);
       Holder.registerDatabaseDrivers(databaseDrivers);
       ApplicationManager.getApplication().invokeLater(() -> updateConnectionUrl(true));
+
+      // save database driver path
+      PropertiesComponent applicationProperties = Holder.getApplicationProperties();
+      applicationProperties.setValue(
+          createKey("database_driver_path", databaseDrivers.getVendor(), databaseDrivers.getVersion()),
+          virtualFile.getPath());
     } catch (MalformedURLException ex) {
       log.error("url not valid " + databaseDrivers.getDriverClass(), ex);
       ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
@@ -343,6 +333,24 @@ public class JpaSupport extends AnAction {
 
     // update connection url
     updateConnectionUrl(false);
+
+    DatabaseDrivers databaseDrivers = Holder.getDatabaseDrivers();
+    // load driver path
+    String databaseDriverPath = applicationProperties
+        .getValue(createKey("database_driver_path", databaseDrivers.getVendor(), databaseDrivers.getVersion()));
+    if (StringUtils.isNotBlank(databaseDriverPath)) {
+      try {
+        classLoaderRef.set(UrlClassLoader.build()
+            .urls(new File(databaseDriverPath).toURI().toURL())
+            .get());
+      } catch (MalformedURLException e) {
+        log.error("url not valid " + databaseDrivers.getDriverClass(), e);
+        ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+            new Notification("JpaSupport", "Error",
+                "url not valid " + databaseDrivers.getDriverClass(),
+                NotificationType.ERROR)));
+      }
+    }
   }
 
   private void initI18n() {
@@ -395,6 +403,56 @@ public class JpaSupport extends AnAction {
     @Override
     public void changedUpdate(DocumentEvent e) {
       JpaSupport.this.updateConnectionUrl(switchDatabaseVendor);
+    }
+  }
+
+  private class DownloadDriverRunnable implements Runnable {
+
+    private final Project project;
+    private final JComponent parentComponent;
+    private final DatabaseDrivers databaseDrivers;
+
+    private DownloadDriverRunnable(Project project, JComponent parentComponent, DatabaseDrivers databaseDrivers) {
+      this.project = project;
+      this.parentComponent = parentComponent;
+      this.databaseDrivers = databaseDrivers;
+    }
+
+    @Override
+    public void run() {
+      WriteCommandAction.runWriteCommandAction(project, () -> {
+        PsiDirectory driverVendorPath = DirectoryUtil
+            .mkdirs(PsiManager.getInstance(project),
+                System.getProperty("user.dir") + File.separator + DRIVER_VENDOR_PATH);
+        PsiFile jarFile = driverVendorPath.findFile(databaseDrivers.getJarFilename());
+        // driver 不存在，需要下载
+        if (jarFile == null) {
+          DownloadableFileService downloadableFileService = DownloadableFileService.getInstance();
+          DownloadableFileDescription downloadableFileDescription = downloadableFileService
+              .createFileDescription(databaseDrivers.getUrl(), databaseDrivers.getJarFilename() + ".tmp");
+          FileDownloader fileDownloader = downloadableFileService
+              .createDownloader(Collections.singletonList(downloadableFileDescription),
+                  databaseDrivers.getJarFilename());
+          List<VirtualFile> virtualFiles = fileDownloader
+              .downloadFilesWithProgress(driverVendorPath.getVirtualFile().getPath(), project, parentComponent);
+          if (virtualFiles == null) {
+            return;
+          }
+          try {
+            virtualFiles.get(0).rename(this, databaseDrivers.getJarFilename());
+          } catch (IOException e1) {
+            log.error("rename driver error", e1);
+            ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+                new Notification("JpaSupport", "Error", "rename driver error " + databaseDrivers.getJarFilename(),
+                    NotificationType.ERROR))
+            );
+            return;
+          }
+          loadDriverClass(virtualFiles.get(0), databaseDrivers);
+        } else {
+          loadDriverClass(jarFile.getVirtualFile(), databaseDrivers);
+        }
+      });
     }
   }
 }
