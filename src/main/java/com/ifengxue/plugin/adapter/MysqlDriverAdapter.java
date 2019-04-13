@@ -1,24 +1,21 @@
 package com.ifengxue.plugin.adapter;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.ifengxue.plugin.Holder;
+import com.ifengxue.plugin.entity.Column;
+import com.ifengxue.plugin.entity.ColumnSchema;
+import com.ifengxue.plugin.entity.TableSchema;
+import com.ifengxue.plugin.util.ColumnUtil;
+import fastjdbc.Sql;
+import fastjdbc.SqlBuilder;
+import java.sql.SQLException;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
-public class MysqlDriverAdapter implements DriverAdapter {
-
-  private static Pattern connectionUrlPattern;
-
-  static {
-    connectionUrlPattern = Pattern.compile(".*\\?(.*)");
-  }
+public class MysqlDriverAdapter extends AbstractDriverAdapter {
 
   @Override
-  public String toConnectionUrl(String oldConnectionUrl, String host, String port, String username, String database) {
-    Matcher matcher = connectionUrlPattern.matcher(oldConnectionUrl);
-    String params = "";
-    if (matcher.matches()) {
-      params = matcher.group(1);
-    }
+  protected String toConnectionUrl(String oldConnectionUrl, String host, String port, String username, String database,
+      String params) {
     String connectionUrl = "jdbc:mysql://" + host + ":" + port + "/" + database;
     if (StringUtils.isNotBlank(params)) {
       connectionUrl += "?" + params;
@@ -26,4 +23,41 @@ public class MysqlDriverAdapter implements DriverAdapter {
     return connectionUrl;
   }
 
+  @Override
+  public List<TableSchema> findDatabaseSchemas(String database) throws SQLException {
+    Sql sql = SqlBuilder.newSelectBuilder(TableSchema.class)
+        .select()
+        .from()
+        .where()
+        .equal("tableSchema", database)
+        .build();
+    return Holder.getFastJdbc().find(sql.getSql(), TableSchema.class, sql.getArgs().toArray());
+  }
+
+  @Override
+  public List<ColumnSchema> findTableSchemas(String database, String table) throws SQLException {
+    Sql sql = SqlBuilder.newSelectBuilder(ColumnSchema.class)
+        .select()
+        .from()
+        .where()
+        .equal("tableSchema", database)
+        .and().equal("tableName", table)
+        .build();
+    return Holder.getFastJdbc().find(sql.getSql(), ColumnSchema.class, sql.getArgs().toArray());
+  }
+
+  @Override
+  public Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper) {
+    Column column = new Column();
+    column.setColumnName(columnSchema.getColumnName());
+    column.setSort(columnSchema.getOrdinalPosition());
+    column.setDbDataType(columnSchema.getDataType());
+    column.setPrimary("PRI".equalsIgnoreCase(columnSchema.getColumnKey()));
+    column.setNullable(!"NO".equalsIgnoreCase(columnSchema.getIsNullable()));
+    column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
+    column.setColumnComment(columnSchema.getColumnComment());
+    column.setDefaultValue(columnSchema.getColumnDefault());
+    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper);
+    return column;
+  }
 }

@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.component;
 
+import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -23,4 +24,5 @@ public class DatabaseSettings {
   private JLabel lblSelectLanguage;
   private JComboBox<LocaleItem> cbxSelectLanguage;
   private JTextField textConnectionUrl;
+  private JComboBox<DatabaseDrivers> cbxSelectDatabase;
 }

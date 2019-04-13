@@ -3,13 +3,15 @@ package com.ifengxue.plugin;
 import static com.ifengxue.plugin.util.Key.createKey;
 import static org.apache.commons.lang3.StringUtils.trim;
 
-import com.ifengxue.plugin.adapter.MysqlDriverAdapter;
+import com.ifengxue.plugin.adapter.DatabaseDrivers;
+import com.ifengxue.plugin.adapter.DriverDelegate;
 import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.util.WindowUtil;
+import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -19,24 +21,40 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.util.download.DownloadableFileDescription;
+import com.intellij.util.download.DownloadableFileService;
+import com.intellij.util.download.FileDownloader;
+import com.intellij.util.lang.UrlClassLoader;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
-import fastjdbc.Sql;
-import fastjdbc.SqlBuilder;
 import java.awt.event.ItemEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -44,8 +62,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class JpaSupport extends AnAction {
 
+  private static final String DRIVER_VENDOR_PATH = "driver_vendor";
   private Logger log = Logger.getInstance(JpaSupport.class);
   private DatabaseSettings databaseSettings;
+  private AtomicReference<ClassLoader> classLoaderRef = new AtomicReference<>(JpaSupport.class.getClassLoader());
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
@@ -56,7 +76,7 @@ public class JpaSupport extends AnAction {
     Holder.registerEvent(e);// 注册事件
     Holder.registerApplicationProperties(PropertiesComponent.getInstance());
     Holder.registerProjectProperties(PropertiesComponent.getInstance(e.getProject()));
-    Holder.registerDriverAdapter(new MysqlDriverAdapter());
+    Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
     initI18n();
 
     JFrame databaseSettingsFrame = new JFrame(LocaleContextHolder.format("set_up_database_connection"));
@@ -87,6 +107,14 @@ public class JpaSupport extends AnAction {
             .setValue(createKey("locale"),
                 ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
       });
+    });
+    // 注册数据库类型切换事件
+    databaseSettings.getCbxSelectDatabase().addItemListener(itemEvent -> {
+      if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
+        return;
+      }
+      new DownloadDriverRunnable(e.getProject(), null, (DatabaseDrivers) itemEvent.getItem())
+          .run();
     });
     // 注册下一步事件
     databaseSettings.getBtnNext().addActionListener(event -> {
@@ -123,38 +151,50 @@ public class JpaSupport extends AnAction {
       }
       saveTextField(host, port, username, password, database, connectionUrl);
       new Thread(() -> {
-        String driverClass = "com.mysql.jdbc.Driver";
         try {
-          Class.forName(driverClass);
-        } catch (ClassNotFoundException e1) {
+          if (!driverHasBeenLoaded(Holder.getDatabaseDrivers())) {
+            try {
+              Class.forName(Holder.getDatabaseDrivers().getDriverClass(), true, classLoaderRef.get());
+            } catch (ClassNotFoundException ex) {
+              // driver not loaded
+              ApplicationManager.getApplication().invokeAndWait(() -> {
+                int selectButton = Messages.showOkCancelDialog(e.getProject(),
+                    LocaleContextHolder.format("driver_not_found", Holder.getDatabaseDrivers().getDriverClass()),
+                    LocaleContextHolder.format("prompt"),
+                    Messages.getQuestionIcon());
+                if (selectButton == Messages.OK) {
+                  new DownloadDriverRunnable(e.getProject(), null, Holder.getDatabaseDrivers()).run();
+                }
+              });
+            }
+            Driver driver = (Driver) Class
+                .forName(Holder.getDatabaseDrivers().getDriverClass(), true, classLoaderRef.get())
+                .newInstance();
+            DriverManager.registerDriver(new DriverDelegate(driver));
+          }
+        } catch (ReflectiveOperationException | SQLException e1) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
               .notify(new Notification("JpaSupport", "Error",
-                  LocaleContextHolder.format("database_not_exists", driverClass), NotificationType.ERROR)));
+                  LocaleContextHolder.format("database_not_exists", Holder.getDatabaseDrivers().getDriverClass()),
+                  NotificationType.ERROR)));
           return;
         }
         // 尝试获取连接
         try (Connection connection = DriverManager.getConnection(connectionUrl, username, password)) {
-          FastJdbc fastJdbc = new SimpleFastJdbc(
-              new NoPoolDataSource(driverClass, connectionUrl, username, password));
+          FastJdbc fastJdbc = new SimpleFastJdbc(new NoPoolDataSource(connectionUrl, username, password));
           Holder.registerFastJdbc(fastJdbc);
         } catch (SQLException se) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
               .notify(new Notification("JpaSupport", "Error",
                   LocaleContextHolder.format("connect_to_database_failed",
                       se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR)));
-          log.error("连接数据库失败", se);
+          log.error("connect to database failed", se);
           return;
         }
 
         List<TableSchema> tableSchemaList = null;
         try {
-          Sql sql = SqlBuilder.newSelectBuilder(TableSchema.class)
-              .select()
-              .from()
-              .where()
-              .equal("tableSchema", database)
-              .build();
-          tableSchemaList = Holder.getFastJdbc().find(sql.getSql(), TableSchema.class, sql.getArgs().toArray());
+          tableSchemaList = Holder.getDatabaseDrivers().getDriverAdapter().findDatabaseSchemas(database);
         } catch (SQLException se) {
           StringBuilder sb = new StringBuilder();
           sb.append("SQL error code: ").append(se.getErrorCode())
@@ -173,9 +213,67 @@ public class JpaSupport extends AnAction {
     });
   }
 
-  private void updateConnectionUrl() {
-    String newConnectionUrl = Holder.getDriverAdapter().toConnectionUrl(
-        trim(databaseSettings.getTextConnectionUrl().getText()),
+  private void loadDriverClass(VirtualFile virtualFile, DatabaseDrivers databaseDrivers) {
+    if (driverHasBeenLoaded(databaseDrivers)) {
+      Holder.registerDatabaseDrivers(databaseDrivers);
+      ApplicationManager.getApplication().invokeLater(() -> updateConnectionUrl(true));
+      return;
+    }
+    log.info("driver path" + virtualFile.getPath());
+    try {
+      UrlClassLoader urlClassLoader = UrlClassLoader.build()
+          .urls(new File(virtualFile.getPath()).toURI().toURL())
+          .get();
+      Driver driver = (Driver) urlClassLoader.loadClass(databaseDrivers.getDriverClass()).newInstance();
+      DriverManager.registerDriver(new DriverDelegate(driver));
+      log.info("driver " + databaseDrivers.getDriverClass() + " has been loaded");
+      classLoaderRef.set(urlClassLoader);
+      Holder.registerDatabaseDrivers(databaseDrivers);
+      ApplicationManager.getApplication().invokeLater(() -> updateConnectionUrl(true));
+
+      // save database driver path
+      PropertiesComponent applicationProperties = Holder.getApplicationProperties();
+      applicationProperties.setValue(
+          createKey("database_driver_path", databaseDrivers.getVendor(), databaseDrivers.getVersion()),
+          virtualFile.getPath());
+    } catch (MalformedURLException ex) {
+      log.error("url not valid " + databaseDrivers.getDriverClass(), ex);
+      ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+          new Notification("JpaSupport", "Error",
+              "url not valid " + databaseDrivers.getDriverClass(),
+              NotificationType.ERROR)
+      ));
+    } catch (ReflectiveOperationException | SQLException ex) {
+      log.error("driver class not found", ex);
+      ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+          new Notification("JpaSupport", "Error",
+              "driver class not found: " + databaseDrivers.getDriverClass(), NotificationType.ERROR)
+      ));
+    }
+  }
+
+  private boolean driverHasBeenLoaded(DatabaseDrivers databaseDrivers) {
+    Enumeration<Driver> driverEnumeration = DriverManager.getDrivers();
+    while (driverEnumeration.hasMoreElements()) {
+      Driver driver = driverEnumeration.nextElement();
+      String driverName = driver.getClass().getName();
+      if (driver instanceof DriverDelegate) {
+        driverName = ((DriverDelegate) driver).getDriver().getClass().getName();
+      }
+      if (driverName.equals(databaseDrivers.getDriverClass())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void updateConnectionUrl(boolean switchDatabaseVendor) {
+    String oldConnectionUrl = trim(databaseSettings.getTextConnectionUrl().getText());
+    if (switchDatabaseVendor) {
+      oldConnectionUrl = "";
+    }
+    String newConnectionUrl = Holder.getDatabaseDrivers().getDriverAdapter().toConnectionUrl(
+        oldConnectionUrl,
         trim(databaseSettings.getTextHost().getText()),
         trim(databaseSettings.getTextPort().getText()),
         trim(databaseSettings.getTextUsername().getText()),
@@ -196,6 +294,8 @@ public class JpaSupport extends AnAction {
     applicationProperties
         .setValue(createKey("locale"),
             ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
+    applicationProperties.setValue(createKey("database_vendor"),
+        ((DatabaseDrivers) databaseSettings.getCbxSelectDatabase().getSelectedItem()).getVendor());
   }
 
   private void initTextField(DatabaseSettings databaseSettings) {
@@ -216,6 +316,39 @@ public class JpaSupport extends AnAction {
       databaseSettings.getCbxSelectLanguage().addItem(localeItem);
       if (locale.equals(localeItem.getLocale())) {
         databaseSettings.getCbxSelectLanguage().setSelectedItem(localeItem);
+      }
+    }
+
+    // select database
+    databaseSettings.getCbxSelectDatabase().removeAllItems();
+    String databaseVendor = applicationProperties
+        .getValue(createKey("database_vendor"), DatabaseDrivers.MYSQL.getVendor());
+    for (DatabaseDrivers databaseDrivers : DatabaseDrivers.values()) {
+      databaseSettings.getCbxSelectDatabase().addItem(databaseDrivers);
+      if (databaseDrivers.getVendor().equalsIgnoreCase(databaseVendor)) {
+        databaseSettings.getCbxSelectDatabase().setSelectedItem(databaseDrivers);
+        Holder.registerDatabaseDrivers(databaseDrivers);
+      }
+    }
+
+    // update connection url
+    updateConnectionUrl(false);
+
+    DatabaseDrivers databaseDrivers = Holder.getDatabaseDrivers();
+    // load driver path
+    String databaseDriverPath = applicationProperties
+        .getValue(createKey("database_driver_path", databaseDrivers.getVendor(), databaseDrivers.getVersion()));
+    if (StringUtils.isNotBlank(databaseDriverPath)) {
+      try {
+        classLoaderRef.set(UrlClassLoader.build()
+            .urls(new File(databaseDriverPath).toURI().toURL())
+            .get());
+      } catch (MalformedURLException e) {
+        log.error("url not valid " + databaseDrivers.getDriverClass(), e);
+        ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+            new Notification("JpaSupport", "Error",
+                "url not valid " + databaseDrivers.getDriverClass(),
+                NotificationType.ERROR)));
       }
     }
   }
@@ -247,19 +380,79 @@ public class JpaSupport extends AnAction {
 
   private class ConnectionUrlUpdateListener implements DocumentListener {
 
+    private final boolean switchDatabaseVendor;
+
+    public ConnectionUrlUpdateListener() {
+      this(false);
+    }
+
+    public ConnectionUrlUpdateListener(boolean switchDatabaseVendor) {
+      this.switchDatabaseVendor = switchDatabaseVendor;
+    }
+
     @Override
     public void insertUpdate(DocumentEvent e) {
-      JpaSupport.this.updateConnectionUrl();
+      JpaSupport.this.updateConnectionUrl(switchDatabaseVendor);
     }
 
     @Override
     public void removeUpdate(DocumentEvent e) {
-      JpaSupport.this.updateConnectionUrl();
+      JpaSupport.this.updateConnectionUrl(switchDatabaseVendor);
     }
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-      JpaSupport.this.updateConnectionUrl();
+      JpaSupport.this.updateConnectionUrl(switchDatabaseVendor);
+    }
+  }
+
+  private class DownloadDriverRunnable implements Runnable {
+
+    private final Project project;
+    private final JComponent parentComponent;
+    private final DatabaseDrivers databaseDrivers;
+
+    private DownloadDriverRunnable(Project project, JComponent parentComponent, DatabaseDrivers databaseDrivers) {
+      this.project = project;
+      this.parentComponent = parentComponent;
+      this.databaseDrivers = databaseDrivers;
+    }
+
+    @Override
+    public void run() {
+      WriteCommandAction.runWriteCommandAction(project, () -> {
+        PsiDirectory driverVendorPath = DirectoryUtil
+            .mkdirs(PsiManager.getInstance(project),
+                System.getProperty("user.dir") + File.separator + DRIVER_VENDOR_PATH);
+        PsiFile jarFile = driverVendorPath.findFile(databaseDrivers.getJarFilename());
+        // driver 不存在，需要下载
+        if (jarFile == null) {
+          DownloadableFileService downloadableFileService = DownloadableFileService.getInstance();
+          DownloadableFileDescription downloadableFileDescription = downloadableFileService
+              .createFileDescription(databaseDrivers.getUrl(), databaseDrivers.getJarFilename() + ".tmp");
+          FileDownloader fileDownloader = downloadableFileService
+              .createDownloader(Collections.singletonList(downloadableFileDescription),
+                  databaseDrivers.getJarFilename());
+          List<VirtualFile> virtualFiles = fileDownloader
+              .downloadFilesWithProgress(driverVendorPath.getVirtualFile().getPath(), project, parentComponent);
+          if (virtualFiles == null) {
+            return;
+          }
+          try {
+            virtualFiles.get(0).rename(this, databaseDrivers.getJarFilename());
+          } catch (IOException e1) {
+            log.error("rename driver error", e1);
+            ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+                new Notification("JpaSupport", "Error", "rename driver error " + databaseDrivers.getJarFilename(),
+                    NotificationType.ERROR))
+            );
+            return;
+          }
+          loadDriverClass(virtualFiles.get(0), databaseDrivers);
+        } else {
+          loadDriverClass(jarFile.getVirtualFile(), databaseDrivers);
+        }
+      });
     }
   }
 }
