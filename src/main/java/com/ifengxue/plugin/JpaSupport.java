@@ -242,6 +242,10 @@ public class JpaSupport extends AnAction {
         }
       }
     }
+    // not best match language for this locale, reset locale to english
+    if (localeSelectIndex == -1) {
+      localeSelectIndex = 0;
+    }
     LocaleContextHolder.setCurrentLocale(LocaleContextHolder.LOCALE_ITEMS[localeSelectIndex].getLocale());
   }
 
