@@ -363,6 +363,7 @@ public class JpaSupport extends AnAction {
       LocaleItem localeItem = LocaleContextHolder.LOCALE_ITEMS[i];
       if (localeItem.getLocale().equals(locale)) {
         localeSelectIndex = i;
+        break;
       }
     }
     // only compare by language
