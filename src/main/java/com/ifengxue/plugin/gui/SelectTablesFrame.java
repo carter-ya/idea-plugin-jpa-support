@@ -11,11 +11,9 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.LineSeparator;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
-import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.source.EntitySourceParser;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
-import com.ifengxue.plugin.util.ColumnUtil;
 import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
@@ -32,9 +30,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.mysql.jdbc.Driver;
-import fastjdbc.FastJdbc;
-import fastjdbc.Sql;
-import fastjdbc.SqlBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -271,24 +266,17 @@ public class SelectTablesFrame {
       JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
       repositorySourceParser.setVelocityEngine(velocityEngine, encoding);
 
-      FastJdbc fastJdbc = Holder.getFastJdbc();
       EntitySourceParser sourceParser = new EntitySourceParser();
 
       // 生成数量
       AtomicInteger generateCount = new AtomicInteger(tableList.size());
       for (Table table : tableList) {
-        Sql sql = SqlBuilder.newSelectBuilder(ColumnSchema.class)
-            .select()
-            .from()
-            .where()
-            .equal("tableSchema", table.getTableSchema())
-            .and().equal("tableName", table.getTableName())
-            .build();
         List<ColumnSchema> columnSchemaList;
         try {
-          columnSchemaList = fastJdbc.find(sql.getSql(), ColumnSchema.class, sql.getArgs().toArray());
+          columnSchemaList = Holder.getDatabaseDrivers().getDriverAdapter()
+              .findTableSchemas(table.getTableSchema(), table.getTableName());
         } catch (SQLException se) {
-          log.error("读取数据库错误", se);
+          log.error("read table " + table.getTableName() + " schema failed", se);
           ApplicationManager.getApplication()
               .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
                   se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
@@ -299,16 +287,8 @@ public class SelectTablesFrame {
         // 解析字段列表
         List<Column> columnList = new ArrayList<>(columnSchemaList.size());
         for (ColumnSchema columnSchema : columnSchemaList) {
-          Column column = new Column();
-          column.setColumnName(columnSchema.getColumnName());
-          column.setSort(columnSchema.getOrdinalPosition());
-          column.setDbDataType(columnSchema.getDataType());
-          column.setPrimary("PRI".equalsIgnoreCase(columnSchema.getColumnKey()));
-          column.setNullable("NO".equalsIgnoreCase(columnSchema.getIsNullable()));
-          column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
-          column.setColumnComment(columnSchema.getColumnComment());
-          column.setDefaultValue(columnSchema.getColumnDefault());
-          ColumnUtil.parseColumn(column, config.getRemoveFieldPrefix(), true);
+          Column column = Holder.getDatabaseDrivers().getDriverAdapter()
+              .parseToColumn(columnSchema, config.getRemoveFieldPrefix(), true);
           if (column.isPrimary()) {
             table.setPrimaryKeyClassType(column.getJavaDataType());
           }
@@ -322,7 +302,7 @@ public class SelectTablesFrame {
         // 配置源码生成信息
         GeneratorConfig generatorConfig = new GeneratorConfig();
         generatorConfig.setDriverConfig(new DriverConfig()
-            .setVendor(Vendor.MYSQL)
+            .setVendor(Holder.getDatabaseDrivers().getVendor2())
             .setDriverClass(Driver.class));
         int lastIndex;
         String basePackageName = config.getEntityPackage();
@@ -406,7 +386,7 @@ public class SelectTablesFrame {
         vFile.setCharset(StandardCharsets.UTF_8);
         vFile.setBinaryContent(sourceCode.getBytes(StandardCharsets.UTF_8));
       } catch (IOException e) {
-        log.error("生成源码失败", e);
+        log.error("generate source code error", e);
       }
     }
   }

@@ -60,12 +60,13 @@ public class JpaVisitor extends VisitorSupport {
       switch (vendor) {
         case MYSQL:
         case SQL_SERVER:
+        case POSTGRE_SQL:
           generatedAnnotation
-              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.SEQUENCE"));
+              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.IDENTITY"));
           break;
         case ORACLE:
           generatedAnnotation
-              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.IDENTITY"));
+              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.SEQUENCE"));
           break;
         default:
           throw new IllegalStateException();
@@ -85,7 +86,7 @@ public class JpaVisitor extends VisitorSupport {
     if (field.isPrimaryKey()) {
       columnAnnotation.addKeyValuePair(Element.KeyValuePair.newKeyValuePair("insertable", "false"));
     }
-    if (field.isNullable()) {
+    if (!field.isNullable()) {
       columnAnnotation.addKeyValuePair(Element.KeyValuePair.newKeyValuePair("nullable", "false"));
     }
     field.addChild(columnAnnotation);
