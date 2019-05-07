@@ -426,9 +426,12 @@ public class JpaSupport extends AnAction {
     @Override
     public void run() {
       WriteCommandAction.runWriteCommandAction(project, () -> {
-        PsiDirectory driverVendorPath = DirectoryUtil
-            .mkdirs(PsiManager.getInstance(project),
-                System.getProperty("user.dir") + File.separator + DRIVER_VENDOR_PATH);
+        // fix issue #15, DirectoryUtil.mkdirs not support path separator '\'
+        String dirPath = System.getProperty("user.dir") + File.separator + DRIVER_VENDOR_PATH;
+        if (File.separatorChar != '/') {
+          dirPath = dirPath.replace('\\', '/');
+        }
+        PsiDirectory driverVendorPath = DirectoryUtil.mkdirs(PsiManager.getInstance(project), dirPath);
         PsiFile jarFile = driverVendorPath.findFile(databaseDrivers.getJarFilename());
         // driver 不存在，需要下载
         if (jarFile == null) {
