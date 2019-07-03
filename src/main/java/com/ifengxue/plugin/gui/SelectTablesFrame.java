@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.gui;
 
 import com.ifengxue.plugin.Holder;
+import com.ifengxue.plugin.JpaSupport;
 import com.ifengxue.plugin.component.AutoGeneratorConfig;
 import com.ifengxue.plugin.component.SelectTables;
 import com.ifengxue.plugin.entity.Column;
@@ -29,7 +30,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.mysql.jdbc.Driver;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -301,9 +301,19 @@ public class SelectTablesFrame {
 
         // 配置源码生成信息
         GeneratorConfig generatorConfig = new GeneratorConfig();
-        generatorConfig.setDriverConfig(new DriverConfig()
-            .setVendor(Holder.getDatabaseDrivers().getVendor2())
-            .setDriverClass(Driver.class));
+        try {
+          generatorConfig.setDriverConfig(new DriverConfig()
+              .setVendor(Holder.getDatabaseDrivers().getVendor2())
+              .setDriverClass(
+                  Class.forName(Holder.getDatabaseDrivers().getDriverClass(), false, JpaSupport.classLoaderRef.get())));
+        } catch (ClassNotFoundException e) {
+          log.error("load driver class error", e);
+          ApplicationManager.getApplication()
+              .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
+                  "load driver class error", NotificationType.ERROR)));
+          ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
+          return;
+        }
         int lastIndex;
         String basePackageName = config.getEntityPackage();
         if ((lastIndex = config.getEntityPackage().lastIndexOf('.')) != -1) {

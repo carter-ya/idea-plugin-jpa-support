@@ -35,6 +35,7 @@ import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
 import java.awt.event.ItemEvent;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -48,6 +49,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -65,7 +68,7 @@ public class JpaSupport extends AnAction {
   private static final String DRIVER_VENDOR_PATH = "driver_vendor";
   private Logger log = Logger.getInstance(JpaSupport.class);
   private DatabaseSettings databaseSettings;
-  private AtomicReference<ClassLoader> classLoaderRef = new AtomicReference<>(JpaSupport.class.getClassLoader());
+  public static AtomicReference<ClassLoader> classLoaderRef = new AtomicReference<>(JpaSupport.class.getClassLoader());
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
@@ -295,7 +298,7 @@ public class JpaSupport extends AnAction {
         .setValue(createKey("locale"),
             ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
     applicationProperties.setValue(createKey("database_vendor"),
-        ((DatabaseDrivers) databaseSettings.getCbxSelectDatabase().getSelectedItem()).getVendor());
+        ((DatabaseDrivers) databaseSettings.getCbxSelectDatabase().getSelectedItem()).toString());
   }
 
   private void initTextField(DatabaseSettings databaseSettings) {
@@ -322,10 +325,10 @@ public class JpaSupport extends AnAction {
     // select database
     databaseSettings.getCbxSelectDatabase().removeAllItems();
     String databaseVendor = applicationProperties
-        .getValue(createKey("database_vendor"), DatabaseDrivers.MYSQL.getVendor());
+        .getValue(createKey("database_vendor"), DatabaseDrivers.MYSQL.toString());
     for (DatabaseDrivers databaseDrivers : DatabaseDrivers.values()) {
       databaseSettings.getCbxSelectDatabase().addItem(databaseDrivers);
-      if (databaseDrivers.getVendor().equalsIgnoreCase(databaseVendor)) {
+      if (databaseDrivers.toString().equalsIgnoreCase(databaseVendor)) {
         databaseSettings.getCbxSelectDatabase().setSelectedItem(databaseDrivers);
         Holder.registerDatabaseDrivers(databaseDrivers);
       }
@@ -435,6 +438,29 @@ public class JpaSupport extends AnAction {
         PsiFile jarFile = driverVendorPath.findFile(databaseDrivers.getJarFilename());
         // driver 不存在，需要下载
         if (jarFile == null) {
+          if (databaseDrivers.getUrl().startsWith(DatabaseDrivers.CLASSPATH_PREFIX)) {
+            String filePath = databaseDrivers.getUrl().substring(DatabaseDrivers.CLASSPATH_PREFIX.length());
+            try (BufferedInputStream bis = new BufferedInputStream(
+                Optional.ofNullable(getClass().getClassLoader().getResourceAsStream(filePath))
+                    .orElseThrow(NoSuchElementException::new))) {
+              int available = bis.available();
+              byte[] bytes = new byte[available];
+              bis.read(bytes);
+              PsiFile file = driverVendorPath.createFile(databaseDrivers.getJarFilename());
+              VirtualFile virtualFile = file.getVirtualFile();
+              virtualFile.setWritable(true);
+              virtualFile.setCharset(StandardCharsets.UTF_8);
+              virtualFile.setBinaryContent(bytes);
+              loadDriverClass(virtualFile, databaseDrivers);
+              return;
+            } catch (IOException e) {
+              log.error("copy file error, file path " + databaseDrivers.getUrl(), e);
+              ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+                  new Notification("JpaSupport", "Error",
+                      "copy file error, file path " + databaseDrivers.getJarFilename(),
+                      NotificationType.ERROR)));
+            }
+          }
           DownloadableFileService downloadableFileService = DownloadableFileService.getInstance();
           DownloadableFileDescription downloadableFileDescription = downloadableFileService
               .createFileDescription(databaseDrivers.getUrl(), databaseDrivers.getJarFilename() + ".tmp");
