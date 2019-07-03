@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.ifengxue.plugin.jpa-support</id>
   <name>Jpa Support</name>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <vendor email="liukefeng2008@hotmail.com" url="https://github.com/liukefeng2008/idea-plugin-jpa-support">
     https://github.com/liukefeng2008/idea-plugin-jpa-support
   </vendor>
@@ -17,9 +17,8 @@
 
   <change-notes><![CDATA[
       <ul>
-        <li>Database type starts to support PostgreSQL</li>
-        <li>Allow users to customize the url of the connection database.</li>
-        <li>Fixed an issue where array subscripts were incorrect when non-English and Simplified Chinese were initialized when the language was initialized.</li>
+        <li>Support more mysql driver, contains 5.x 6.x 8.x</li>
+        <li>Support full upper case column name to normal filename. eg COLUMN_NAME to columnName</li>
       </ul>
     ]]>
   </change-notes>
