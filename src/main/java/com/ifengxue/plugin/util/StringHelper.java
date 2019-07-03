@@ -204,8 +204,10 @@ public class StringHelper {
    * column_name -> columnName <br>
    * column_name_ -> columnName <br>
    * _column_name_ -> columnName <br>
+   * COLUMN_NAME -> columnName <br>
    */
   public static String parseFieldName(String columnName) {
+    columnName = columnName.toLowerCase();
     if (columnName.startsWith("is_")) {
       columnName = columnName.substring("is_".length());
     }
