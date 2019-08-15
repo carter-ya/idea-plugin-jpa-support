@@ -248,7 +248,7 @@ public class StringHelper {
     if (removePrefix == null || removePrefix.isEmpty() || !columnName.startsWith(removePrefix)) {
       return parseFieldName(columnName);
     }
-    return parseFieldName(columnName.substring(removePrefix.length() - 1));
+    return parseFieldName(columnName.substring(removePrefix.length()));
   }
 
   /**
