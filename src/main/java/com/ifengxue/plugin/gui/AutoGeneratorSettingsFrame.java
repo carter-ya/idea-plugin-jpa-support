@@ -17,6 +17,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.PackageChooser;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -139,7 +140,14 @@ public class AutoGeneratorSettingsFrame {
           //TODO 保留主键类型
           List<Table> tableList = new ArrayList<>(tableSchemaList.size());
           VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(config.getEntityDirectory());
-          assert vFile != null;
+          if (vFile == null) {
+            Messages
+                .showMessageDialog(
+                    LocaleContextHolder.format("path_not_exists", config.getEntityDirectory()),
+                    LocaleContextHolder.format("prompt"),
+                    Messages.getErrorIcon());
+            return;
+          }
           for (TableSchema tableSchema : tableSchemaList) {
             String tableName = tableSchema.getTableName();
             if (!config.getRemoveTablePrefix().isEmpty() && tableName.startsWith(config.getRemoveTablePrefix())) {
@@ -199,7 +207,7 @@ public class AutoGeneratorSettingsFrame {
     applicationProperties.setValue(createKey("generate_field_comment"), config.isGenerateFieldComment());
     applicationProperties.setValue(createKey("generate_method_comment"), config.isGenerateMethodComment());
     projectProperties.setValue(createKey("extend_base_class"), config.getExtendBaseClass());
-    projectProperties.setValue(createKey("exclude_fields"), config.getExcludeFields().stream().collect(joining(",")));
+    projectProperties.setValue(createKey("exclude_fields"), String.join(",", config.getExcludeFields()));
     projectProperties.setValue(createKey("entity_package"), config.getEntityPackage());
     projectProperties.setValue(createKey("entity_directory"), config.getEntityDirectory());
     projectProperties.setValue(createKey("repository_package"), config.getRepositoryPackage());
