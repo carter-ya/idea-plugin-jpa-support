@@ -5,9 +5,9 @@ import com.ifengxue.plugin.adapter.MysqlDriverAdapter;
 import com.ifengxue.plugin.adapter.PostgreSQLDriverAdapter;
 import com.intellij.openapi.diagnostic.Logger;
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -97,12 +97,16 @@ public class StringHelper {
       case "DECIMAL":
         javaDataType = BigDecimal.class;
         break;
-      case "DATE":
-      case "TIME":
       case "YEAR":
-      case "DATETIME":
-        javaDataType = Date.class;
+        javaDataType = Short.class;
         break;
+      case "DATE":
+        javaDataType = java.sql.Date.class;
+        break;
+      case "TIME":
+        javaDataType = Time.class;
+        break;
+      case "DATETIME":
       case "TIMESTAMP":
         javaDataType = Timestamp.class;
         break;
@@ -157,12 +161,16 @@ public class StringHelper {
       case "NUMERIC":
         javaDataType = BigDecimal.class;
         break;
-      case "DATE":
-      case "TIME":
       case "YEAR":
-      case "DATETIME":
-        javaDataType = Date.class;
+        javaDataType = Short.class;
         break;
+      case "DATE":
+        javaDataType = java.sql.Date.class;
+        break;
+      case "TIME":
+        javaDataType = Time.class;
+        break;
+      case "DATETIME":
       case "TIMESTAMP":
         javaDataType = Timestamp.class;
         break;
