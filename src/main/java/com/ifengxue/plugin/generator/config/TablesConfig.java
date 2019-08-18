@@ -12,6 +12,7 @@ public class TablesConfig {
   private boolean isUseMethodComment;
   private boolean useDefaultValue;
   private boolean serializable;
+  private boolean useJava8DataType;
   private String indent;
   private String lineSeparator;
   private String removeTablePrefix;
@@ -185,16 +186,27 @@ public class TablesConfig {
     return this;
   }
 
+  public boolean isUseJava8DataType() {
+    return useJava8DataType;
+  }
+
+  public TablesConfig setUseJava8DataType(boolean useJava8DataType) {
+    this.useJava8DataType = useJava8DataType;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "TablesConfig{" +
         "orm=" + orm +
+        ", isUseLombok=" + isUseLombok +
         ", useWrapper=" + useWrapper +
         ", isUseClassComment=" + isUseClassComment +
         ", isUseFieldComment=" + isUseFieldComment +
         ", isUseMethodComment=" + isUseMethodComment +
         ", useDefaultValue=" + useDefaultValue +
         ", serializable=" + serializable +
+        ", useJava8DataType=" + useJava8DataType +
         ", indent='" + indent + '\'' +
         ", lineSeparator='" + lineSeparator + '\'' +
         ", removeTablePrefix='" + removeTablePrefix + '\'' +
@@ -204,9 +216,7 @@ public class TablesConfig {
         ", serviceSubPackageName='" + serviceSubPackageName + '\'' +
         ", repositoryPackageName='" + repositoryPackageName + '\'' +
         ", basePackageName='" + basePackageName + '\'' +
-        ", useClassComment=" + isUseClassComment() +
-        ", useFieldComment=" + isUseFieldComment() +
-        ", useMethodComment=" + isUseMethodComment() +
+        ", extendsEntityName='" + extendsEntityName + '\'' +
         '}';
   }
 

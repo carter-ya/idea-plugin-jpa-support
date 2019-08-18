@@ -7,6 +7,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,14 +53,30 @@ public class StringHelper {
   }
 
   public static Class<?> parseJavaDataType(DriverAdapter driverAdapter, String dbDataType, String columnName,
-      boolean useWrapper) {
+      boolean useWrapper, boolean useJava8DataType) {
+    Class<?> javaDataType = null;
     if (driverAdapter instanceof MysqlDriverAdapter) {
-      return parseJavaDataType((MysqlDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
+      javaDataType = parseJavaDataType((MysqlDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
     }
     if (driverAdapter instanceof PostgreSQLDriverAdapter) {
-      return parseJavaDataType((PostgreSQLDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
+      javaDataType = parseJavaDataType((PostgreSQLDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
     }
-    throw new IllegalStateException("不支持的类型:" + driverAdapter.getClass().getName());
+    if (javaDataType == null) {
+      throw new IllegalStateException("不支持的类型:" + driverAdapter.getClass().getName());
+    }
+    if (!useJava8DataType) {
+      return javaDataType;
+    }
+    switch (javaDataType.getName()) {
+      case "java.sql.Date":
+        return LocalDate.class;
+      case "java.sql.Time":
+        return LocalTime.class;
+      case "java.sql.Timestamp":
+        return LocalDateTime.class;
+      default:
+        return javaDataType;
+    }
   }
 
   private static Class<?> parseJavaDataType(MysqlDriverAdapter driverAdapter, String dbDataType,

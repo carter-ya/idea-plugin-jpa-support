@@ -8,10 +8,11 @@ import java.util.Date;
 
 public class ColumnUtil {
 
-  public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper) {
+  public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper,
+      boolean useJava8DataType) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
     Class<?> javaDataType = StringHelper
-        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper);
+        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DataType);
     if ((javaDataType == Integer.class || javaDataType == int.class)
         && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
       if (useWrapper) {

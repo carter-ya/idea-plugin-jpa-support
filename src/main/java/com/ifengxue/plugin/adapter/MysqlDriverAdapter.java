@@ -47,7 +47,8 @@ public class MysqlDriverAdapter extends AbstractDriverAdapter {
   }
 
   @Override
-  public Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper) {
+  public Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper,
+      boolean useJava8DataType) {
     Column column = new Column();
     column.setColumnName(columnSchema.getColumnName());
     column.setSort(columnSchema.getOrdinalPosition());
@@ -57,7 +58,7 @@ public class MysqlDriverAdapter extends AbstractDriverAdapter {
     column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
     column.setColumnComment(columnSchema.getColumnComment());
     column.setDefaultValue(columnSchema.getColumnDefault());
-    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper);
+    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper, useJava8DataType);
     return column;
   }
 }

@@ -26,6 +26,7 @@ public class AutoGeneratorSettings {
   private JButton btnChooseRepositoryPackage;
   private JButton btnChooseSuperClass;
   private JCheckBox chkBoxGenerateService;
+  private JCheckBox chkBoxUseJava8DataType;
 
   public JPanel getRootComponent() {
     return rootComponent;
@@ -97,5 +98,9 @@ public class AutoGeneratorSettings {
 
   public JButton getBtnChooseSuperClass() {
     return btnChooseSuperClass;
+  }
+
+  public JCheckBox getChkBoxUseJava8DataType() {
+    return chkBoxUseJava8DataType;
   }
 }

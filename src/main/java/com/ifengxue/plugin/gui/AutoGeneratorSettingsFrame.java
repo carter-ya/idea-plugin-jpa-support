@@ -129,6 +129,7 @@ public class AutoGeneratorSettingsFrame {
           config.setGenerateClassComment(autoGeneratorSettingsHolder.getChkBoxGenerateClassComment().isSelected());
           config.setGenerateFieldComment(autoGeneratorSettingsHolder.getChkBoxGenerateFieldComment().isSelected());
           config.setGenerateMethodComment(autoGeneratorSettingsHolder.getChkBoxGenerateMethodComment().isSelected());
+          config.setUseJava8DataType(autoGeneratorSettingsHolder.getChkBoxUseJava8DataType().isSelected());
           if (config.getEntityPackage().isEmpty()) {
             autoGeneratorSettingsHolder.getTextEntityPackage().requestFocus();
             return;
@@ -193,6 +194,8 @@ public class AutoGeneratorSettingsFrame {
     config.setEntityDirectory(projectProperties.getValue(createKey("entity_directory"), ""));
     settings.getTxtRepositoryPackage().setText(projectProperties.getValue(createKey("repository_package"), ""));
     config.setRepositoryDirectory(projectProperties.getValue(createKey("repository_directory"), ""));
+    settings.getChkBoxUseJava8DataType()
+        .setSelected(applicationProperties.getBoolean(createKey("use_java8_data_type"), false));
   }
 
   private void saveTextField(AutoGeneratorConfig config) {
@@ -212,6 +215,7 @@ public class AutoGeneratorSettingsFrame {
     projectProperties.setValue(createKey("entity_directory"), config.getEntityDirectory());
     projectProperties.setValue(createKey("repository_package"), config.getRepositoryPackage());
     projectProperties.setValue(createKey("repository_directory"), config.getRepositoryDirectory());
+    projectProperties.setValue(createKey("use_java8_data_type"), config.isUseJava8DataType());
   }
 
   public static void show(List<TableSchema> tableSchemaList) {

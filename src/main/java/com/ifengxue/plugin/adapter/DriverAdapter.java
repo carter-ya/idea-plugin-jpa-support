@@ -29,7 +29,8 @@ public interface DriverAdapter {
   /**
    * 解析为{@link Column}
    */
-  Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper);
+  Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper,
+      boolean useJava8DataType);
 
   /**
    * 转换为 connection url

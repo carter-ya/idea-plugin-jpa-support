@@ -288,7 +288,7 @@ public class SelectTablesFrame {
         List<Column> columnList = new ArrayList<>(columnSchemaList.size());
         for (ColumnSchema columnSchema : columnSchemaList) {
           Column column = Holder.getDatabaseDrivers().getDriverAdapter()
-              .parseToColumn(columnSchema, config.getRemoveFieldPrefix(), true);
+              .parseToColumn(columnSchema, config.getRemoveFieldPrefix(), true, config.isUseJava8DataType());
           if (column.isPrimary()) {
             table.setPrimaryKeyClassType(column.getJavaDataType());
           }
@@ -336,7 +336,8 @@ public class SelectTablesFrame {
             .setUseMethodComment(config.isGenerateMethodComment())
             .setUseDefaultValue(true)
             .setUseWrapper(true)
-            .setUseLombok(config.isUseLombok()));
+            .setUseLombok(config.isUseLombok())
+            .setUseJava8DataType(config.isUseJava8DataType()));
         generatorConfig.setPluginConfigs(Collections.emptyList());
 
         // 生成源码

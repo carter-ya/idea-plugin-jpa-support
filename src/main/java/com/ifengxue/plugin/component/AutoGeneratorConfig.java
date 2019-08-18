@@ -25,6 +25,7 @@ public class AutoGeneratorConfig implements Serializable {
   private boolean generateClassComment;
   private boolean generateFieldComment;
   private boolean generateMethodComment;
+  private boolean useJava8DataType;
 
   public String getRemoveTablePrefix() {
     return removeTablePrefix;
@@ -150,6 +151,15 @@ public class AutoGeneratorConfig implements Serializable {
     return this;
   }
 
+  public boolean isUseJava8DataType() {
+    return useJava8DataType;
+  }
+
+  public AutoGeneratorConfig setUseJava8DataType(boolean useJava8DataType) {
+    this.useJava8DataType = useJava8DataType;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "AutoGeneratorConfig{" +
@@ -158,12 +168,17 @@ public class AutoGeneratorConfig implements Serializable {
         ", extendBaseClass='" + extendBaseClass + '\'' +
         ", entityPackage='" + entityPackage + '\'' +
         ", repositoryPackage='" + repositoryPackage + '\'' +
+        ", excludeFields=" + excludeFields +
+        ", projectBasePath='" + projectBasePath + '\'' +
+        ", entityDirectory='" + entityDirectory + '\'' +
+        ", repositoryDirectory='" + repositoryDirectory + '\'' +
         ", useLombok=" + useLombok +
         ", generateRepository=" + generateRepository +
         ", implementSerializable=" + implementSerializable +
         ", generateClassComment=" + generateClassComment +
         ", generateFieldComment=" + generateFieldComment +
         ", generateMethodComment=" + generateMethodComment +
+        ", useJava8DataType=" + useJava8DataType +
         '}';
   }
 }
