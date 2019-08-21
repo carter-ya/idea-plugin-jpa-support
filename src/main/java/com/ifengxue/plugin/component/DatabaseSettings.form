@@ -58,7 +58,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="fcoin_broker"/>
+          <text value=""/>
           <toolTipText resource-bundle="bundles/ui_i18n" key="set_database_name_tips"/>
         </properties>
       </component>
@@ -101,7 +101,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="sQdAAj8eHN8yCXGn"/>
+          <text value=""/>
           <toolTipText resource-bundle="bundles/ui_i18n" key="set_database_password_tips"/>
         </properties>
       </component>
