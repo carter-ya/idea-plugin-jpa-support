@@ -4,7 +4,9 @@ import com.ifengxue.plugin.adapter.DriverAdapter;
 import com.ifengxue.plugin.entity.Column;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class ColumnUtil {
 
@@ -65,8 +67,10 @@ public class ColumnUtil {
       }
       column.setHasDefaultValue(true);
 
-      // 跳过设置 Date/Timestamp 的默认值
-      if (javaDataType == Date.class || javaDataType == Timestamp.class) {
+      // 跳过设置 Date/Timestamp/LocalDate/LocalTime/LocalDateTime 的默认值
+      if (javaDataType == java.sql.Date.class || javaDataType == Timestamp.class
+          || javaDataType == LocalDate.class || javaDataType == LocalTime.class
+          || javaDataType == LocalDateTime.class) {
         column.setDefaultValue(null);
         column.setHasDefaultValue(false);
       }

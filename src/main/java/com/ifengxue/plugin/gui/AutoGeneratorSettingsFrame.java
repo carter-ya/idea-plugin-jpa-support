@@ -209,13 +209,13 @@ public class AutoGeneratorSettingsFrame {
     applicationProperties.setValue(createKey("generate_class_comment"), config.isGenerateClassComment());
     applicationProperties.setValue(createKey("generate_field_comment"), config.isGenerateFieldComment());
     applicationProperties.setValue(createKey("generate_method_comment"), config.isGenerateMethodComment());
+    applicationProperties.setValue(createKey("use_java8_data_type"), config.isUseJava8DataType());
     projectProperties.setValue(createKey("extend_base_class"), config.getExtendBaseClass());
     projectProperties.setValue(createKey("exclude_fields"), String.join(",", config.getExcludeFields()));
     projectProperties.setValue(createKey("entity_package"), config.getEntityPackage());
     projectProperties.setValue(createKey("entity_directory"), config.getEntityDirectory());
     projectProperties.setValue(createKey("repository_package"), config.getRepositoryPackage());
     projectProperties.setValue(createKey("repository_directory"), config.getRepositoryDirectory());
-    projectProperties.setValue(createKey("use_java8_data_type"), config.isUseJava8DataType());
   }
 
   public static void show(List<TableSchema> tableSchemaList) {
