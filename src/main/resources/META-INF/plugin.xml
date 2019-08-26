@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.ifengxue.plugin.jpa-support</id>
   <name>Jpa Support</name>
-  <version>1.1.3</version>
+  <version>1.1.4</version>
   <vendor email="liukefeng2008@hotmail.com" url="https://github.com/liukefeng2008/idea-plugin-jpa-support">
     https://github.com/liukefeng2008/idea-plugin-jpa-support
   </vendor>
@@ -17,14 +17,16 @@
 
   <change-notes><![CDATA[
       <ul>
-        <li>Support more mysql driver, contains 5.x 6.x 8.x</li>
-        <li>Support full upper case column name to normal filename. eg COLUMN_NAME to columnName</li>
+        <li>Support Java 8 data type.</li>
+        <li>Change type mapping: year to short, date to java.sql.Date, time to java.sql.Time, datetime and timestamp to java.sql.Timestamp</li>
+        <li>Bug fix: Fix parse field name not incorrectly bug.</li>
+        <li>Bug fix: Fix plugin crash bug caused by the absence of repository package path</li>
       </ul>
     ]]>
   </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="171"/>
+  <idea-version since-build="171" until-build="191.*"/>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
