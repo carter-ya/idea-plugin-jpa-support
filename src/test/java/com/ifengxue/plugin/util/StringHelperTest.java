@@ -17,6 +17,7 @@ public class StringHelperTest {
     assertEquals(StringHelper.parseFieldName("fieldName", "f_"), "fieldName");
     assertEquals(StringHelper.parseFieldName("realizedPNL", "f_"), "realizedPNL");
     assertEquals(StringHelper.parseFieldName("f_realizedPNL", "f_"), "realizedPNL");
+    assertEquals(StringHelper.parseFieldName("FIELD_NAME", "f_"), "fieldName");
   }
 
   @Test
