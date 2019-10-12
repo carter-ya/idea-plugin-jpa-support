@@ -76,6 +76,7 @@ public class JpaSupport extends AnAction {
       Messages.showWarningDialog("Project not activated!", "Jps Support");
       return;
     }
+    Holder.registerProject(e.getProject());
     Holder.registerEvent(e);// 注册事件
     Holder.registerApplicationProperties(PropertiesComponent.getInstance());
     Holder.registerProjectProperties(PropertiesComponent.getInstance(e.getProject()));

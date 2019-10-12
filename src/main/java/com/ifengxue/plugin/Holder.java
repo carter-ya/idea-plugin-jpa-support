@@ -3,17 +3,27 @@ package com.ifengxue.plugin;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import fastjdbc.FastJdbc;
 import java.io.IOException;
 import java.util.Objects;
 
 public class Holder {
 
+  private static volatile Project project;
   private static volatile AnActionEvent eventHolder;
   private static volatile PropertiesComponent applicationProperties;
   private static volatile PropertiesComponent projectProperties;
   private static volatile DatabaseDrivers databaseDrivers;
   private static volatile FastJdbc fastJdbc;
+
+  public static synchronized void registerProject(Project project) {
+    Holder.project = project;
+  }
+
+  public static synchronized Project getProject() {
+    return project;
+  }
 
   public static synchronized void registerEvent(AnActionEvent event) {
     eventHolder = event;
