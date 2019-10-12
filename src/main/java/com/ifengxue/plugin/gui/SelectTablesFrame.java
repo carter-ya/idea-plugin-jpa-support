@@ -10,12 +10,12 @@ import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
-import com.ifengxue.plugin.generator.config.TablesConfig.LineSeparator;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.EntitySourceParser;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.WindowUtil;
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -30,12 +30,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.swing.DefaultCellEditor;
@@ -323,8 +328,8 @@ public class SelectTablesFrame {
             .setBasePackageName(basePackageName)
             .setEntityPackageName(config.getEntityPackage())
             .setEnumSubPackageName(basePackageName + ".enums")
-            .setIndent("2space")
-            .setLineSeparator(LineSeparator.UNIX.getLineSeparator())
+            .setIndent(getIndent())
+            .setLineSeparator(getLineSeparator())
             .setOrm(ORM.JPA)
             .setExtendsEntityName(config.getExtendBaseClass())
             .setRemoveTablePrefix(config.getRemoveTablePrefix())
@@ -361,6 +366,27 @@ public class SelectTablesFrame {
       }
     }
 
+    private String getIndent() {
+      CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
+      IndentOptions indentOptions = Optional.ofNullable(codeStyleSettingsManager.getMainProjectCodeStyle())
+          .map(css -> css.getIndentOptions(JavaFileType.INSTANCE))
+          .orElseGet(() -> CodeStyleSettings.getDefaults().getIndentOptions(JavaFileType.INSTANCE));
+      String indent;
+      if (indentOptions.USE_TAB_CHARACTER) {
+        indent = indentOptions.TAB_SIZE <= 1 ? "tab" : indentOptions.TAB_SIZE + "tab";
+      } else {
+        indent = indentOptions.TAB_SIZE + "space";
+      }
+      return indent;
+    }
+
+    private String getLineSeparator() {
+      CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
+      return Optional.ofNullable(codeStyleSettingsManager.getMainProjectCodeStyle())
+          .map(CodeStyleSettings::getLineSeparator)
+          .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
+    }
+
     private void writeContent(Project project, String filename, String directory, String sourceCode) {
       PsiDirectory psiDirectory = DirectoryUtil.mkdirs(PsiManager.getInstance(project), directory);
       PsiFile psiFile = psiDirectory.findFile(filename);
@@ -384,12 +410,16 @@ public class SelectTablesFrame {
             assert pf != null;
             VirtualFile vf = pf.getVirtualFile();
             writeContent(sourceCode, vf);
+            JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
+            javaCodeStyleManager.optimizeImports(pf);
           });
         });
       } else {
         psiFile = psiDirectory.createFile(filename);
         VirtualFile vFile = psiFile.getVirtualFile();
         writeContent(sourceCode, vFile);
+        JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
+        javaCodeStyleManager.optimizeImports(psiFile);
       }
     }
 

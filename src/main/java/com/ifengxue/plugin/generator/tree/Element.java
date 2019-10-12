@@ -76,6 +76,12 @@ public interface Element {
         return "\t";
       }
     },
+    TWO_TAB {
+      @Override
+      public String getIndent() {
+        return TAB.getDoubleIndent();
+      }
+    },
     TWO_SPACE {
       @Override
       public String getIndent() {
@@ -85,7 +91,13 @@ public interface Element {
     FOUR_SPACE {
       @Override
       public String getIndent() {
-        return "    ";
+        return TWO_SPACE.getDoubleIndent();
+      }
+    },
+    EIGHT_SPACE {
+      @Override
+      public String getIndent() {
+        return FOUR_SPACE.getDoubleIndent();
       }
     };
 
@@ -99,11 +111,17 @@ public interface Element {
       if ("tab".equals(dtdDeclare)) {
         return TAB;
       }
+      if ("2tab".equals(dtdDeclare)) {
+        return TWO_TAB;
+      }
       if ("2space".equals(dtdDeclare)) {
         return TWO_SPACE;
       }
       if ("4space".equals(dtdDeclare)) {
         return FOUR_SPACE;
+      }
+      if ("8space".equals(dtdDeclare)) {
+        return EIGHT_SPACE;
       }
       return FOUR_SPACE;
     }
