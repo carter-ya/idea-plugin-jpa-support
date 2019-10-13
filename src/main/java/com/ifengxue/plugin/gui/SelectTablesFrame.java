@@ -368,7 +368,7 @@ public class SelectTablesFrame {
 
     private String getIndent() {
       CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
-      IndentOptions indentOptions = Optional.ofNullable(codeStyleSettingsManager.getMainProjectCodeStyle())
+      IndentOptions indentOptions = Optional.ofNullable(codeStyleSettingsManager.getCurrentSettings())
           .map(css -> css.getIndentOptions(JavaFileType.INSTANCE))
           .orElseGet(() -> CodeStyleSettings.getDefaults().getIndentOptions(JavaFileType.INSTANCE));
       String indent;
@@ -382,7 +382,7 @@ public class SelectTablesFrame {
 
     private String getLineSeparator() {
       CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
-      return Optional.ofNullable(codeStyleSettingsManager.getMainProjectCodeStyle())
+      return Optional.ofNullable(codeStyleSettingsManager.getCurrentSettings())
           .map(CodeStyleSettings::getLineSeparator)
           .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
     }
