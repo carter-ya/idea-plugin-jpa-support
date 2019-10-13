@@ -9,7 +9,7 @@ public enum DatabaseDrivers {
       "5.1.47",
       "com.mysql.jdbc.Driver",
       new MysqlDriverAdapter(),
-      "https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar"),
+      "drivers_mysql_5_1_47"),
   MYSQL("Mysql",
       Vendor.MYSQL,
       "6.0.6",
@@ -21,13 +21,13 @@ public enum DatabaseDrivers {
       "8.0.16",
       "com.mysql.cj.jdbc.Driver",
       new MysqlDriverAdapter(),
-      "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.16/mysql-connector-java-8.0.16.jar"),
+      "drivers_mysql_8_0_16"),
   POSTGRE_SQL("PostgreSQL",
       Vendor.POSTGRE_SQL,
       "42.2.5",
       "org.postgresql.Driver",
       new PostgreSQLDriverAdapter(),
-      "http://central.maven.org/maven2/org/postgresql/postgresql/42.2.5/postgresql-42.2.5.jar"),
+      "drivers_postgresql"),
   ;
   public static final String CLASSPATH_PREFIX = "classpath:";
   @Getter

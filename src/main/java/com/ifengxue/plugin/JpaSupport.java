@@ -460,11 +460,17 @@ public class JpaSupport extends AnAction {
                   new Notification("JpaSupport", "Error",
                       "copy file error, file path " + databaseDrivers.getJarFilename(),
                       NotificationType.ERROR)));
+              return;
             }
           }
+          String downloadUrl = LocaleContextHolder.format(databaseDrivers.getUrl());
+          ApplicationManager.getApplication().invokeLater(
+              () -> Bus.notify(new Notification(
+                  "JpaSupport", "Download drivers", "Download drivers from " + downloadUrl,
+                  NotificationType.INFORMATION)));
           DownloadableFileService downloadableFileService = DownloadableFileService.getInstance();
           DownloadableFileDescription downloadableFileDescription = downloadableFileService
-              .createFileDescription(databaseDrivers.getUrl(), databaseDrivers.getJarFilename() + ".tmp");
+              .createFileDescription(downloadUrl, databaseDrivers.getJarFilename() + ".tmp");
           FileDownloader fileDownloader = downloadableFileService
               .createDownloader(Collections.singletonList(downloadableFileDescription),
                   databaseDrivers.getJarFilename());
