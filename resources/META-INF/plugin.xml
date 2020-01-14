@@ -1,0 +1,56 @@
+<idea-plugin>
+  <actions>
+    <!-- Add your actions here -->
+    <action class="com.ifengxue.plugin.JpaSupport" description="create new jpa entities."
+      id="JPASupport.NewEntities1" text="Jpa Entities">
+      <add-to-group anchor="last" group-id="NewGroup1"/>
+    </action>
+    <action class="com.ifengxue.plugin.JpaSupport" description="create new jpa entities."
+      id="JPASupport.NewEntities2" text="Jpa Entities">
+      <add-to-group anchor="last" group-id="GenerateGroup"/>
+    </action>
+  </actions>
+  <change-notes><![CDATA[
+      <ul>
+        <li>Support JDK9+</li>
+        <li>Support Java 8 data type.</li>
+        <li>Change type mapping: year to short, date to java.sql.Date, time to java.sql.Time, datetime and timestamp to java.sql.Timestamp</li>
+        <li>Bug fix: Fix parse field name not incorrectly bug.</li>
+        <li>Bug fix: Fix com.ifengxue.plugin crash bug caused by the absence of repository package path</li>
+      </ul>
+    ]]>
+  </change-notes>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.lang</depends>
+
+  <depends>com.intellij.modules.java</depends>
+
+  <description><![CDATA[
+      <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
+      <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
+      <p>Support multiple types of databases. Currently supported database are Mysql, PostgreSQL.</p>
+      <p>Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b></p>
+      <a href="https://github.com/liukefeng2008/idea-com.ifengxue.plugin-jpa-support">README</a> <br>
+      <img src="https://github.com/liukefeng2008/idea-com.ifengxue.plugin-jpa-support/blob/master/doc/jpa-support.gif?raw=true" alt="Use tips.">
+    ]]></description>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <!--  <idea-version since-build="171" until-build="191.*"/>-->
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+
+  <id>com.ifengxue.com.ifengxue.plugin.jpa-support</id>
+  <idea-version since-build="171"/>
+  <name>Jpa Support</name>
+
+  <vendor email="liukefeng2008@hotmail.com" url="https://github.com/liukefeng2008/idea-plugin-jpa-support">
+    https://github.com/liukefeng2008/idea-com.ifengxue.plugin-jpa-support
+  </vendor>
+
+  <version>1.1.5</version>
+
+</idea-plugin>
