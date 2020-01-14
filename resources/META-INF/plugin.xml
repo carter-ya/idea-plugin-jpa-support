@@ -43,7 +43,7 @@
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
 
-  <id>com.ifengxue.com.ifengxue.plugin.jpa-support</id>
+  <id>com.ifengxue.plugin.jpa-support</id>
   <idea-version since-build="171"/>
   <name>Jpa Support</name>
 
