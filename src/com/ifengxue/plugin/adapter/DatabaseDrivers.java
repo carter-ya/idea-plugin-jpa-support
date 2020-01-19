@@ -15,7 +15,7 @@ public enum DatabaseDrivers {
       "6.0.6",
       "com.mysql.cj.jdbc.Driver",
       new MysqlDriverAdapter(),
-      "classpath:lib/mysql-connector-java-6.0.6.jar"),
+      "classpath:mysql-connector-java-6.0.6.jar"),
   MYSQL_V_8_0_16("Mysql",
       Vendor.MYSQL,
       "8.0.16",

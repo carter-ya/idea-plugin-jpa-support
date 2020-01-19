@@ -1,11 +1,11 @@
 <idea-plugin>
   <actions>
     <!-- Add your actions here -->
-    <action class="com.ifengxue.plugin.JpaSupport" description="create new jpa entities."
+    <action class="com.ifengxue.plugin.JpaSupport" description="Create new jpa entities."
       id="JPASupport.NewEntities1" text="Jpa Entities">
       <add-to-group anchor="last" group-id="NewGroup1"/>
     </action>
-    <action class="com.ifengxue.plugin.JpaSupport" description="create new jpa entities."
+    <action class="com.ifengxue.plugin.JpaSupport" description="Create new jpa entities."
       id="JPASupport.NewEntities2" text="Jpa Entities">
       <add-to-group anchor="last" group-id="GenerateGroup"/>
     </action>
@@ -13,16 +13,12 @@
   <change-notes><![CDATA[
       <ul>
         <li>Support JDK9+</li>
-        <li>Support Java 8 data type.</li>
-        <li>Change type mapping: year to short, date to java.sql.Date, time to java.sql.Time, datetime and timestamp to java.sql.Timestamp</li>
-        <li>Bug fix: Fix parse field name not incorrectly bug.</li>
-        <li>Bug fix: Fix com.ifengxue.plugin crash bug caused by the absence of repository package path</li>
+        <li>Fix bugs that cannot be switch database driver.</li>
       </ul>
     ]]>
   </change-notes>
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.lang</depends>
-
   <depends>com.intellij.modules.java</depends>
 
   <description><![CDATA[
@@ -51,6 +47,6 @@
     https://github.com/liukefeng2008/idea-plugin-jpa-support
   </vendor>
 
-  <version>1.1.5</version>
+  <version>1.1.6</version>
 
 </idea-plugin>
