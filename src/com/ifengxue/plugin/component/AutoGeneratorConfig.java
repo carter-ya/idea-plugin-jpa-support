@@ -8,6 +8,8 @@ public class AutoGeneratorConfig implements Serializable {
 
   private static final long serialVersionUID = -8978327106950673087L;
   private String removeTablePrefix;
+  private String addTablePrefix;
+  private String addTableSuffix;
   private String removeFieldPrefix;
   private String extendBaseClass;
   private String entityPackage;
@@ -160,10 +162,30 @@ public class AutoGeneratorConfig implements Serializable {
     return this;
   }
 
+  public String getAddTablePrefix() {
+    return addTablePrefix;
+  }
+
+  public AutoGeneratorConfig setAddTablePrefix(String addTablePrefix) {
+    this.addTablePrefix = addTablePrefix;
+    return this;
+  }
+
+  public String getAddTableSuffix() {
+    return addTableSuffix;
+  }
+
+  public AutoGeneratorConfig setAddTableSuffix(String addTableSuffix) {
+    this.addTableSuffix = addTableSuffix;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "AutoGeneratorConfig{" +
         "removeTablePrefix='" + removeTablePrefix + '\'' +
+        ", addTablePrefix='" + addTablePrefix + '\'' +
+        ", addTableSuffix='" + addTableSuffix + '\'' +
         ", removeFieldPrefix='" + removeFieldPrefix + '\'' +
         ", extendBaseClass='" + extendBaseClass + '\'' +
         ", entityPackage='" + entityPackage + '\'' +

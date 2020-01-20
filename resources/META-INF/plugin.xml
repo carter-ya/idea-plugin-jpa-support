@@ -13,6 +13,7 @@
   <change-notes><![CDATA[
       <ul>
         <li>Support JDK9+</li>
+        <li>Support set entity name prefix and suffix.</li>
         <li>Fix a bug that cannot be switch database driver.</li>
         <li>Fix a bug that the driver may not be selected correctly when the driver name is the same.</li>
       </ul>
