@@ -112,6 +112,8 @@ public class AutoGeneratorSettingsFrame {
         event -> {
           // 读取属性
           config.setRemoveTablePrefix(autoGeneratorSettingsHolder.getTextRemoveTablePrefix().getText().trim());
+          config.setAddTablePrefix(autoGeneratorSettingsHolder.getTextAddTableNamePrefix().getText().trim());
+          config.setAddTableSuffix(autoGeneratorSettingsHolder.getTextAddTableNameSuffix().getText().trim());
           config.setRemoveFieldPrefix(autoGeneratorSettingsHolder.getTextRemoveFieldPrefix().getText().trim());
           config.setExtendBaseClass(autoGeneratorSettingsHolder.getTextExtendBaseClass().getText().trim());
           config.setEntityPackage(
@@ -155,6 +157,7 @@ public class AutoGeneratorSettingsFrame {
               tableName = tableName.substring(config.getRemoveTablePrefix().length());
             }
             String entityName = StringHelper.parseEntityName(tableName);
+            entityName = config.getAddTablePrefix() + entityName + config.getAddTableSuffix();
             boolean selected = vFile.findChild(entityName + ".java") == null;
             if (selected) {
               // support flyway
@@ -179,6 +182,8 @@ public class AutoGeneratorSettingsFrame {
     PropertiesComponent applicationProperties = Holder.getApplicationProperties();
     PropertiesComponent projectProperties = Holder.getProjectProperties();
     settings.getTextRemoveTablePrefix().setText(applicationProperties.getValue(createKey("remove_table_prefix"), "t_"));
+    settings.getTextAddTableNamePrefix().setText(applicationProperties.getValue(createKey("add_table_prefix"), ""));
+    settings.getTextAddTableNameSuffix().setText(applicationProperties.getValue(createKey("add_table_suffix"), ""));
     settings.getTextRemoveFieldPrefix().setText(applicationProperties.getValue(createKey("remove_field_prefix"), "f_"));
     settings.getChkBoxUseLombok()
         .setSelected((applicationProperties.getBoolean(createKey("use_lombok"), true)));
@@ -206,6 +211,8 @@ public class AutoGeneratorSettingsFrame {
     PropertiesComponent applicationProperties = Holder.getApplicationProperties();
     PropertiesComponent projectProperties = Holder.getProjectProperties();
     applicationProperties.setValue(createKey("remove_table_prefix"), config.getRemoveTablePrefix());
+    applicationProperties.setValue(createKey("add_table_prefix"), config.getAddTablePrefix());
+    applicationProperties.setValue(createKey("add_table_suffix"), config.getAddTableSuffix());
     applicationProperties.setValue(createKey("remove_field_prefix"), config.getRemoveFieldPrefix());
     applicationProperties.setValue(createKey("use_lombok"), config.isUseLombok());
     applicationProperties.setValue(createKey("generate_repository"), config.isGenerateRepository());

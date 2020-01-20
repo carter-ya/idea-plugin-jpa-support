@@ -2,13 +2,16 @@ package com.ifengxue.plugin.component;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import lombok.Getter;
 
+@Getter
 public class AutoGeneratorSettings {
 
   private JPanel rootComponent;
-  private JTextField textRemoveTablePrefix;
   private JTextField textRemoveFieldPrefix;
   private JTextField textExtendBaseClass;
   private JCheckBox chkBoxUseLombok;
@@ -27,80 +30,8 @@ public class AutoGeneratorSettings {
   private JButton btnChooseSuperClass;
   private JCheckBox chkBoxGenerateService;
   private JCheckBox chkBoxUseJava8DataType;
-
-  public JPanel getRootComponent() {
-    return rootComponent;
-  }
-
-  public JTextField getTextRemoveTablePrefix() {
-    return textRemoveTablePrefix;
-  }
-
-  public JTextField getTextRemoveFieldPrefix() {
-    return textRemoveFieldPrefix;
-  }
-
-  public JTextField getTextExtendBaseClass() {
-    return textExtendBaseClass;
-  }
-
-  public JCheckBox getChkBoxUseLombok() {
-    return chkBoxUseLombok;
-  }
-
-  public JCheckBox getChkBoxGenerateRepository() {
-    return chkBoxGenerateRepository;
-  }
-
-  public JTextField getTextEntityPackage() {
-    return textEntityPackage;
-  }
-
-  public JTextField getTxtRepositoryPackage() {
-    return txtRepositoryPackage;
-  }
-
-  public JButton getBtnNext() {
-    return btnNext;
-  }
-
-  public JCheckBox getChkBoxSerializable() {
-    return chkBoxSerializable;
-  }
-
-  public JCheckBox getChkBoxGenerateClassComment() {
-    return chkBoxGenerateClassComment;
-  }
-
-  public JCheckBox getChkBoxGenerateFieldComment() {
-    return chkBoxGenerateFieldComment;
-  }
-
-  public JCheckBox getChkBoxGenerateMethodComment() {
-    return chkBoxGenerateMethodComment;
-  }
-
-  public JButton getBtnCancel() {
-    return btnCancel;
-  }
-
-  public JTextField getTextExcludeFields() {
-    return textExcludeFields;
-  }
-
-  public JButton getBtnChooseEntityPackage() {
-    return btnChooseEntityPackage;
-  }
-
-  public JButton getBtnChooseRepositoryPackage() {
-    return btnChooseRepositoryPackage;
-  }
-
-  public JButton getBtnChooseSuperClass() {
-    return btnChooseSuperClass;
-  }
-
-  public JCheckBox getChkBoxUseJava8DataType() {
-    return chkBoxUseJava8DataType;
-  }
+  private JTextField textRemoveTablePrefix;
+  private JLabel addTableNamePrefix;
+  private JTextField textAddTableNamePrefix;
+  private JTextField textAddTableNameSuffix;
 }
