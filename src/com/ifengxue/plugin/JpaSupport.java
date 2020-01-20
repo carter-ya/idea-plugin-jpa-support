@@ -171,10 +171,11 @@ public class JpaSupport extends AnAction {
                 }
               });
             }
+            DatabaseDrivers databaseDrivers = Holder.getDatabaseDrivers();
             Driver driver = (Driver) Class
-                .forName(Holder.getDatabaseDrivers().getDriverClass(), true, classLoaderRef.get())
-                .newInstance();
-            DriverManager.registerDriver(new DriverDelegate(driver));
+                .forName(databaseDrivers.getDriverClass(), true, classLoaderRef.get())
+                .getDeclaredConstructor().newInstance();
+            DriverManager.registerDriver(new DriverDelegate(driver, databaseDrivers));
           }
         } catch (ReflectiveOperationException | SQLException e1) {
           ApplicationManager.getApplication().invokeLater(() -> Bus
@@ -227,9 +228,10 @@ public class JpaSupport extends AnAction {
     try {
       UrlClassLoader urlClassLoader = UrlClassLoader.build()
           .urls(new File(virtualFile.getPath()).toURI().toURL())
+          .parent(getClass().getClassLoader())
           .get();
-      Driver driver = (Driver) urlClassLoader.loadClass(databaseDrivers.getDriverClass()).newInstance();
-      DriverManager.registerDriver(new DriverDelegate(driver));
+      Driver driver = (Driver) urlClassLoader.loadClass(databaseDrivers.getDriverClass()).getDeclaredConstructor().newInstance();
+      DriverManager.registerDriver(new DriverDelegate(driver, databaseDrivers));
       log.info("driver " + databaseDrivers.getDriverClass() + " has been loaded");
       classLoaderRef.set(urlClassLoader);
       Holder.registerDatabaseDrivers(databaseDrivers);
@@ -260,12 +262,10 @@ public class JpaSupport extends AnAction {
     Enumeration<Driver> driverEnumeration = DriverManager.getDrivers();
     while (driverEnumeration.hasMoreElements()) {
       Driver driver = driverEnumeration.nextElement();
-      String driverName = driver.getClass().getName();
       if (driver instanceof DriverDelegate) {
-        driverName = ((DriverDelegate) driver).getDriver().getClass().getName();
-      }
-      if (driverName.equals(databaseDrivers.getDriverClass())) {
-        return true;
+        if (((DriverDelegate) driver).getDatabaseDrivers() == databaseDrivers) {
+          return true;
+        }
       }
     }
     return false;
@@ -346,6 +346,7 @@ public class JpaSupport extends AnAction {
       try {
         classLoaderRef.set(UrlClassLoader.build()
             .urls(new File(databaseDriverPath).toURI().toURL())
+            .parent(getClass().getClassLoader())
             .get());
       } catch (MalformedURLException e) {
         log.error("url not valid " + databaseDrivers.getDriverClass(), e);
