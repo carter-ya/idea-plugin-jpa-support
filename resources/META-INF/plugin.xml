@@ -45,8 +45,8 @@
   <idea-version since-build="171"/>
   <name>Jpa Support</name>
 
-  <vendor email="liukefeng2008@hotmail.com" url="https://github.com/liukefeng2008/idea-plugin-jpa-support">
-    https://github.com/liukefeng2008/idea-plugin-jpa-support
+  <vendor email="liukefeng2008@hotmail.com" url="https://github.com/carter-ya/idea-plugin-jpa-support">
+    https://github.com/carter-ya/idea-plugin-jpa-support
   </vendor>
 
   <version>1.1.6</version>
