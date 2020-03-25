@@ -12,6 +12,7 @@
   </actions>
   <change-notes><![CDATA[
       <ul>
+        <li>Fix a bug that cannot resolve column name to field name correctly.</li>
         <li>Support JDK9+</li>
         <li>Support set entity name prefix and suffix.</li>
         <li>Fix a bug that cannot be switch database driver.</li>
@@ -49,6 +50,6 @@
     https://github.com/carter-ya/idea-plugin-jpa-support
   </vendor>
 
-  <version>1.1.6</version>
+  <version>1.1.7</version>
 
 </idea-plugin>
