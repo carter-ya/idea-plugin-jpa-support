@@ -12,6 +12,6 @@
     <orderEntry type="library" name="slf4j-api-1.7.25" level="project" />
     <orderEntry type="library" name="lombok-1.18.10" level="project" />
     <orderEntry type="library" name="hibernate-jpa-2.1-api-1.0.2.Final" level="project" />
-    <orderEntry type="library" name="commons-lang3-3.8.1" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>

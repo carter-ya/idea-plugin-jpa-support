@@ -4,6 +4,7 @@ import com.ifengxue.plugin.adapter.DriverAdapter;
 import com.ifengxue.plugin.adapter.MysqlDriverAdapter;
 import com.ifengxue.plugin.adapter.PostgreSQLDriverAdapter;
 import com.intellij.openapi.diagnostic.Logger;
+import java.beans.Introspector;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -229,13 +230,13 @@ public class StringHelper {
   /**
    * 解析列名 <br>
    * column_name -> columnName <br>
-   * column_name_ -> columnName <br>
    * _column_name_ -> columnName <br>
    * COLUMN_NAME -> columnName <br>
+   * ColumnName -> columnName <br>
    */
   public static String parseFieldName(String columnName) {
     if (!columnName.contains("_")) {
-      return columnName;
+      return Introspector.decapitalize(columnName);
     }
     columnName = columnName.toLowerCase();
     if (columnName.startsWith("is_")) {
@@ -267,6 +268,7 @@ public class StringHelper {
    * prefix_column_name -> columnName <br>
    * prefix_column_name_ -> columnName <br>
    * prefix__column_name_ -> columnName <br>
+   * ColumnName -> columnName <br>
    *
    * @param columnName 字段名称
    * @param removePrefix 要移除的前缀
