@@ -91,7 +91,10 @@ public class StringHelper {
       case "CHAR":
         javaDataType = String.class;
         break;
+      case "TINYBLOB":
       case "BLOB":
+      case "MEDIUMBLOB":
+      case "LONGBLOB":
         javaDataType = byte[].class;
         break;
       case "ID":
