@@ -165,6 +165,8 @@ public class JpaSupport extends AnAction {
                 int selectButton = Messages.showOkCancelDialog(e.getProject(),
                     LocaleContextHolder.format("driver_not_found", Holder.getDatabaseDrivers().getDriverClass()),
                     LocaleContextHolder.format("prompt"),
+                    Messages.getOkButton(),
+                    Messages.getCancelButton(),
                     Messages.getQuestionIcon());
                 if (selectButton == Messages.OK) {
                   new DownloadDriverRunnable(e.getProject(), null, Holder.getDatabaseDrivers()).run();

@@ -57,7 +57,7 @@ import org.apache.velocity.runtime.log.LogChute;
 public class SelectTablesFrame {
 
   private final JFrame frameHolder;
-  private Logger log = Logger.getInstance(getClass());
+  private final Logger log = Logger.getInstance(getClass());
 
   private SelectTablesFrame(List<Table> tableList, AutoGeneratorConfig config) {
     frameHolder = new JFrame(LocaleContextHolder.format("select_database_tables"));
@@ -211,7 +211,7 @@ public class SelectTablesFrame {
       // repository
       VelocityEngine velocityEngine = new VelocityEngine();
       // rewrite LogChute Avoid access denied exceptions (velocity.log)
-      // link: https://github.com/liukefeng2008/idea-plugin-jpa-support/issues/4
+      // link: https://github.com/carter-ya/idea-plugin-jpa-support/issues/4
       velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new LogChute() {
         @Override
         public void init(RuntimeServices runtimeServices) {
@@ -315,7 +315,7 @@ public class SelectTablesFrame {
           log.error("load driver class error", e);
           ApplicationManager.getApplication()
               .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
-                  "load driver class error", NotificationType.ERROR)));
+                  "Load driver class error", NotificationType.ERROR)));
           ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
           return;
         }
@@ -368,7 +368,7 @@ public class SelectTablesFrame {
 
     private String getIndent() {
       CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
-      IndentOptions indentOptions = Optional.ofNullable(codeStyleSettingsManager.getCurrentSettings())
+      IndentOptions indentOptions = Optional.ofNullable(codeStyleSettingsManager.getMainProjectCodeStyle())
           .map(css -> css.getIndentOptions(JavaFileType.INSTANCE))
           .orElseGet(() -> CodeStyleSettings.getDefaults().getIndentOptions(JavaFileType.INSTANCE));
       String indent;
@@ -382,7 +382,7 @@ public class SelectTablesFrame {
 
     private String getLineSeparator() {
       CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
-      return Optional.ofNullable(codeStyleSettingsManager.getCurrentSettings())
+      return Optional.ofNullable(codeStyleSettingsManager.getMainProjectCodeStyle())
           .map(CodeStyleSettings::getLineSeparator)
           .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
     }
@@ -397,8 +397,8 @@ public class SelectTablesFrame {
               .showOkCancelDialog(
                   LocaleContextHolder.format("file_already_exists_overwritten", filename),
                   LocaleContextHolder.format("prompt"),
-                  Messages.OK_BUTTON,
-                  Messages.CANCEL_BUTTON,
+                  Messages.getOkButton(),
+                  Messages.getCancelButton(),
                   Messages.getQuestionIcon());
           // 不覆盖
           if (selectButton != Messages.OK) {

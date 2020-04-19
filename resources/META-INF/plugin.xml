@@ -12,11 +12,7 @@
   </actions>
   <change-notes><![CDATA[
       <ul>
-        <li>Fix a bug that cannot resolve column name to field name correctly.</li>
-        <li>Support JDK9+</li>
-        <li>Support set entity name prefix and suffix.</li>
-        <li>Fix a bug that cannot be switch database driver.</li>
-        <li>Fix a bug that the driver may not be selected correctly when the driver name is the same.</li>
+        <li>Fix compatibility issues with some idea tips</li>
       </ul>
     ]]>
   </change-notes>
@@ -29,8 +25,8 @@
       <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
       <p>Support multiple types of databases. Currently supported database are Mysql, PostgreSQL.</p>
       <p>Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b></p>
-      <a href="https://github.com/liukefeng2008/idea-plugin-jpa-support">README</a> <br>
-      <img src="https://github.com/liukefeng2008/idea-plugin-jpa-support/blob/master/doc/jpa-support.gif?raw=true" alt="Use tips.">
+      <a href="https://github.com/carter-ya/idea-plugin-jpa-support">README</a> <br>
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/jpa-support.gif?raw=true" alt="Use tips.">
     ]]></description>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
@@ -50,6 +46,6 @@
     https://github.com/carter-ya/idea-plugin-jpa-support
   </vendor>
 
-  <version>1.1.7</version>
+  <version>1.1.8</version>
 
 </idea-plugin>
