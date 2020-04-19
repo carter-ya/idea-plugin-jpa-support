@@ -65,7 +65,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class JpaSupport extends AnAction {
 
-  private static final String DRIVER_VENDOR_PATH = "driver_vendor";
+  private static final String DRIVER_VENDOR_PATH = ".Jpa Support" + File.separator + "driver_vendor";
   public static AtomicReference<ClassLoader> classLoaderRef = new AtomicReference<>(JpaSupport.class.getClassLoader());
   private Logger log = Logger.getInstance(JpaSupport.class);
   private DatabaseSettings databaseSettings;
@@ -434,7 +434,7 @@ public class JpaSupport extends AnAction {
     public void run() {
       WriteCommandAction.runWriteCommandAction(project, () -> {
         // fix issue #15, DirectoryUtil.mkdirs not support path separator '\'
-        String dirPath = System.getProperty("user.dir") + File.separator + DRIVER_VENDOR_PATH;
+        String dirPath = System.getProperty("user.home") + File.separator + DRIVER_VENDOR_PATH;
         if (File.separatorChar != '/') {
           dirPath = dirPath.replace('\\', '/');
         }

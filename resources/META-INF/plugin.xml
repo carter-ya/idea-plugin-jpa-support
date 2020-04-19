@@ -14,6 +14,7 @@
       <ul>
         <li>Fix compatibility issues with some idea tips</li>
         <li>Fix bug: missing mysql 6.0.6 driver</li>
+        <li>Fix bug: the new version idea has a bug with insufficient permissions when creating a directory</li>
         <li>When the driver is Oracle(NOT SUPPORT), the primary key increment mode is sequence</li>
       </ul>
     ]]>
@@ -41,7 +42,7 @@
        on how to target different products -->
 
   <id>com.ifengxue.plugin.jpa-support</id>
-  <idea-version since-build="171"/>
+  <idea-version since-build="201"/>
   <name>Jpa Support</name>
 
   <vendor email="liukefeng2008@hotmail.com" url="https://github.com/carter-ya/idea-plugin-jpa-support">
