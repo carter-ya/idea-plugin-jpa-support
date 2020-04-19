@@ -67,6 +67,8 @@ public class JpaVisitor extends VisitorSupport {
         case ORACLE:
           generatedAnnotation
               .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("strategy", "GenerationType.SEQUENCE"));
+          generatedAnnotation
+              .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("generator", "Please input your generator name"));
           break;
         default:
           throw new IllegalStateException();
@@ -74,6 +76,16 @@ public class JpaVisitor extends VisitorSupport {
       anImport.addImportClass(generatedAnnotation.getClassName());
       anImport.addImportClass("javax.persistence.GenerationType");
       field.addChild(generatedAnnotation);
+
+      if (vendor == Vendor.ORACLE) {
+        Annotation sequenceAnnotation = new Annotation("javax.persistence.SequenceGenerator");
+        sequenceAnnotation
+            .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("name", "Please input your generator name"));
+        sequenceAnnotation
+            .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("sequenceName", "Please input your generator name"));
+        anImport.addImportClass(sequenceAnnotation.getClassName());
+        field.addChild(sequenceAnnotation);
+      }
     }
     Column matchColumn = table.getColumns().stream()
         .filter(column -> column.getFieldName().equals(field.getFieldName()))

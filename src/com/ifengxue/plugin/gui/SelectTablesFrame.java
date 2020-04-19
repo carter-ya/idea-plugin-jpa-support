@@ -296,6 +296,7 @@ public class SelectTablesFrame {
               .parseToColumn(columnSchema, config.getRemoveFieldPrefix(), true, config.isUseJava8DataType());
           if (column.isPrimary()) {
             table.setPrimaryKeyClassType(column.getJavaDataType());
+            table.incPrimaryKeyCount();
           }
           if (!config.getExcludeFields().contains(column.getFieldName())) {
             columnList.add(column);

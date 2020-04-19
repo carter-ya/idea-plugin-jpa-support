@@ -13,6 +13,8 @@
   <change-notes><![CDATA[
       <ul>
         <li>Fix compatibility issues with some idea tips</li>
+        <li>Fix bug: missing mysql 6.0.6 driver</li>
+        <li>When the driver is Oracle(NOT SUPPORT), the primary key increment mode is sequence</li>
       </ul>
     ]]>
   </change-notes>

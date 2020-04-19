@@ -41,6 +41,11 @@ public class Table {
    */
   private Class<?> primaryKeyClassType;
 
+  /**
+   * 主键数量
+   */
+  private int primaryKeyCount;
+
   private List<Column> columns;
 
   public static Table from(TableSchema tableSchema, String entityName, boolean selected) {
@@ -51,5 +56,9 @@ public class Table {
     table.setEntityName(entityName);
     table.setSelected(selected);
     return table;
+  }
+
+  public void incPrimaryKeyCount() {
+    primaryKeyCount++;
   }
 }

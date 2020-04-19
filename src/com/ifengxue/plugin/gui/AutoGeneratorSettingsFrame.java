@@ -144,11 +144,9 @@ public class AutoGeneratorSettingsFrame {
           List<Table> tableList = new ArrayList<>(tableSchemaList.size());
           VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(config.getEntityDirectory());
           if (vFile == null) {
-            Messages
-                .showMessageDialog(
-                    LocaleContextHolder.format("path_not_exists", config.getEntityDirectory()),
-                    LocaleContextHolder.format("prompt"),
-                    Messages.getErrorIcon());
+            Messages.showMessageDialog(
+                LocaleContextHolder.format("path_not_exists", config.getEntityDirectory()),
+                LocaleContextHolder.format("prompt"), Messages.getErrorIcon());
             return;
           }
           for (TableSchema tableSchema : tableSchemaList) {
