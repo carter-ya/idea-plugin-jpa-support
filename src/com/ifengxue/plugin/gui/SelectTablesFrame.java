@@ -398,8 +398,8 @@ public class SelectTablesFrame {
               .showOkCancelDialog(
                   LocaleContextHolder.format("file_already_exists_overwritten", filename),
                   LocaleContextHolder.format("prompt"),
-                  Messages.getOkButton(),
-                  Messages.getCancelButton(),
+                  Messages.OK_BUTTON,
+                  Messages.CANCEL_BUTTON,
                   Messages.getQuestionIcon());
           // 不覆盖
           if (selectButton != Messages.OK) {
