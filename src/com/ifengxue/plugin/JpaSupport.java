@@ -23,6 +23,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
@@ -438,10 +439,24 @@ public class JpaSupport extends AnAction {
         if (File.separatorChar != '/') {
           dirPath = dirPath.replace('\\', '/');
         }
+        // 创建目录，确保目录存在
         PsiDirectory driverVendorPath = DirectoryUtil.mkdirs(PsiManager.getInstance(project), dirPath);
-        PsiFile jarFile = driverVendorPath.findFile(databaseDrivers.getJarFilename());
+        VirtualFile jarFile = LocalFileSystem.getInstance()
+            .refreshAndFindFileByPath(dirPath + "/" + databaseDrivers.getJarFilename());
         // driver 不存在，需要下载
-        if (jarFile == null) {
+        if (jarFile == null || !jarFile.exists() ||
+            !new File(dirPath + "/" + databaseDrivers.getJarFilename()).exists()) {
+          // 兼容处理：VirtualFile认为文件存在File认为文件不存在，因此需要删除这个虚拟文件
+          if (jarFile != null && jarFile.exists()) {
+            try {
+              jarFile.delete(this);
+            } catch (IOException e) {
+              ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
+                  new Notification("JpaSupport", "Error",
+                      "delete invalid file error: " + e.getLocalizedMessage(),
+                      NotificationType.ERROR)));
+            }
+          }
           if (databaseDrivers.getUrl().startsWith(DatabaseDrivers.CLASSPATH_PREFIX)) {
             String filePath = databaseDrivers.getUrl().substring(DatabaseDrivers.CLASSPATH_PREFIX.length());
             try (BufferedInputStream bis = new BufferedInputStream(
@@ -455,6 +470,7 @@ public class JpaSupport extends AnAction {
               virtualFile.setWritable(true);
               virtualFile.setCharset(StandardCharsets.UTF_8);
               virtualFile.setBinaryContent(bytes);
+              LocalFileSystem.getInstance().refresh(true);
               loadDriverClass(virtualFile, databaseDrivers);
               return;
             } catch (IOException e) {
@@ -478,7 +494,7 @@ public class JpaSupport extends AnAction {
               .createDownloader(Collections.singletonList(downloadableFileDescription),
                   databaseDrivers.getJarFilename());
           List<VirtualFile> virtualFiles = fileDownloader
-              .downloadFilesWithProgress(driverVendorPath.getVirtualFile().getPath(), project, parentComponent);
+              .downloadFilesWithProgress(dirPath, project, parentComponent);
           if (virtualFiles == null) {
             return;
           }
@@ -494,7 +510,7 @@ public class JpaSupport extends AnAction {
           }
           loadDriverClass(virtualFiles.get(0), databaseDrivers);
         } else {
-          loadDriverClass(jarFile.getVirtualFile(), databaseDrivers);
+          loadDriverClass(jarFile, databaseDrivers);
         }
       });
     }

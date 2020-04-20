@@ -12,6 +12,7 @@
   </actions>
   <change-notes><![CDATA[
       <ul>
+        <li>Fix bug: fix VirtualFile can't check the file exists, so the Jpa Support cannot load driver class.</li>
         <li>Fix compatibility issues with some idea tips</li>
         <li>Fix bug: missing mysql 6.0.6 driver</li>
         <li>Fix bug: the new version idea has a bug with insufficient permissions when creating a directory</li>
@@ -49,6 +50,6 @@
     https://github.com/carter-ya/idea-plugin-jpa-support
   </vendor>
 
-  <version>1.1.8</version>
+  <version>1.1.9</version>
 
 </idea-plugin>
