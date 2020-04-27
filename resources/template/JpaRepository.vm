@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import $importClass;
 #end
 #if(!$importClassList.isEmpty())
-    ## add new empty line
+## add new empty line
 
 #end
 public interface $simpleName extends JpaRepository<$entitySimpleName, $primaryKeyDataType>, JpaSpecificationExecutor<$entitySimpleName> {
