@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class StringHelper {
 
   private static final Map<Class<?>, Class<?>> WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE = new HashMap<>();
-  private static Logger log = Logger.getInstance(StringHelper.class);
+  private static final Logger LOGGER = Logger.getInstance(StringHelper.class);
 
   static {
     WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.put(Boolean.class, boolean.class);
@@ -135,7 +135,7 @@ public class StringHelper {
         break;
       default:
         javaDataType = String.class;
-        log.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
+        LOGGER.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
         break;
     }
     if (columnName.startsWith("is_")) {
@@ -199,7 +199,7 @@ public class StringHelper {
         break;
       default:
         javaDataType = String.class;
-        log.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
+        LOGGER.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
         break;
     }
     if (columnName.startsWith("is_")) {
@@ -209,6 +209,17 @@ public class StringHelper {
       return javaDataType;
     }
     return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(javaDataType, javaDataType);
+  }
+
+  /**
+   * 移除数组所有维度，获取原始的数据类型
+   */
+  public static Class<?> expandArray(Class<?> clazz) {
+    Class<?> target = clazz;
+    while (target.isArray()) {
+      target = target.getComponentType();
+    }
+    return target;
   }
 
   /**
@@ -288,6 +299,20 @@ public class StringHelper {
    */
   public static String parseSetMethodName(String fieldName) {
     return "set" + firstLetterUpper(fieldName);
+  }
+
+  /**
+   * 解析字段的set方法名称
+   *
+   * @param fieldName 字段名称
+   * @param type 字段数据类型
+   */
+  public static String parseGetMethodName(String fieldName, Class<?> type) {
+    if (type == boolean.class || type == Boolean.class) {
+      return parseIsMethodName(fieldName);
+    } else {
+      return parseGetMethodName(fieldName);
+    }
   }
 
   /**

@@ -11,7 +11,7 @@ import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
-import com.ifengxue.plugin.generator.source.EntitySourceParser;
+import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.WindowUtil;
@@ -271,7 +271,8 @@ public class SelectTablesFrame {
       JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
       repositorySourceParser.setVelocityEngine(velocityEngine, encoding);
 
-      EntitySourceParser sourceParser = new EntitySourceParser();
+      EntitySourceParserV2 sourceParser = new EntitySourceParserV2();
+      sourceParser.setVelocityEngine(velocityEngine, encoding);
 
       // 生成数量
       AtomicInteger generateCount = new AtomicInteger(tableList.size());
