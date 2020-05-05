@@ -17,6 +17,7 @@ import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
+import com.intellij.notification.EventLog;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
@@ -24,10 +25,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.swing.DefaultCellEditor;
@@ -275,7 +279,7 @@ public class SelectTablesFrame {
       sourceParser.setVelocityEngine(velocityEngine, encoding);
 
       // 生成数量
-      AtomicInteger generateCount = new AtomicInteger(tableList.size());
+      CountDownLatch countDownLatch = new CountDownLatch(tableList.size());
       for (Table table : tableList) {
         List<ColumnSchema> columnSchemaList;
         try {
@@ -351,26 +355,37 @@ public class SelectTablesFrame {
         String sourceCode = sourceParser.parse(generatorConfig, table);
         WriteCommandAction.runWriteCommandAction(project, () -> {
           String filename = table.getEntityName() + ".java";
-          writeContent(project, filename, config.getEntityDirectory(), sourceCode);
-          if (!config.isGenerateRepository()) {
-            if (generateCount.decrementAndGet() <= 0) {
-              ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
+          try {
+            writeContent(project, filename, config.getEntityDirectory(), sourceCode);
+            if (config.isGenerateRepository()) {
+              filename = table.getEntityName() + "Repository.java";
+              String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
+              writeContent(project, filename, config.getRepositoryDirectory(), repositorySourceCode);
             }
-            return;
-          }
-          filename = table.getEntityName() + "Repository.java";
-          String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-          writeContent(project, filename, config.getRepositoryDirectory(), repositorySourceCode);
-          if (generateCount.decrementAndGet() <= 0) {
-            ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
+          } catch (Exception e) {
+            Bus.notify(
+                new Notification("JpaSupport", "Error", "Generate source code error. " + e, NotificationType.ERROR),
+                project);
+          } finally {
+            countDownLatch.countDown();
           }
         });
+      }
+      try {
+        countDownLatch.await();
+        ApplicationManager.getApplication().invokeAndWait(() -> Messages.showMessageDialog(SelectTablesFrame.this.frameHolder.getContentPane(), LocaleContextHolder.format("generate_source_code_success", ""), "JpaSupport",
+            Messages.getInformationIcon()));
+      } catch (InterruptedException e) {
+        Bus.notify(new Notification("JpaSupport", "Error", "Operation was interrupted. " + e, NotificationType.ERROR),
+            project);
+      } finally {
+        ApplicationManager.getApplication().invokeAndWait(SelectTablesFrame.this.frameHolder::dispose);
       }
     }
 
     private String getIndent() {
       CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
-      IndentOptions indentOptions = Optional.ofNullable(codeStyleSettingsManager.getCurrentSettings())
+      IndentOptions indentOptions = Optional.of(codeStyleSettingsManager.getCurrentSettings())
           .map(css -> css.getIndentOptions(JavaFileType.INSTANCE))
           .orElseGet(() -> CodeStyleSettings.getDefaults().getIndentOptions(JavaFileType.INSTANCE));
       String indent;
@@ -384,7 +399,7 @@ public class SelectTablesFrame {
 
     private String getLineSeparator() {
       CodeStyleSettingsManager codeStyleSettingsManager = CodeStyleSettingsManager.getInstance(Holder.getProject());
-      return Optional.ofNullable(codeStyleSettingsManager.getCurrentSettings())
+      return Optional.of(codeStyleSettingsManager.getCurrentSettings())
           .map(CodeStyleSettings::getLineSeparator)
           .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
     }
@@ -411,7 +426,7 @@ public class SelectTablesFrame {
             PsiFile pf = psiDirectory.findFile(filename);
             assert pf != null;
             VirtualFile vf = pf.getVirtualFile();
-            writeContent(sourceCode, vf);
+            writeContent(sourceCode, vf, project, pf);
             JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
             javaCodeStyleManager.optimizeImports(pf);
           });
@@ -419,17 +434,23 @@ public class SelectTablesFrame {
       } else {
         psiFile = psiDirectory.createFile(filename);
         VirtualFile vFile = psiFile.getVirtualFile();
-        writeContent(sourceCode, vFile);
+        writeContent(sourceCode, vFile, project, psiFile);
         JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
         javaCodeStyleManager.optimizeImports(psiFile);
       }
     }
 
-    private void writeContent(String sourceCode, VirtualFile vFile) {
+    private void writeContent(String sourceCode, VirtualFile vFile, Project project, PsiFile psiFile) {
       try {
         vFile.setWritable(true);
         vFile.setCharset(StandardCharsets.UTF_8);
         vFile.setBinaryContent(sourceCode.getBytes(StandardCharsets.UTF_8));
+
+        // commit document
+        Document cachedDocument = PsiDocumentManager.getInstance(project).getCachedDocument(psiFile);
+        if (cachedDocument != null) {
+          PsiDocumentManager.getInstance(project).commitDocument(cachedDocument);
+        }
       } catch (IOException e) {
         log.error("generate source code error", e);
       }

@@ -46,10 +46,7 @@ intellij {
 patchPluginXml {
     version '2.0.1.SNAPSHOT'
     changeNotes """
-      Fix bug: fix VirtualFile can't check the file exists, so the Jpa Support cannot load driver class <br>
-      Fix compatibility issues with some idea tips <br>
-      Fix bug: missing mysql 6.0.6 driver <br>
-      Fix bug: the new version idea has a bug with insufficient permissions when creating a directory <br>
-      When the driver is Oracle(NOT SUPPORT), the primary key increment mode is sequence
+      Fix bug: Fix sometimes the error of overwriting source code
+      Feature: The window will be closed automatically after generating the source code
       """
 }
