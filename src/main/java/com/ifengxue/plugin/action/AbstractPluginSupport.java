@@ -9,17 +9,19 @@ import com.ifengxue.plugin.i18n.LocaleItem;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.ui.Messages;
 import java.util.Locale;
+import java.util.Objects;
 
 public abstract class AbstractPluginSupport extends AnAction {
 
   @Override
+  public void update(AnActionEvent e) {
+    e.getPresentation().setEnabledAndVisible(e.getProject() != null);
+  }
+
+  @Override
   public void actionPerformed(AnActionEvent e) {
-    if (e.getProject() == null) {
-      Messages.showWarningDialog("Project not activated!", "Jps Support");
-      return;
-    }
+    Objects.requireNonNull(e.getProject(), "Project inactivated.");
 
     // 初始化Holder
     Holder.registerProject(e.getProject());

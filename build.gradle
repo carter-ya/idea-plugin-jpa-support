@@ -46,6 +46,7 @@ intellij {
     version '2017.1'
     pluginName 'Jpa Support'
     type 'IU'
+    updateSinceUntilBuild false
 }
 
 patchPluginXml {
