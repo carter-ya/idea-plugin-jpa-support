@@ -12,6 +12,9 @@ import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.util.WindowUtil;
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.credentialStore.Credentials;
+import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
@@ -295,8 +298,14 @@ public class JpaSupport extends AbstractPluginSupport {
     applicationProperties.setValue(createKey("host"), host);
     applicationProperties.setValue(createKey("port"), port);
     applicationProperties.setValue(createKey("username"), username);
-    applicationProperties
-        .setValue(createKey("password"), Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8)));
+
+    // 存储密码
+    CredentialAttributes credentialAttributes = createCredentialAttributes(host, port, username);
+    Credentials credentials = new Credentials(username, password);
+    PasswordSafe.getInstance().set(credentialAttributes, credentials);
+    // 移除历史版本存储的密码
+    applicationProperties.unsetValue(createKey("password"));
+
     applicationProperties.setValue(createKey("database"), database);
     applicationProperties.setValue(createKey("url"), connectionUrl);
     applicationProperties
@@ -306,14 +315,31 @@ public class JpaSupport extends AbstractPluginSupport {
         ((DatabaseDrivers) databaseSettings.getCbxSelectDatabase().getSelectedItem()).toString());
   }
 
+  @NotNull
+  private CredentialAttributes createCredentialAttributes(String host, String port, String username) {
+    return new CredentialAttributes("JpaSupport://" + host + ":" + port,
+        username, getClass(), false);
+  }
+
   private void initTextField(DatabaseSettings databaseSettings) {
     PropertiesComponent applicationProperties = Holder.getApplicationProperties();
     databaseSettings.getTextHost().setText(applicationProperties.getValue(createKey("host"), "localhost"));
     databaseSettings.getTextPort().setText(applicationProperties.getValue(createKey("port"), "3306"));
     databaseSettings.getTextUsername().setText(applicationProperties.getValue(createKey("username"), "root"));
-    databaseSettings.getTextPassword()
-        .setText(new String(Base64.getDecoder().decode(applicationProperties.getValue(createKey("password"), "")),
-            StandardCharsets.UTF_8));
+
+    // 加载密码
+    CredentialAttributes credentialAttributes = createCredentialAttributes(databaseSettings.getTextHost().getText(),
+        databaseSettings.getTextPort().getText(), databaseSettings.getTextUsername().getText());
+    Credentials credentials = PasswordSafe.getInstance().get(credentialAttributes);
+    String password;
+    if (credentials != null) {
+      password = credentials.getPasswordAsString();
+    } else {
+      password = new String(Base64.getDecoder().decode(applicationProperties.getValue(createKey("password"), "")),
+          StandardCharsets.UTF_8);
+    }
+    databaseSettings.getTextPassword().setText(password);
+
     databaseSettings.getTextDatabase().setText(applicationProperties.getValue(createKey("database"), ""));
     databaseSettings.getTextConnectionUrl().setText(applicationProperties.getValue(createKey("url"), ""));
 

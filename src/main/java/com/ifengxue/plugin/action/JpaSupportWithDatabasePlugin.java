@@ -78,7 +78,12 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
   }
 
   private void resolveDatabaseVendor(DbDataSource dataSource) {
-    String productName = StringUtils.trimToEmpty(dataSource.getDatabaseProductName());
+    String productName = "";
+    try {
+      productName = StringUtils.trimToEmpty(dataSource.getDatabaseProductName());
+    } catch (Exception e) {
+      // ignore exception
+    }
     switch (productName) {
       case "PostgreSQL":
         Holder.registerDatabaseDrivers(DatabaseDrivers.POSTGRE_SQL);
