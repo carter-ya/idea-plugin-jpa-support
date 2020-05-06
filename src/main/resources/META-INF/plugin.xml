@@ -1,13 +1,17 @@
 <idea-plugin>
   <actions>
     <!-- Add your actions here -->
-    <action class="com.ifengxue.plugin.JpaSupport" description="Create new jpa entities."
-      id="JPASupport.NewEntities1" text="Jpa Entities">
+    <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
+      id="JPASupport.NewEntities1" text="Create JPA Entities">
       <add-to-group anchor="last" group-id="NewGroup1"/>
     </action>
-    <action class="com.ifengxue.plugin.JpaSupport" description="Create new jpa entities."
-      id="JPASupport.NewEntities2" text="Jpa Entities">
+    <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
+      id="JPASupport.NewEntities2" text="Create JPA Entities">
       <add-to-group anchor="last" group-id="GenerateGroup"/>
+    </action>
+    <action class="com.ifengxue.plugin.action.JpaSupportWithDatabasePlugin" description="Create new JPA entities."
+      id="JPASupport.NewEntities3" text="Create JPA Entities(Support to Select Multiple Tables)">
+      <add-to-group group-id="DatabaseViewPopupMenu" anchor="first" />
     </action>
   </actions>
   <change-notes><![CDATA[
@@ -23,6 +27,7 @@
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.lang</depends>
   <depends>com.intellij.modules.java</depends>
+  <depends optional="true">com.intellij.database</depends>
 
   <description><![CDATA[
       <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>

@@ -7,6 +7,11 @@ import lombok.Data;
 public class Table {
 
   /**
+   * table schema
+   */
+  private TableSchema rawTableSchema;
+
+  /**
    * 是否被选择，选择后才可生成类
    */
   private boolean selected;
@@ -50,6 +55,7 @@ public class Table {
 
   public static Table from(TableSchema tableSchema, String entityName, boolean selected) {
     Table table = new Table();
+    table.setRawTableSchema(tableSchema);
     table.setTableName(tableSchema.getTableName());
     table.setTableComment(tableSchema.getTableComment());
     table.setTableSchema(tableSchema.getTableSchema());

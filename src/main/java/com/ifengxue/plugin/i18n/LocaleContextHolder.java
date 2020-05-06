@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
 public final class LocaleContextHolder {
 
   public static final LocaleItem[] LOCALE_ITEMS;
-  private static Logger log = Logger.getInstance(LocaleContextHolder.class);
+  private static final Logger LOGGER = Logger.getInstance(LocaleContextHolder.class);
   private static Locale currentLocale = Locale.getDefault();
   private static ResourceBundle resourceBundle;
 
@@ -27,7 +27,7 @@ public final class LocaleContextHolder {
     currentLocale = locale;
     Locale.setDefault(locale);
     resourceBundle = ResourceBundle.getBundle("/bundles/ui_i18n", locale);
-    log.info("set current locale " + locale.toLanguageTag());
+    LOGGER.info("set current locale " + locale.toLanguageTag());
   }
 
   /**

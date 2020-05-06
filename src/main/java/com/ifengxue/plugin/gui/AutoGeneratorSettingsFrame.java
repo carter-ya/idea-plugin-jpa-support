@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.joining;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorConfig;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
+import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -38,8 +40,14 @@ public class AutoGeneratorSettingsFrame {
 
   private final JFrame frameHolder;
   private final AutoGeneratorSettings autoGeneratorSettingsHolder;
+  /**
+   * {@link TableSchema} to {@link ColumnSchema}
+   */
+  private final Function<TableSchema, List<ColumnSchema>> mapping;
 
-  private AutoGeneratorSettingsFrame(List<TableSchema> tableSchemaList) {
+  private AutoGeneratorSettingsFrame(List<TableSchema> tableSchemaList,
+      Function<TableSchema, List<ColumnSchema>> mapping) {
+    this.mapping = mapping;
     this.frameHolder = new JFrame(LocaleContextHolder.format("auto_generation_settings"));
     this.autoGeneratorSettingsHolder = new AutoGeneratorSettings();
     frameHolder.setContentPane(autoGeneratorSettingsHolder.getRootComponent());
@@ -163,17 +171,21 @@ public class AutoGeneratorSettingsFrame {
                 selected = false;
               }
             }
+            if (!selected) {
+              // 强制选择所有表
+              selected = Holder.isSelectAllTables();
+            }
             tableList.add(Table.from(tableSchema, entityName, selected));
           }
           // 保存属性
           saveTextField(config);
-          SelectTablesFrame.show(tableList, config);
+          SelectTablesFrame.show(tableList, mapping, config);
           frameHolder.dispose();
         });
   }
 
-  public static void show(List<TableSchema> tableSchemaList) {
-    new AutoGeneratorSettingsFrame(tableSchemaList);
+  public static void show(List<TableSchema> tableSchemaList, Function<TableSchema, List<ColumnSchema>> mapping) {
+    new AutoGeneratorSettingsFrame(tableSchemaList, mapping);
   }
 
   private void initTextField(AutoGeneratorSettings settings, AutoGeneratorConfig config) {

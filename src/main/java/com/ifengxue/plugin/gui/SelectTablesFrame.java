@@ -1,12 +1,12 @@
 package com.ifengxue.plugin.gui;
 
 import com.ifengxue.plugin.Holder;
-import com.ifengxue.plugin.JpaSupport;
 import com.ifengxue.plugin.component.AutoGeneratorConfig;
 import com.ifengxue.plugin.component.SelectTables;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.Table;
+import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
@@ -17,7 +17,6 @@ import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
-import com.intellij.notification.EventLog;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
@@ -39,13 +38,12 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
@@ -62,8 +60,11 @@ public class SelectTablesFrame {
 
   private final JFrame frameHolder;
   private final Logger log = Logger.getInstance(getClass());
+  private final Function<TableSchema, List<ColumnSchema>> mapping;
 
-  private SelectTablesFrame(List<Table> tableList, AutoGeneratorConfig config) {
+  private SelectTablesFrame(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping,
+      AutoGeneratorConfig config) {
+    this.mapping = mapping;
     frameHolder = new JFrame(LocaleContextHolder.format("select_database_tables"));
     int rowCount = tableList.size();
     SelectTables selectTablesHolder = new SelectTables(tableList);
@@ -189,8 +190,9 @@ public class SelectTablesFrame {
     });
   }
 
-  public static void show(List<Table> tableList, AutoGeneratorConfig config) {
-    new SelectTablesFrame(tableList, config);
+  public static void show(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping,
+      AutoGeneratorConfig config) {
+    new SelectTablesFrame(tableList, mapping, config);
   }
 
   /**
@@ -281,18 +283,10 @@ public class SelectTablesFrame {
       // 生成数量
       CountDownLatch countDownLatch = new CountDownLatch(tableList.size());
       for (Table table : tableList) {
-        List<ColumnSchema> columnSchemaList;
-        try {
-          columnSchemaList = Holder.getDatabaseDrivers().getDriverAdapter()
-              .findTableSchemas(table.getTableSchema(), table.getTableName());
-        } catch (SQLException se) {
-          log.error("read table " + table.getTableName() + " schema failed", se);
-          ApplicationManager.getApplication()
-              .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
-                  se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
-                  NotificationType.ERROR)));
-          ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
-          return;
+        List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
+        if (columnSchemaList == null) {
+          // skip empty column schemas
+          continue;
         }
         // 解析字段列表
         List<Column> columnList = new ArrayList<>(columnSchemaList.size());
@@ -312,19 +306,8 @@ public class SelectTablesFrame {
 
         // 配置源码生成信息
         GeneratorConfig generatorConfig = new GeneratorConfig();
-        try {
-          generatorConfig.setDriverConfig(new DriverConfig()
-              .setVendor(Holder.getDatabaseDrivers().getVendor2())
-              .setDriverClass(
-                  Class.forName(Holder.getDatabaseDrivers().getDriverClass(), false, JpaSupport.classLoaderRef.get())));
-        } catch (ClassNotFoundException e) {
-          log.error("load driver class error", e);
-          ApplicationManager.getApplication()
-              .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
-                  "Load driver class error", NotificationType.ERROR)));
-          ApplicationManager.getApplication().invokeAndWait(frameHolder::requestFocus);
-          return;
-        }
+        generatorConfig.setDriverConfig(new DriverConfig()
+            .setVendor(Holder.getDatabaseDrivers().getVendor2()));
         int lastIndex;
         String basePackageName = config.getEntityPackage();
         if ((lastIndex = config.getEntityPackage().lastIndexOf('.')) != -1) {

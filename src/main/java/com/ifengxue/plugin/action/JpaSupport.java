@@ -1,8 +1,9 @@
-package com.ifengxue.plugin;
+package com.ifengxue.plugin.action;
 
 import static com.ifengxue.plugin.util.Key.createKey;
 import static org.apache.commons.lang3.StringUtils.trim;
 
+import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.adapter.DriverDelegate;
 import com.ifengxue.plugin.component.DatabaseSettings;
@@ -16,7 +17,6 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -61,28 +61,16 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * jpa support 入口
- */
-public class JpaSupport extends AnAction {
+public class JpaSupport extends AbstractPluginSupport {
 
   private static final String DRIVER_VENDOR_PATH = ".Jpa Support" + File.separator + "driver_vendor";
   public static AtomicReference<ClassLoader> classLoaderRef = new AtomicReference<>(JpaSupport.class.getClassLoader());
-  private Logger log = Logger.getInstance(JpaSupport.class);
+  private final Logger log = Logger.getInstance(JpaSupport.class);
   private DatabaseSettings databaseSettings;
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
-    if (e.getProject() == null) {
-      Messages.showWarningDialog("Project not activated!", "Jps Support");
-      return;
-    }
-    Holder.registerProject(e.getProject());
-    Holder.registerEvent(e);// 注册事件
-    Holder.registerApplicationProperties(PropertiesComponent.getInstance());
-    Holder.registerProjectProperties(PropertiesComponent.getInstance(e.getProject()));
-    Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
-    initI18n();
+    super.actionPerformed(e);
 
     JFrame databaseSettingsFrame = new JFrame(LocaleContextHolder.format("set_up_database_connection"));
     databaseSettings = new DatabaseSettings();
@@ -214,7 +202,19 @@ public class JpaSupport extends AnAction {
         }
 
         // 显示自动生成器配置窗口
-        AutoGeneratorSettingsFrame.show(tableSchemaList);
+        AutoGeneratorSettingsFrame.show(tableSchemaList, tableSchema -> {
+          try {
+            return Holder.getDatabaseDrivers().getDriverAdapter()
+                .findTableSchemas(tableSchema.getTableSchema(), tableSchema.getTableName());
+          } catch (SQLException se) {
+            log.error("read table " + tableSchema.getTableName() + " schema failed", se);
+            ApplicationManager.getApplication()
+                .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
+                    se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
+                    NotificationType.ERROR)));
+            return null;
+          }
+        });
 
         databaseSettingsFrame.dispose();// 释放数据库设置窗口
       }).start();
@@ -233,7 +233,8 @@ public class JpaSupport extends AnAction {
           .urls(new File(virtualFile.getPath()).toURI().toURL())
           .parent(getClass().getClassLoader())
           .get();
-      Driver driver = (Driver) urlClassLoader.loadClass(databaseDrivers.getDriverClass()).getDeclaredConstructor().newInstance();
+      Driver driver = (Driver) urlClassLoader.loadClass(databaseDrivers.getDriverClass()).getDeclaredConstructor()
+          .newInstance();
       DriverManager.registerDriver(new DriverDelegate(driver, databaseDrivers));
       log.info("driver " + databaseDrivers.getDriverClass() + " has been loaded");
       classLoaderRef.set(urlClassLoader);
@@ -359,36 +360,6 @@ public class JpaSupport extends AnAction {
                 NotificationType.ERROR)));
       }
     }
-  }
-
-  private void initI18n() {
-    PropertiesComponent applicationProperties = Holder.getApplicationProperties();
-    // select language
-    Locale locale = Locale.forLanguageTag(applicationProperties
-        .getValue(createKey("locale"), LocaleContextHolder.getCurrentLocale().toLanguageTag()));
-    int localeSelectIndex = -1;
-    for (int i = 0; i < LocaleContextHolder.LOCALE_ITEMS.length; i++) {
-      LocaleItem localeItem = LocaleContextHolder.LOCALE_ITEMS[i];
-      if (localeItem.getLocale().equals(locale)) {
-        localeSelectIndex = i;
-        break;
-      }
-    }
-    // only compare by language
-    if (localeSelectIndex == -1) {
-      for (int i = 0; i < LocaleContextHolder.LOCALE_ITEMS.length; i++) {
-        LocaleItem localeItem = LocaleContextHolder.LOCALE_ITEMS[i];
-        if (localeItem.getLocale().getLanguage().equalsIgnoreCase(locale.getLanguage())) {
-          localeSelectIndex = i;
-          break;
-        }
-      }
-    }
-    // not best match language for this locale, reset locale to english
-    if (localeSelectIndex == -1) {
-      localeSelectIndex = 0;
-    }
-    LocaleContextHolder.setCurrentLocale(LocaleContextHolder.LOCALE_ITEMS[localeSelectIndex].getLocale());
   }
 
   private class ConnectionUrlUpdateListener implements DocumentListener {
