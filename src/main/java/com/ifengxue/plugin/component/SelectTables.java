@@ -16,6 +16,7 @@ public class SelectTables {
   private JButton btnSelectNone;
   private JButton btnCancel;
   private JButton btnGenerate;
+  private JButton btnSelectByRegex;
 
   public SelectTables(List<Table> tableList) {
     this.tableList = tableList;
@@ -47,6 +48,10 @@ public class SelectTables {
 
   public JButton getBtnGenerate() {
     return btnGenerate;
+  }
+
+  public JButton getBtnSelectByRegex() {
+    return btnSelectByRegex;
   }
 
   public List<Table> getTableList() {

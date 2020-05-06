@@ -52,7 +52,8 @@ patchPluginXml {
     version '2.0.1.SNAPSHOT'
     changeNotes """
       Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)
-      Fix bug: Fix sometimes the error of overwriting source code
+      Feature: Support regex expressions when selecting tables
       Feature: The window will be closed automatically after generating the source code
+      Fix bug: Fix sometimes the error of overwriting source code
       """
 }

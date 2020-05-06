@@ -26,6 +26,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -43,7 +44,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
@@ -51,6 +54,7 @@ import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeServices;
@@ -174,6 +178,41 @@ public class SelectTablesFrame {
     selectTablesHolder.getBtnSelectOther().addActionListener(event -> {
       for (Table t : tableList) {
         t.setSelected(!t.isSelected());
+      }
+      table.updateUI();
+    });
+    // 正则选择
+    AtomicReference<String> initialValueRef = new AtomicReference<>(null);
+    selectTablesHolder.getBtnSelectByRegex().addActionListener(event -> {
+      String regex = Messages
+          .showInputDialog(selectTablesHolder.getRootComponent(), LocaleContextHolder.format("select_by_regex_tip"),
+              "JpaSupport", Messages.getQuestionIcon(), initialValueRef.get(),
+              new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                  if (StringUtils.isBlank(inputString)) {
+                    return true;
+                  }
+                  try {
+                    Pattern.compile(inputString);
+                    return true;
+                  } catch (Exception e) {
+                    return false;
+                  }
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                  return !StringUtils.isNotBlank(inputString) || checkInput(inputString);
+                }
+              });
+      if (StringUtils.isBlank(regex)) {
+        return;
+      }
+      initialValueRef.set(regex);
+      Pattern pattern = Pattern.compile(regex);
+      for (Table t : tableList) {
+        t.setSelected(pattern.matcher(t.getTableName()).matches());
       }
       table.updateUI();
     });
