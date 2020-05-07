@@ -80,6 +80,8 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
   private void resolveDatabaseVendor(DbDataSource dataSource) {
     String productName = "";
     try {
+      // 确保方法存在
+      dataSource.getClass().getMethod("getDatabaseProductName");
       productName = StringUtils.trimToEmpty(dataSource.getDatabaseProductName());
     } catch (Exception e) {
       // ignore exception
