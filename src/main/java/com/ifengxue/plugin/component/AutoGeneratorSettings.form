@@ -24,7 +24,7 @@
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="fill:d:grow"/>
     <constraints>
-      <xy x="20" y="20" width="739" height="383"/>
+      <xy x="20" y="20" width="758" height="392"/>
     </constraints>
     <properties/>
     <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="auto_generation_settings"/>
@@ -335,6 +335,7 @@
           <component id="6f6bb" class="javax.swing.JTextField" binding="textRemoveTablePrefix">
             <constraints/>
             <properties>
+              <columns value="5"/>
               <text value="t_" noi18n="true"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="set_remove_table_name_prefix"/>
             </properties>
@@ -348,6 +349,7 @@
           <component id="fdc6f" class="javax.swing.JTextField" binding="textAddTableNamePrefix">
             <constraints/>
             <properties>
+              <columns value="5"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="add_table_name_prefix_tips"/>
             </properties>
           </component>
@@ -360,6 +362,7 @@
           <component id="88d31" class="javax.swing.JTextField" binding="textAddTableNameSuffix">
             <constraints/>
             <properties>
+              <columns value="5"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="add_table_name_suffix_tips"/>
             </properties>
           </component>

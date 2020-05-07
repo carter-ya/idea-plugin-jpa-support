@@ -2,16 +2,16 @@
   <actions>
     <!-- Add your actions here -->
     <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
-      id="JPASupport.NewEntities1" text="Create JPA Entities">
+      id="JPASupport.NewEntities1" text="Generate JPA Entities">
       <add-to-group anchor="last" group-id="NewGroup1"/>
     </action>
     <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
-      id="JPASupport.NewEntities2" text="Create JPA Entities">
+      id="JPASupport.NewEntities2" text="Generate JPA Entities">
       <add-to-group anchor="last" group-id="GenerateGroup"/>
     </action>
     <action class="com.ifengxue.plugin.action.JpaSupportWithDatabasePlugin" description="Create new JPA entities."
-      id="JPASupport.NewEntities3" text="Create JPA Entities(Support to Select Multiple Tables)">
-      <add-to-group group-id="DatabaseViewPopupMenu" anchor="first" />
+      id="JPASupport.NewEntities3" text="Generate JPA Entities(Support to Select Multiple Tables)">
+      <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
     </action>
   </actions>
   <change-notes><![CDATA[
@@ -33,9 +33,14 @@
       <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
       <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
       <p>Support multiple types of databases. Currently supported database are Mysql, PostgreSQL.</p>
+      <p>Support generate source code from Database plugin</p>
       <p>Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b></p>
       <a href="https://github.com/carter-ya/idea-plugin-jpa-support">README</a> <br>
-      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/jpa-support.gif?raw=true" alt="Use tips.">
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/set_database_connection.png?raw=true" alt="Use tips.">
+      <br> <br>
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/generate_setting.png?raw=true" alt="Use tips.">
+      <br> <br>
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
     ]]></description>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
