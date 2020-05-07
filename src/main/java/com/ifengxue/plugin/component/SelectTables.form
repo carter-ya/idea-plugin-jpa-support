@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.ifengxue.plugin.component.SelectTables">
+  <grid id="27dc6" binding="rootComponent" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="715" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="select_table"/>
+    <children>
+      <grid id="c33f4" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="3bb41" class="javax.swing.JButton" binding="btnSelectOther">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="button_inverse_selection"/>
+            </properties>
+          </component>
+          <component id="edb7" class="javax.swing.JButton" binding="btnSelectAll">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="button_select_all"/>
+            </properties>
+          </component>
+          <component id="11a54" class="javax.swing.JButton" binding="btnSelectNone">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="button_select_none"/>
+            </properties>
+          </component>
+          <component id="7d2a6" class="javax.swing.JButton" binding="btnSelectByRegex">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="button_select_by_regex"/>
+            </properties>
+          </component>
+          <component id="33010" class="javax.swing.JButton" binding="btnCancel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="button_cancel"/>
+            </properties>
+          </component>
+          <component id="2ea2c" class="javax.swing.JButton" binding="btnGenerate">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="button_start_generate"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <scrollpane id="d11fb">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="428f4" class="javax.swing.JTable" binding="tblTableSchema">
+            <constraints/>
+            <properties/>
+          </component>
+        </children>
+      </scrollpane>
+    </children>
+  </grid>
+</form>

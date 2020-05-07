@@ -1,0 +1,73 @@
+#if(!$package.isEmpty())
+package $package;
+
+#end
+#foreach($importClass in $importClassList)
+import $importClass;
+#end
+#if($importClassList)
+## add empty line
+
+#end
+#if($tablesConfig.isUseClassComment() && !$table.getTableComment().isEmpty())
+/*
+ * $table.getTableComment()
+ */
+#end
+#foreach($annotation in $annotationList)
+@$annotation
+#end
+public class $simpleName#if(!$parentClass.isEmpty()) extends $parentClass#end#if($implementClassList) implements $empty.join(", ", $implementClassList)#end {
+
+#if($serialVersionUID)
+$indent.getIndent()private static final long serialVersionUID = ${serialVersionUID}L;
+
+#end
+#foreach($column in $columns)
+#if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
+$indent.getIndent()/*
+$indent.getIndent() * $column.getColumnComment()
+$indent.getIndent() */
+#end
+#if($column.isPrimary())
+$indent.getIndent()@Id
+$indent.getIndent()@GeneratedValue(strategy = $primaryKeyGeneratorStrategy#if($primaryKeyGenerator), generator="$primaryKeyGenerator"#end)
+#if($primaryKeyGenerator)$indent.getIndent()@SequenceGenerator(name = "$primaryKeyGenerator", sequenceName = "$primaryKeyGenerator")#end
+#end
+$indent.getIndent()@Column(name = "$column.getColumnName()"#if(!$column.isNullable()), nullable = false#end)
+$indent.getIndent()private $column.getJavaDataType().getSimpleName() $column.getFieldName()#if($column.isHasDefaultValue()) = $column.getDefaultValue()#end;
+
+#end
+#if(!$useLombok)
+#foreach($column in $columns)
+#if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
+$indent.getIndent()/*
+$indent.getIndent() * $column.getColumnComment()
+$indent.getIndent() */
+#end
+$indent.getIndent()public void $stringHelper.parseSetMethodName($column.getFieldName())($column.getJavaDataType().getSimpleName() $column.getFieldName()) {
+$indent.getDoubleIndent()this.$column.getFieldName() = $column.getFieldName();
+$indent.getIndent()}
+
+#if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
+$indent.getIndent()/*
+$indent.getIndent() * $column.getColumnComment()
+$indent.getIndent() */
+#end
+$indent.getIndent()public $column.getJavaDataType().getSimpleName() $stringHelper.parseGetMethodName($column.getFieldName(),$column.getJavaDataType())() {
+$indent.getDoubleIndent()return $column.getFieldName();
+$indent.getIndent()}
+
+#end
+#end
+#if(!$useLombok)
+$indent.getIndent()@Override
+$indent.getIndent()public String toString() {
+$indent.getDoubleIndent()return "$simpleName{" +
+#foreach($column in $columns)
+$indent.getDoubleIndent()    "$column.getFieldName()=" + $column.getFieldName() + '\'' +
+#end
+$indent.getDoubleIndent()    '}';
+$indent.getIndent()}
+#end
+}

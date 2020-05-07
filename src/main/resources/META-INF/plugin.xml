@@ -1,0 +1,65 @@
+<idea-plugin>
+  <actions>
+    <!-- Add your actions here -->
+    <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
+      id="JPASupport.NewEntities1" text="Generate JPA Entities">
+      <add-to-group anchor="last" group-id="NewGroup1"/>
+    </action>
+    <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
+      id="JPASupport.NewEntities2" text="Generate JPA Entities">
+      <add-to-group anchor="last" group-id="GenerateGroup"/>
+    </action>
+    <action class="com.ifengxue.plugin.action.JpaSupportWithDatabasePlugin" description="Create new JPA entities."
+      id="JPASupport.NewEntities3" text="Generate JPA Entities(Support to Select Multiple Tables)">
+      <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
+    </action>
+  </actions>
+  <change-notes><![CDATA[
+      <ul>
+        <li>Fix bug: fix VirtualFile can't check the file exists, so the Jpa Support cannot load driver class.</li>
+        <li>Fix compatibility issues with some idea tips</li>
+        <li>Fix bug: missing mysql 6.0.6 driver</li>
+        <li>Fix bug: the new version idea has a bug with insufficient permissions when creating a directory</li>
+        <li>When the driver is Oracle(NOT SUPPORT), the primary key increment mode is sequence</li>
+      </ul>
+    ]]>
+  </change-notes>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.java</depends>
+  <depends optional="true">com.intellij.database</depends>
+
+  <description><![CDATA[
+      <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
+      <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
+      <p>Support multiple types of databases. Currently supported database are Mysql, PostgreSQL.</p>
+      <p>Support generate source code from Database plugin</p>
+      <p>Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b></p>
+      <a href="https://github.com/carter-ya/idea-plugin-jpa-support">README</a> <br>
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/set_database_connection.png?raw=true" alt="Use tips.">
+      <br> <br>
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/generate_setting.png?raw=true" alt="Use tips.">
+      <br> <br>
+      <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
+    ]]></description>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <!--  <idea-version since-build="171" until-build="191.*"/>-->
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+
+  <id>com.ifengxue.plugin.jpa-support</id>
+  <idea-version since-build="171"/>
+  <name>Jpa Support</name>
+
+  <vendor email="liukefeng2008@hotmail.com" url="https://github.com/carter-ya/idea-plugin-jpa-support">
+    https://github.com/carter-ya/idea-plugin-jpa-support
+  </vendor>
+
+  <version>2.0.1</version>
+
+</idea-plugin>
