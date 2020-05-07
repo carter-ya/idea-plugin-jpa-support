@@ -50,7 +50,7 @@ intellij {
 }
 
 patchPluginXml {
-    version '2.0.1.SNAPSHOT'
+    version '2.0.1'
     changeNotes """
       Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)
       Feature: Support regex expressions when selecting tables
