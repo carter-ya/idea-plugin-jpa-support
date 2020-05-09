@@ -33,6 +33,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
@@ -451,6 +452,7 @@ public class SelectTablesFrame {
             writeContent(sourceCode, vf, project, pf);
             JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
             javaCodeStyleManager.optimizeImports(pf);
+            CodeStyleManager.getInstance(Holder.getProject()).reformat(pf);
           });
         });
       } else {
@@ -459,6 +461,7 @@ public class SelectTablesFrame {
         writeContent(sourceCode, vFile, project, psiFile);
         JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
         javaCodeStyleManager.optimizeImports(psiFile);
+        CodeStyleManager.getInstance(Holder.getProject()).reformat(psiFile);
       }
     }
 
