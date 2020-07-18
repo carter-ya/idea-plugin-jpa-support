@@ -39,6 +39,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     if (tablesConfig.isSerializable()) {
       importClassList.add(Serializable.class.getName());
       implementClassList.add(Serializable.class.getSimpleName());
+      //TODO 不能修改已存在的id
       context.put("serialVersionUID", new Random().nextLong());
     }
 

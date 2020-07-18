@@ -10,6 +10,7 @@ public class AutoGeneratorConfig implements Serializable {
   private String removeTablePrefix;
   private String addTablePrefix;
   private String addTableSuffix;
+  private String module;
   private String removeFieldPrefix;
   private String extendBaseClass;
   private String entityPackage;
@@ -180,12 +181,22 @@ public class AutoGeneratorConfig implements Serializable {
     return this;
   }
 
+  public String getModule() {
+    return module;
+  }
+
+  public AutoGeneratorConfig setModule(String module) {
+    this.module = module;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "AutoGeneratorConfig{" +
         "removeTablePrefix='" + removeTablePrefix + '\'' +
         ", addTablePrefix='" + addTablePrefix + '\'' +
         ", addTableSuffix='" + addTableSuffix + '\'' +
+        ", module='" + module + '\'' +
         ", removeFieldPrefix='" + removeFieldPrefix + '\'' +
         ", extendBaseClass='" + extendBaseClass + '\'' +
         ", entityPackage='" + entityPackage + '\'' +

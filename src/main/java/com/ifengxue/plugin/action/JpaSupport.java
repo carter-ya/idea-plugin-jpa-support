@@ -8,7 +8,7 @@ import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.adapter.DriverDelegate;
 import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
-import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
+import com.ifengxue.plugin.gui.AutoGeneratorSettingsDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.util.WindowUtil;
@@ -205,7 +205,7 @@ public class JpaSupport extends AbstractPluginSupport {
         }
 
         // 显示自动生成器配置窗口
-        AutoGeneratorSettingsFrame.show(tableSchemaList, tableSchema -> {
+        AutoGeneratorSettingsDialog.show(tableSchemaList, tableSchema -> {
           try {
             return Holder.getDatabaseDrivers().getDriverAdapter()
                 .findTableSchemas(tableSchema.getTableSchema(), tableSchema.getTableName());

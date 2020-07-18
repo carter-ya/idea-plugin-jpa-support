@@ -6,6 +6,8 @@ import com.ifengxue.plugin.adapter.PostgreSQLDriverAdapter;
 import com.intellij.openapi.diagnostic.Logger;
 import java.beans.Introspector;
 import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -362,6 +364,26 @@ public class StringHelper {
    */
   public static String firstLetterLower(String name) {
     return name.replaceFirst(String.valueOf(name.charAt(0)), String.valueOf(name.charAt(0)).toLowerCase());
+  }
+
+  /**
+   * 包路径转换为父路径
+   * 如包路径为 <code>/path/to/package/parent/path/com/foo</code>，包名称为<code>com.foo</code>，则输出路径为<code>/path/to/package/parent/path</code>
+   *
+   * @param packagePath 包路径
+   * @param packageName 包名称
+   */
+  public static String packagePathTrimToParentFolder(String packagePath, String packageName) {
+    Path path = Paths.get(packagePath);
+    String packageFolder = packageNameToFolder(packageName);
+    Path packageFolderPath = Paths.get(packageFolder);
+    if (path.endsWith(packageFolderPath)) {
+      for (String subPackage : packageName.split("\\.")) {
+        path = path.getParent();
+      }
+      return path.toString();
+    }
+    return packagePath;
   }
 
   /**

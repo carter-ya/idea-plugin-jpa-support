@@ -7,7 +7,7 @@ import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.DatabasePluginTableSchema;
 import com.ifengxue.plugin.entity.TableSchema;
-import com.ifengxue.plugin.gui.AutoGeneratorSettingsFrame;
+import com.ifengxue.plugin.gui.AutoGeneratorSettingsDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.DatabasePluginUtil;
 import com.intellij.database.psi.DbDataSource;
@@ -42,7 +42,7 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
     Holder.setSelectAllTables(true);
 
     List<TableSchema> tableSchemas = tables.stream().map(this::toTableSchema).collect(toList());
-    AutoGeneratorSettingsFrame.show(tableSchemas, tableSchema -> {
+    AutoGeneratorSettingsDialog.show(tableSchemas, tableSchema -> {
       DbTable dbTable = ((DatabasePluginTableSchema) tableSchema).getDbTable();
       List<ColumnSchema> columnSchemas = new ArrayList<>();
       DasUtil.getColumns(dbTable).consumeEach(dasColumn -> {
