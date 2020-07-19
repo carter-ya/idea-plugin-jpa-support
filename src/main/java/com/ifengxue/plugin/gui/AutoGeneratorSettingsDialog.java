@@ -213,6 +213,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     // 保存属性
     saveTextField(config);
     SelectTablesDialog.show(tableList, mapping, config);
+    dispose();
   }
 
   @Override
