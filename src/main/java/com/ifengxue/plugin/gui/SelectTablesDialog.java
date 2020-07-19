@@ -14,6 +14,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
+import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
@@ -40,6 +41,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -391,11 +393,12 @@ public class SelectTablesDialog extends DialogWrapper {
         WriteCommandAction.runWriteCommandAction(project, () -> {
           String filename = table.getEntityName() + ".java";
           try {
-            writeContent(project, filename, config.getEntityDirectory(), sourceCode);
+            writeContent(project, filename, config.getEntityDirectory(), config.getEntityPackage(), sourceCode);
             if (config.isGenerateRepository()) {
               filename = table.getEntityName() + "Repository.java";
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-              writeContent(project, filename, config.getRepositoryDirectory(), repositorySourceCode);
+              writeContent(project, filename, config.getRepositoryDirectory(), config.getRepositoryPackage(),
+                  repositorySourceCode);
             }
           } catch (Exception e) {
             Bus.notify(
@@ -441,7 +444,10 @@ public class SelectTablesDialog extends DialogWrapper {
           .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
     }
 
-    private void writeContent(Project project, String filename, String directory, String sourceCode) {
+    private void writeContent(Project project, String filename, String parentPath, String packageName,
+        String sourceCode) {
+      String directory = Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)).toAbsolutePath()
+          .toString();
       PsiDirectory psiDirectory = DirectoryUtil.mkdirs(PsiManager.getInstance(project), directory);
       PsiFile psiFile = psiDirectory.findFile(filename);
       if (psiFile != null) {
@@ -465,8 +471,16 @@ public class SelectTablesDialog extends DialogWrapper {
             VirtualFile vf = pf.getVirtualFile();
             writeContent(sourceCode, vf, project, pf);
             JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
-            javaCodeStyleManager.optimizeImports(pf);
-            CodeStyleManager.getInstance(Holder.getProject()).reformat(pf);
+            try {
+              javaCodeStyleManager.optimizeImports(pf);
+            } catch (Exception e) {
+              log.error("optimize imports error", e);
+            }
+            try {
+              CodeStyleManager.getInstance(Holder.getProject()).reformat(pf);
+            } catch (Exception e) {
+              log.error("reformat source code error", e);
+            }
           });
         });
       } else {
@@ -474,8 +488,16 @@ public class SelectTablesDialog extends DialogWrapper {
         VirtualFile vFile = psiFile.getVirtualFile();
         writeContent(sourceCode, vFile, project, psiFile);
         JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
-        javaCodeStyleManager.optimizeImports(psiFile);
-        CodeStyleManager.getInstance(Holder.getProject()).reformat(psiFile);
+        try {
+          javaCodeStyleManager.optimizeImports(psiFile);
+        } catch (Exception e) {
+          log.error("optimize imports error", e);
+        }
+        try {
+          CodeStyleManager.getInstance(Holder.getProject()).reformat(psiFile);
+        } catch (Exception e) {
+          log.error("reformat source code error", e);
+        }
       }
     }
 

@@ -167,8 +167,10 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     config.setRemoveFieldPrefix(generatorSettings.getTextRemoveFieldPrefix().getText().trim());
     config.setExtendBaseClass(generatorSettings.getTextExtendBaseClass().getText().trim());
     config.setEntityPackage(generatorSettings.getEntityPackageReferenceEditorCombo().getText().trim());
+    config.setEntityDirectory(generatorSettings.getTextEntityPackageParentPath().getText().trim());
     config
         .setRepositoryPackage(generatorSettings.getRepositoryPackageReferenceEditorCombo().getText().trim());
+    config.setRepositoryDirectory(generatorSettings.getTextRepositoryPackageParentPath().getText().trim());
     Set<String> excludeFieldSet = new HashSet<>();
     for (String excludeField : generatorSettings.getTextExcludeFields().getText().trim().split(",")) {
       excludeFieldSet.add(excludeField.trim());
