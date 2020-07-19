@@ -33,8 +33,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
@@ -133,6 +135,12 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     return generatorSettings.getRootComponent();
   }
 
+  @NotNull
+  @Override
+  protected Action[] createActions() {
+    return new Action[]{getOKAction(), getCancelAction()};
+  }
+
   @Nullable
   @Override
   protected ValidationInfo doValidate() {
@@ -213,7 +221,6 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   }
 
   private void initTextField(AutoGeneratorSettings settings, AutoGeneratorConfig config) {
-    getHelpAction().setEnabled(false);
     // 初始化取消，下一步按钮标题
     setOKButtonText(LocaleContextHolder.format("button_next_step"));
     setCancelButtonText(LocaleContextHolder.format("button_cancel"));
