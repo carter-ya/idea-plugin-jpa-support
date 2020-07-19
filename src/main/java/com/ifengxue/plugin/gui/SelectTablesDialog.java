@@ -14,7 +14,6 @@ import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
-import com.ifengxue.plugin.util.WindowUtil;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
@@ -26,6 +25,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -49,34 +49,39 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 import javax.swing.JTable;
-import javax.swing.WindowConstants;
 import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class SelectTablesFrame {
+public class SelectTablesDialog extends DialogWrapper {
 
-  private final JFrame frameHolder;
   private final Logger log = Logger.getInstance(getClass());
+  private final SelectTables selectTables;
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
-  private SelectTablesFrame(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping,
-      AutoGeneratorConfig config) {
+  protected SelectTablesDialog(@Nullable Project project, List<Table> tableList,
+      Function<TableSchema, List<ColumnSchema>> mapping, AutoGeneratorConfig config) {
+    super(project, true);
     this.mapping = mapping;
-    frameHolder = new JFrame(LocaleContextHolder.format("select_database_tables"));
+    selectTables = new SelectTables(tableList);
+    init();
+    setTitle(LocaleContextHolder.format("select_database_tables"));
+
     int rowCount = tableList.size();
-    SelectTables selectTablesHolder = new SelectTables(tableList);
-    JTable table = selectTablesHolder.getTblTableSchema();
+    JTable table = selectTables.getTblTableSchema();
     table.setModel(new AbstractTableModel() {
       private static final long serialVersionUID = 8974669315458199207L;
-      String[] columns = {
+      final String[] columns = {
           LocaleContextHolder.format("table_selected"),
           LocaleContextHolder.format("table_sequence"),
           LocaleContextHolder.format("table_table_name"),
@@ -154,29 +159,24 @@ public class SelectTablesFrame {
     table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox()));
     table.getColumnModel().getColumn(0).setMaxWidth(60);
     table.getColumnModel().getColumn(1).setMaxWidth(40);
-    frameHolder.setContentPane(selectTablesHolder.getRootComponent());
-    frameHolder.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    frameHolder.setLocationRelativeTo(WindowUtil.getParentWindow(Holder.getEvent().getProject()));
-    frameHolder.pack();
-    frameHolder.setVisible(true);
 
-    selectTablesHolder.getBtnCancel().addActionListener(event -> frameHolder.dispose());
+    selectTables.getBtnCancel().addActionListener(event -> dispose());
     // 选中所有行
-    selectTablesHolder.getBtnSelectAll().addActionListener(event -> {
+    selectTables.getBtnSelectAll().addActionListener(event -> {
       for (Table t : tableList) {
         t.setSelected(true);
       }
       table.updateUI();
     });
     // 全不选
-    selectTablesHolder.getBtnSelectNone().addActionListener(event -> {
+    selectTables.getBtnSelectNone().addActionListener(event -> {
       for (Table t : tableList) {
         t.setSelected(false);
       }
       table.updateUI();
     });
     // 反选
-    selectTablesHolder.getBtnSelectOther().addActionListener(event -> {
+    selectTables.getBtnSelectOther().addActionListener(event -> {
       for (Table t : tableList) {
         t.setSelected(!t.isSelected());
       }
@@ -184,9 +184,9 @@ public class SelectTablesFrame {
     });
     // 正则选择
     AtomicReference<String> initialValueRef = new AtomicReference<>(null);
-    selectTablesHolder.getBtnSelectByRegex().addActionListener(event -> {
+    selectTables.getBtnSelectByRegex().addActionListener(event -> {
       String regex = Messages
-          .showInputDialog(selectTablesHolder.getRootComponent(), LocaleContextHolder.format("select_by_regex_tip"),
+          .showInputDialog(selectTables.getRootComponent(), LocaleContextHolder.format("select_by_regex_tip"),
               "JpaSupport", Messages.getQuestionIcon(), initialValueRef.get(),
               new InputValidator() {
                 @Override
@@ -218,7 +218,7 @@ public class SelectTablesFrame {
       table.updateUI();
     });
     // 开始生成
-    selectTablesHolder.getBtnGenerate().addActionListener(event -> {
+    selectTables.getBtnGenerate().addActionListener(event -> {
       if (tableList.stream().noneMatch(Table::isSelected)) {
         Messages.showWarningDialog(Holder.getEvent().getProject(),
             LocaleContextHolder.format("at_least_select_one_table"),
@@ -230,9 +230,21 @@ public class SelectTablesFrame {
     });
   }
 
+  @Nullable
+  @Override
+  protected JComponent createCenterPanel() {
+    return selectTables.getRootComponent();
+  }
+
+  @NotNull
+  @Override
+  protected Action[] createActions() {
+    return new Action[0];
+  }
+
   public static void show(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping,
       AutoGeneratorConfig config) {
-    new SelectTablesFrame(tableList, mapping, config);
+    new SelectTablesDialog(Holder.getProject(), tableList, mapping, config).show();
   }
 
   /**
@@ -396,13 +408,15 @@ public class SelectTablesFrame {
       }
       try {
         countDownLatch.await();
-        ApplicationManager.getApplication().invokeAndWait(() -> Messages.showMessageDialog(SelectTablesFrame.this.frameHolder.getContentPane(), LocaleContextHolder.format("generate_source_code_success", ""), "JpaSupport",
-            Messages.getInformationIcon()));
+        ApplicationManager.getApplication().invokeAndWait(() -> Messages
+            .showMessageDialog(SelectTablesDialog.this.getContentPane(), LocaleContextHolder
+                    .format("generate_source_code_success", ""), "JpaSupport",
+                Messages.getInformationIcon()));
       } catch (InterruptedException e) {
         Bus.notify(new Notification("JpaSupport", "Error", "Operation was interrupted. " + e, NotificationType.ERROR),
             project);
       } finally {
-        ApplicationManager.getApplication().invokeAndWait(SelectTablesFrame.this.frameHolder::dispose);
+        ApplicationManager.getApplication().invokeAndWait(SelectTablesDialog.this::dispose);
       }
     }
 
