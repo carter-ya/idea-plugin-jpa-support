@@ -332,6 +332,9 @@ public class DatabaseSettingsDialog extends DialogWrapper {
   }
 
   private void initTextField(DatabaseSettings databaseSettings) {
+    setOKButtonText(LocaleContextHolder.format("button_next_step"));
+    setCancelButtonText(LocaleContextHolder.format("button_cancel"));
+
     PropertiesComponent applicationProperties = Holder.getApplicationProperties();
     databaseSettings.getTextHost().setText(applicationProperties.getValue(createKey("host"), "localhost"));
     databaseSettings.getTextPort().setText(applicationProperties.getValue(createKey("port"), "3306"));
