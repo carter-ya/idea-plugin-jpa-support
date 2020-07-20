@@ -14,6 +14,7 @@ import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -214,8 +215,10 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     }
     // 保存属性
     saveTextField(config);
-    SelectTablesDialog.show(tableList, mapping, config);
-    dispose();
+    ApplicationManager.getApplication().invokeLater(() -> {
+      dispose();
+      SelectTablesDialog.show(tableList, mapping, config);
+    });
   }
 
   @Override

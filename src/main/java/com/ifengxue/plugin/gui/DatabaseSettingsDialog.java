@@ -154,7 +154,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String database = databaseSettings.getTextDatabase().getText().trim();
     String connectionUrl = databaseSettings.getTextConnectionUrl().getText().trim();
     saveTextField(host, port, username, password, database, connectionUrl);
-    new Thread(() -> {
+    WriteCommandAction.runWriteCommandAction(project, () -> {
       try {
         if (!driverHasBeenLoaded(Holder.getDatabaseDrivers())) {
           try {
@@ -199,35 +199,35 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         return;
       }
 
-      List<TableSchema> tableSchemaList = null;
       try {
-        tableSchemaList = Holder.getDatabaseDrivers().getDriverAdapter().findDatabaseSchemas(database);
+        List<TableSchema> tableSchemaList = Holder.getDatabaseDrivers().getDriverAdapter()
+            .findDatabaseSchemas(database);
+        ApplicationManager.getApplication().invokeLater(() -> {
+          dispose();
+          // 显示自动生成器配置窗口
+          AutoGeneratorSettingsDialog.show(tableSchemaList, tableSchema -> {
+            try {
+              return Holder.getDatabaseDrivers().getDriverAdapter()
+                  .findTableSchemas(tableSchema.getTableSchema(), tableSchema.getTableName());
+            } catch (SQLException se) {
+              log.error("read table " + tableSchema.getTableName() + " schema failed", se);
+              ApplicationManager.getApplication()
+                  .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
+                      se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
+                      NotificationType.ERROR)));
+              return null;
+            }
+          });
+        });
       } catch (SQLException se) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SQL error code: ").append(se.getErrorCode())
-            .append("\nSQL error state: ").append(se.getSQLState()).append("\n");
-        sb.append("Error message: ").append(se.getLocalizedMessage());
+        String sb = "SQL error code: " + se.getErrorCode()
+            + "\nSQL error state: " + se.getSQLState() + "\n"
+            + "Error message: " + se.getLocalizedMessage();
         ApplicationManager.getApplication()
             .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
-                sb.toString(), NotificationType.ERROR)));
+                sb, NotificationType.ERROR)));
       }
-
-      // 显示自动生成器配置窗口
-      AutoGeneratorSettingsDialog.show(tableSchemaList, tableSchema -> {
-        try {
-          return Holder.getDatabaseDrivers().getDriverAdapter()
-              .findTableSchemas(tableSchema.getTableSchema(), tableSchema.getTableName());
-        } catch (SQLException se) {
-          log.error("read table " + tableSchema.getTableName() + " schema failed", se);
-          ApplicationManager.getApplication()
-              .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
-                  se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
-                  NotificationType.ERROR)));
-          return null;
-        }
-      });
-      ApplicationManager.getApplication().invokeLater(this::dispose);
-    }).start();
+    });
   }
 
   public static void showDialog() {
