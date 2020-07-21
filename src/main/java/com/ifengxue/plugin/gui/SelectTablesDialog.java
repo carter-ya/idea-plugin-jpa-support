@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -227,8 +226,9 @@ public class SelectTablesDialog extends DialogWrapper {
             LocaleContextHolder.format("prompt"));
         return;
       }
+      dispose();
       // 开始生成
-      ApplicationManager.getApplication().executeOnPooledThread(new GeneratorRunner(tableList, config));
+      new GeneratorRunner(tableList, config).run();
     });
   }
 
@@ -335,7 +335,6 @@ public class SelectTablesDialog extends DialogWrapper {
       sourceParser.setVelocityEngine(velocityEngine, encoding);
 
       // 生成数量
-      CountDownLatch countDownLatch = new CountDownLatch(tableList.size());
       for (Table table : tableList) {
         List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
         if (columnSchemaList == null) {
@@ -404,22 +403,8 @@ public class SelectTablesDialog extends DialogWrapper {
             Bus.notify(
                 new Notification("JpaSupport", "Error", "Generate source code error. " + e, NotificationType.ERROR),
                 project);
-          } finally {
-            countDownLatch.countDown();
           }
         });
-      }
-      try {
-        countDownLatch.await();
-        ApplicationManager.getApplication().invokeAndWait(() -> Messages
-            .showMessageDialog(SelectTablesDialog.this.getContentPane(), LocaleContextHolder
-                    .format("generate_source_code_success", ""), "JpaSupport",
-                Messages.getInformationIcon()));
-      } catch (InterruptedException e) {
-        Bus.notify(new Notification("JpaSupport", "Error", "Operation was interrupted. " + e, NotificationType.ERROR),
-            project);
-      } finally {
-        ApplicationManager.getApplication().invokeAndWait(SelectTablesDialog.this::dispose);
       }
     }
 
