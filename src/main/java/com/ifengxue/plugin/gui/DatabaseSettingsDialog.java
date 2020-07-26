@@ -1,6 +1,5 @@
 package com.ifengxue.plugin.gui;
 
-import static com.ifengxue.plugin.util.Key.createKey;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 import com.ifengxue.plugin.Holder;
@@ -11,16 +10,17 @@ import com.ifengxue.plugin.component.DatabaseSettings;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
+import com.ifengxue.plugin.state.DatabaseSettingsState;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.ide.util.DirectoryUtil;
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -48,11 +48,9 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -92,12 +90,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         return;
       }
       LocaleContextHolder.setCurrentLocale(((LocaleItem) itemEvent.getItem()).getLocale());
-      WriteCommandAction.runWriteCommandAction(project, () -> {
-        PropertiesComponent applicationProperties = Holder.getApplicationProperties();
-        applicationProperties
-            .setValue(createKey("locale"),
-                ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
-      });
+      databaseSettings.getData(ServiceManager.getService(DatabaseSettingsState.class));
     });
     // 注册数据库类型切换事件
     databaseSettings.getCbxSelectDatabase().addItemListener(itemEvent -> {
@@ -153,7 +146,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String password = new String(databaseSettings.getTextPassword().getPassword()).trim();
     String database = databaseSettings.getTextDatabase().getText().trim();
     String connectionUrl = databaseSettings.getTextConnectionUrl().getText().trim();
-    saveTextField(host, port, username, password, database, connectionUrl);
+    saveTextField(host, port, username, password);
     WriteCommandAction.runWriteCommandAction(project, () -> {
       try {
         if (!driverHasBeenLoaded(Holder.getDatabaseDrivers())) {
@@ -255,10 +248,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       ApplicationManager.getApplication().invokeLater(() -> updateConnectionUrl(true));
 
       // save database driver path
-      PropertiesComponent applicationProperties = Holder.getApplicationProperties();
-      applicationProperties.setValue(
-          createKey("database_driver_path", databaseDrivers.getVendor(), databaseDrivers.getVersion()),
-          virtualFile.getPath());
+      DatabaseSettingsState databaseSettingsState = ServiceManager.getService(DatabaseSettingsState.class);
+      databaseSettingsState.registerJarPath(databaseDrivers, virtualFile.getPath());
     } catch (MalformedURLException ex) {
       log.error("url not valid " + databaseDrivers.getDriverClass(), ex);
       ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
@@ -302,27 +293,12 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     databaseSettings.getTextConnectionUrl().setText(newConnectionUrl);
   }
 
-  private void saveTextField(String host, String port, String username, String password, String database,
-      String connectionUrl) {
-    PropertiesComponent applicationProperties = Holder.getApplicationProperties();
-    applicationProperties.setValue(createKey("host"), host);
-    applicationProperties.setValue(createKey("port"), port);
-    applicationProperties.setValue(createKey("username"), username);
-
+  private void saveTextField(String host, String port, String username, String password) {
+    databaseSettings.getData(ServiceManager.getService(DatabaseSettingsState.class));
     // 存储密码
     CredentialAttributes credentialAttributes = createCredentialAttributes(host, port, username);
     Credentials credentials = new Credentials(username, password);
     PasswordSafe.getInstance().set(credentialAttributes, credentials);
-    // 移除历史版本存储的密码
-    applicationProperties.unsetValue(createKey("password"));
-
-    applicationProperties.setValue(createKey("database"), database);
-    applicationProperties.setValue(createKey("url"), connectionUrl);
-    applicationProperties
-        .setValue(createKey("locale"),
-            ((LocaleItem) databaseSettings.getCbxSelectLanguage().getSelectedItem()).getLanguageTag());
-    applicationProperties.setValue(createKey("database_vendor"),
-        ((DatabaseDrivers) databaseSettings.getCbxSelectDatabase().getSelectedItem()).toString());
   }
 
   @NotNull
@@ -335,56 +311,24 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     setOKButtonText(LocaleContextHolder.format("button_next_step"));
     setCancelButtonText(LocaleContextHolder.format("button_cancel"));
 
-    PropertiesComponent applicationProperties = Holder.getApplicationProperties();
-    databaseSettings.getTextHost().setText(applicationProperties.getValue(createKey("host"), "localhost"));
-    databaseSettings.getTextPort().setText(applicationProperties.getValue(createKey("port"), "3306"));
-    databaseSettings.getTextUsername().setText(applicationProperties.getValue(createKey("username"), "root"));
+    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(DatabaseSettingsState.class);
+    databaseSettings.setData(databaseSettingsState);
+    // update connection url
+    updateConnectionUrl(false);
 
     // 加载密码
     CredentialAttributes credentialAttributes = createCredentialAttributes(databaseSettings.getTextHost().getText(),
         databaseSettings.getTextPort().getText(), databaseSettings.getTextUsername().getText());
     Credentials credentials = PasswordSafe.getInstance().get(credentialAttributes);
-    String password;
+    String password = "";
     if (credentials != null) {
       password = credentials.getPasswordAsString();
-    } else {
-      password = new String(Base64.getDecoder().decode(applicationProperties.getValue(createKey("password"), "")),
-          StandardCharsets.UTF_8);
     }
     databaseSettings.getTextPassword().setText(password);
 
-    databaseSettings.getTextDatabase().setText(applicationProperties.getValue(createKey("database"), ""));
-    databaseSettings.getTextConnectionUrl().setText(applicationProperties.getValue(createKey("url"), ""));
-
-    // select language
-    Locale locale = LocaleContextHolder.getCurrentLocale();
-    databaseSettings.getCbxSelectLanguage().removeAllItems();
-    for (LocaleItem localeItem : LocaleContextHolder.LOCALE_ITEMS) {
-      databaseSettings.getCbxSelectLanguage().addItem(localeItem);
-      if (locale.equals(localeItem.getLocale())) {
-        databaseSettings.getCbxSelectLanguage().setSelectedItem(localeItem);
-      }
-    }
-
-    // select database
-    databaseSettings.getCbxSelectDatabase().removeAllItems();
-    String databaseVendor = applicationProperties
-        .getValue(createKey("database_vendor"), DatabaseDrivers.MYSQL.toString());
-    for (DatabaseDrivers databaseDrivers : DatabaseDrivers.values()) {
-      databaseSettings.getCbxSelectDatabase().addItem(databaseDrivers);
-      if (databaseDrivers.toString().equalsIgnoreCase(databaseVendor)) {
-        databaseSettings.getCbxSelectDatabase().setSelectedItem(databaseDrivers);
-        Holder.registerDatabaseDrivers(databaseDrivers);
-      }
-    }
-
-    // update connection url
-    updateConnectionUrl(false);
-
     DatabaseDrivers databaseDrivers = Holder.getDatabaseDrivers();
     // load driver path
-    String databaseDriverPath = applicationProperties
-        .getValue(createKey("database_driver_path", databaseDrivers.getVendor(), databaseDrivers.getVersion()));
+    String databaseDriverPath = databaseSettingsState.getJarPath(databaseDrivers);
     if (StringUtils.isNotBlank(databaseDriverPath)) {
       try {
         classLoaderRef.set(UrlClassLoader.build()

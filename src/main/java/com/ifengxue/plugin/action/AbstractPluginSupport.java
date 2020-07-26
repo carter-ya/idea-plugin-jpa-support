@@ -1,14 +1,14 @@
 package com.ifengxue.plugin.action;
 
-import static com.ifengxue.plugin.util.Key.createKey;
-
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
+import com.ifengxue.plugin.state.DatabaseSettingsState;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.components.ServiceManager;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -37,10 +37,9 @@ public abstract class AbstractPluginSupport extends AnAction {
    * 初始化I18n
    */
   private void initI18n() {
-    PropertiesComponent applicationProperties = Holder.getApplicationProperties();
-    // select language
-    Locale locale = Locale.forLanguageTag(applicationProperties
-        .getValue(createKey("locale"), LocaleContextHolder.getCurrentLocale().toLanguageTag()));
+    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(DatabaseSettingsState.class);
+    // 选择语言
+    Locale locale = Locale.forLanguageTag(databaseSettingsState.getLanguage());
     int localeSelectIndex = -1;
     for (int i = 0; i < LocaleContextHolder.LOCALE_ITEMS.length; i++) {
       LocaleItem localeItem = LocaleContextHolder.LOCALE_ITEMS[i];

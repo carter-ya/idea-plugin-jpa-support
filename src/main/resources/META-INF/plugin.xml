@@ -46,7 +46,7 @@
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <!--  <idea-version since-build="171" until-build="191.*"/>-->
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+    <applicationService serviceImplementation="com.ifengxue.plugin.state.DatabaseSettingsState"/>
   </extensions>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
