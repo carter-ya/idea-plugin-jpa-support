@@ -183,7 +183,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     config.setGenerateClassComment(generatorSettings.getChkBoxGenerateClassComment().isSelected());
     config.setGenerateFieldComment(generatorSettings.getChkBoxGenerateFieldComment().isSelected());
     config.setGenerateMethodComment(generatorSettings.getChkBoxGenerateMethodComment().isSelected());
-    config.setUseJava8DataType(generatorSettings.getChkBoxUseJava8DataType().isSelected());
+    config.setUseJava8DataType(generatorSettings.getChkBoxUseJava8DateType().isSelected());
     //TODO 保留主键类型
     List<Table> tableList = new ArrayList<>(tableSchemaList.size());
     VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(config.getEntityDirectory());
@@ -264,7 +264,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     config.setRepositoryDirectory(projectProperties.getValue(createKey("repository_directory"), ""));
     settings.getTextRepositoryPackageParentPath().setText(config.getRepositoryDirectory());
 
-    settings.getChkBoxUseJava8DataType()
+    settings.getChkBoxUseJava8DateType()
         .setSelected(applicationProperties.getBoolean(createKey("use_java8_data_type"), false));
   }
 

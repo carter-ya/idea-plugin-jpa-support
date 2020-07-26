@@ -233,10 +233,10 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="26e3f" class="javax.swing.JCheckBox" binding="chkBoxUseJava8DataType">
+          <component id="26e3f" class="javax.swing.JCheckBox" binding="chkBoxUseJava8DateType">
             <constraints/>
             <properties>
-              <text resource-bundle="bundles/ui_i18n" key="use_java8_data_type"/>
+              <text resource-bundle="bundles/ui_i18n" key="use_java8_date_type"/>
             </properties>
           </component>
         </children>

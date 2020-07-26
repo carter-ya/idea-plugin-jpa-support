@@ -1,6 +1,10 @@
 package com.ifengxue.plugin.component;
 
 import com.ifengxue.plugin.Holder;
+import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -24,7 +28,7 @@ public class AutoGeneratorSettings {
   private JTextField textExcludeFields;
   private JButton btnChooseSuperClass;
   private JCheckBox chkBoxGenerateService;
-  private JCheckBox chkBoxUseJava8DataType;
+  private JCheckBox chkBoxUseJava8DateType;
   private JTextField textRemoveTablePrefix;
   private JLabel addTableNamePrefix;
   private JTextField textAddTableNamePrefix;
@@ -39,5 +43,44 @@ public class AutoGeneratorSettings {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(null, Holder.getProject(), "", "Entity");
     repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(null, Holder.getProject(), "",
         "Repository");
+  }
+
+  public void setData(AutoGeneratorSettingsState data) {
+    textRemoveFieldPrefix.setText(data.getRemoveFieldPrefix());
+    chkBoxUseLombok.setSelected(data.isUseLombok());
+    chkBoxGenerateRepository.setSelected(data.isGenerateRepository());
+    chkBoxSerializable.setSelected(data.isSerializable());
+    chkBoxGenerateClassComment.setSelected(data.isGenerateClassComment());
+    chkBoxGenerateFieldComment.setSelected(data.isGenerateFieldComment());
+    chkBoxGenerateMethodComment.setSelected(data.isGenerateMethodComment());
+    textExcludeFields.setText(String.join(",", data.getIgnoredFields()));
+    textExtendBaseClass.setText(data.getInheritedParentClassName());
+    chkBoxUseJava8DateType.setSelected(data.isUseJava8DateType());
+    textRemoveTablePrefix.setText(data.getRemoveEntityPrefix());
+    textAddTableNamePrefix.setText(data.getAddEntityPrefix());
+    textAddTableNameSuffix.setText(data.getAddEntitySuffix());
+    entityPackageReferenceEditorCombo.setText("");
+    cbxModule.setSelectedItem(data.getModuleName());
+    textEntityPackageParentPath.setText(data.getEntityParentDirectory());
+    textRepositoryPackageParentPath.setText(data.getRepositoryParentDirectory());
+  }
+
+  public void getData(AutoGeneratorSettingsState data) {
+    data.setRemoveFieldPrefix(textRemoveFieldPrefix.getText());
+    data.setUseLombok(chkBoxUseLombok.isSelected());
+    data.setGenerateRepository(chkBoxGenerateRepository.isSelected());
+    data.setSerializable(chkBoxSerializable.isSelected());
+    data.setGenerateClassComment(chkBoxGenerateClassComment.isSelected());
+    data.setGenerateFieldComment(chkBoxGenerateFieldComment.isSelected());
+    data.setGenerateMethodComment(chkBoxGenerateMethodComment.isSelected());
+    data.setIgnoredFields(Arrays.stream(textExcludeFields.getText().split(",")).collect(Collectors.toSet()));
+    data.setInheritedParentClassName(textExtendBaseClass.getText());
+    data.setUseJava8DateType(chkBoxUseJava8DateType.isSelected());
+    data.setRemoveEntityPrefix(textRemoveTablePrefix.getText());
+    data.setAddEntityPrefix(textAddTableNamePrefix.getText());
+    data.setAddEntitySuffix(textAddTableNameSuffix.getText());
+    data.setModuleName(Optional.ofNullable(cbxModule.getSelectedItem()).map(Object::toString).orElse(""));
+    data.setEntityParentDirectory(textEntityPackageParentPath.getText());
+    data.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
   }
 }
