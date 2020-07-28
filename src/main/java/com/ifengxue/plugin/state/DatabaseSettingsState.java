@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Data
 @State(name = "DatabaseSettingsState", storages = {
-    @Storage(value = StateConstants.APPLICATION_STATE_NAME, roamingType = RoamingType.DISABLED)
+    @Storage(value = StateConstants.PROJECT_STATE_NAME, roamingType = RoamingType.DISABLED)
 })
 public class DatabaseSettingsState implements PersistentStateComponent<DatabaseSettingsState> {
 

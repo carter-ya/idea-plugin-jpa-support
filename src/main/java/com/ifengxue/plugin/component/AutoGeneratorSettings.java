@@ -2,6 +2,7 @@ package com.ifengxue.plugin.component;
 
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.intellij.openapi.components.ServiceManager;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,8 +41,12 @@ public class AutoGeneratorSettings {
   private JTextField textRepositoryPackageParentPath;
 
   private void createUIComponents() {
-    entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(null, Holder.getProject(), "", "Entity");
-    repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(null, Holder.getProject(), "",
+    AutoGeneratorSettingsState service = ServiceManager
+        .getService(Holder.getProject(), AutoGeneratorSettingsState.class);
+    entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(service.getEntityPackageName(),
+        Holder.getProject(), "", "Entity");
+    repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(service.getRepositoryPackageName(),
+        Holder.getProject(), "",
         "Repository");
   }
 
@@ -59,7 +64,8 @@ public class AutoGeneratorSettings {
     textRemoveTablePrefix.setText(data.getRemoveEntityPrefix());
     textAddTableNamePrefix.setText(data.getAddEntityPrefix());
     textAddTableNameSuffix.setText(data.getAddEntitySuffix());
-    entityPackageReferenceEditorCombo.setText("");
+    entityPackageReferenceEditorCombo.setText(data.getEntityPackageName());
+    repositoryPackageReferenceEditorCombo.setText(data.getRepositoryPackageName());
     cbxModule.setSelectedItem(data.getModuleName());
     textEntityPackageParentPath.setText(data.getEntityParentDirectory());
     textRepositoryPackageParentPath.setText(data.getRepositoryParentDirectory());
@@ -79,6 +85,8 @@ public class AutoGeneratorSettings {
     data.setRemoveEntityPrefix(textRemoveTablePrefix.getText());
     data.setAddEntityPrefix(textAddTableNamePrefix.getText());
     data.setAddEntitySuffix(textAddTableNameSuffix.getText());
+    data.setEntityPackageName(entityPackageReferenceEditorCombo.getText());
+    data.setRepositoryPackageName(repositoryPackageReferenceEditorCombo.getText());
     data.setModuleName(Optional.ofNullable(cbxModule.getSelectedItem()).map(Object::toString).orElse(""));
     data.setEntityParentDirectory(textEntityPackageParentPath.getText());
     data.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());

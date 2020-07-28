@@ -91,7 +91,7 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
 
   @Override
   public Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper,
-      boolean useJava8DataType) {
+      boolean useJava8DateType) {
     Column column = new Column();
     column.setColumnName(columnSchema.getColumnName());
     column.setSort(columnSchema.getOrdinalPosition());
@@ -105,7 +105,7 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
         column.setDefaultValue(columnSchema.getColumnDefault());
       }
     }
-    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper, useJava8DataType);
+    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper, useJava8DateType);
     return column;
   }
 }

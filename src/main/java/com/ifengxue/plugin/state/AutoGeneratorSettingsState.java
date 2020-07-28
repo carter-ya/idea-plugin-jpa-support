@@ -5,7 +5,7 @@ import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,7 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
   /**
    * 被移除的字段前缀
    */
-  private String removeFieldPrefix = "";
+  private String removeFieldPrefix = "f_";
   /**
    * 继承的父类名称
    */
@@ -43,7 +43,7 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
   /**
    * 忽略的字段列表
    */
-  private Set<String> ignoredFields = Collections.emptySet();
+  private Set<String> ignoredFields = new HashSet<>();
   /**
    * 实体包名
    */
@@ -102,5 +102,16 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
   @Override
   public void loadState(AutoGeneratorSettingsState state) {
     XmlSerializerUtil.copyBean(state, this);
+  }
+
+  public String removeTablePrefix(String tableName) {
+    if (!removeEntityPrefix.isEmpty() && tableName.startsWith(removeEntityPrefix)) {
+      return tableName.substring(removeEntityPrefix.length());
+    }
+    return tableName;
+  }
+
+  public String concatPrefixAndSuffix(String entityName) {
+    return addEntityPrefix + entityName + addEntitySuffix;
   }
 }

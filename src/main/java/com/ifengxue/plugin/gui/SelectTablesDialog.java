@@ -1,7 +1,8 @@
 package com.ifengxue.plugin.gui;
 
+import static java.util.stream.Collectors.toList;
+
 import com.ifengxue.plugin.Holder;
-import com.ifengxue.plugin.component.AutoGeneratorConfig;
 import com.ifengxue.plugin.component.SelectTables;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
@@ -14,6 +15,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
+import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
@@ -23,6 +25,7 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -49,7 +52,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
@@ -71,7 +73,7 @@ public class SelectTablesDialog extends DialogWrapper {
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
   protected SelectTablesDialog(@Nullable Project project, List<Table> tableList,
-      Function<TableSchema, List<ColumnSchema>> mapping, AutoGeneratorConfig config) {
+      Function<TableSchema, List<ColumnSchema>> mapping) {
     super(project, true);
     this.mapping = mapping;
     selectTables = new SelectTables(tableList);
@@ -228,7 +230,7 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       dispose();
       // 开始生成
-      new GeneratorRunner(tableList, config).run();
+      new GeneratorRunner(tableList).run();
     });
   }
 
@@ -244,9 +246,8 @@ public class SelectTablesDialog extends DialogWrapper {
     return new Action[0];
   }
 
-  public static void show(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping,
-      AutoGeneratorConfig config) {
-    new SelectTablesDialog(Holder.getProject(), tableList, mapping, config).show();
+  public static void show(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping) {
+    new SelectTablesDialog(Holder.getProject(), tableList, mapping).show();
   }
 
   /**
@@ -255,12 +256,12 @@ public class SelectTablesDialog extends DialogWrapper {
   private class GeneratorRunner implements Runnable {
 
     private final List<Table> tableList;
-    private final AutoGeneratorConfig config;
 
-    public GeneratorRunner(List<Table> tableList, AutoGeneratorConfig config) {
+    public GeneratorRunner(List<Table> tableList) {
       this.tableList = Collections
-          .unmodifiableList(tableList.stream().filter(Table::isSelected).collect(Collectors.toList()));
-      this.config = config;
+          .unmodifiableList(tableList.stream()
+              .filter(Table::isSelected)
+              .collect(toList()));
     }
 
     @Override
@@ -334,6 +335,8 @@ public class SelectTablesDialog extends DialogWrapper {
       EntitySourceParserV2 sourceParser = new EntitySourceParserV2();
       sourceParser.setVelocityEngine(velocityEngine, encoding);
 
+      AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
+          .getService(Holder.getProject(), AutoGeneratorSettingsState.class);
       // 生成数量
       for (Table table : tableList) {
         List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
@@ -344,17 +347,18 @@ public class SelectTablesDialog extends DialogWrapper {
         // 解析字段列表
         List<Column> columnList = new ArrayList<>(columnSchemaList.size());
         for (ColumnSchema columnSchema : columnSchemaList) {
-          Column column = Holder.getDatabaseDrivers().getDriverAdapter()
-              .parseToColumn(columnSchema, config.getRemoveFieldPrefix(), true, config.isUseJava8DataType());
+          Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
+              autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
+              autoGeneratorSettingsState.isUseJava8DateType());
           if (column.isPrimary()) {
             table.setPrimaryKeyClassType(column.getJavaDataType());
             table.incPrimaryKeyCount();
           }
-          if (!config.getExcludeFields().contains(column.getFieldName())) {
+          if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
             columnList.add(column);
           }
         }
-        table.setPackageName(config.getEntityPackage());
+        table.setPackageName(autoGeneratorSettingsState.getEntityPackageName());
         table.setColumns(columnList);
 
         // 配置源码生成信息
@@ -362,29 +366,29 @@ public class SelectTablesDialog extends DialogWrapper {
         generatorConfig.setDriverConfig(new DriverConfig()
             .setVendor(Holder.getDatabaseDrivers().getVendor2()));
         int lastIndex;
-        String basePackageName = config.getEntityPackage();
-        if ((lastIndex = config.getEntityPackage().lastIndexOf('.')) != -1) {
-          basePackageName = config.getEntityPackage().substring(0, lastIndex);
+        String basePackageName = autoGeneratorSettingsState.getEntityPackageName();
+        if ((lastIndex = basePackageName.lastIndexOf('.')) != -1) {
+          basePackageName = basePackageName.substring(0, lastIndex);
         }
         generatorConfig.setTablesConfig(new TablesConfig()
             .setBasePackageName(basePackageName)
-            .setEntityPackageName(config.getEntityPackage())
+            .setEntityPackageName(autoGeneratorSettingsState.getEntityPackageName())
             .setEnumSubPackageName(basePackageName + ".enums")
             .setIndent(getIndent())
             .setLineSeparator(getLineSeparator())
             .setOrm(ORM.JPA)
-            .setExtendsEntityName(config.getExtendBaseClass())
-            .setRemoveTablePrefix(config.getRemoveTablePrefix())
-            .setRemoveFieldPrefix(config.getRemoveFieldPrefix())
-            .setRepositoryPackageName(config.getRepositoryPackage())
-            .setSerializable(config.isImplementSerializable())
-            .setUseClassComment(config.isGenerateClassComment())
-            .setUseFieldComment(config.isGenerateFieldComment())
-            .setUseMethodComment(config.isGenerateMethodComment())
+            .setExtendsEntityName(autoGeneratorSettingsState.getInheritedParentClassName())
+            .setRemoveTablePrefix(autoGeneratorSettingsState.getRemoveEntityPrefix())
+            .setRemoveFieldPrefix(autoGeneratorSettingsState.getRemoveFieldPrefix())
+            .setRepositoryPackageName(autoGeneratorSettingsState.getRepositoryPackageName())
+            .setSerializable(autoGeneratorSettingsState.isSerializable())
+            .setUseClassComment(autoGeneratorSettingsState.isGenerateClassComment())
+            .setUseFieldComment(autoGeneratorSettingsState.isGenerateFieldComment())
+            .setUseMethodComment(autoGeneratorSettingsState.isGenerateMethodComment())
             .setUseDefaultValue(true)
             .setUseWrapper(true)
-            .setUseLombok(config.isUseLombok())
-            .setUseJava8DataType(config.isUseJava8DataType()));
+            .setUseLombok(autoGeneratorSettingsState.isUseLombok())
+            .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType()));
         generatorConfig.setPluginConfigs(Collections.emptyList());
 
         // 生成源码
@@ -392,11 +396,13 @@ public class SelectTablesDialog extends DialogWrapper {
         WriteCommandAction.runWriteCommandAction(project, () -> {
           String filename = table.getEntityName() + ".java";
           try {
-            writeContent(project, filename, config.getEntityDirectory(), config.getEntityPackage(), sourceCode);
-            if (config.isGenerateRepository()) {
+            writeContent(project, filename, autoGeneratorSettingsState.getEntityParentDirectory(),
+                autoGeneratorSettingsState.getEntityPackageName(), sourceCode);
+            if (autoGeneratorSettingsState.isGenerateRepository()) {
               filename = table.getEntityName() + "Repository.java";
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-              writeContent(project, filename, config.getRepositoryDirectory(), config.getRepositoryPackage(),
+              writeContent(project, filename, autoGeneratorSettingsState.getRepositoryParentDirectory(),
+                  autoGeneratorSettingsState.getRepositoryPackageName(),
                   repositorySourceCode);
             }
           } catch (Exception e) {

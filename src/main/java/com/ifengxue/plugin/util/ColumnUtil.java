@@ -11,10 +11,10 @@ import java.time.LocalTime;
 public class ColumnUtil {
 
   public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper,
-      boolean useJava8DataType) {
+      boolean useJava8DateType) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
     Class<?> javaDataType = StringHelper
-        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DataType);
+        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
     if ((javaDataType == Integer.class || javaDataType == int.class)
         && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
       if (useWrapper) {

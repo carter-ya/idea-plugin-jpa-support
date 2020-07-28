@@ -90,7 +90,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         return;
       }
       LocaleContextHolder.setCurrentLocale(((LocaleItem) itemEvent.getItem()).getLocale());
-      databaseSettings.getData(ServiceManager.getService(DatabaseSettingsState.class));
+      databaseSettings.getData(ServiceManager.getService(project, DatabaseSettingsState.class));
     });
     // 注册数据库类型切换事件
     databaseSettings.getCbxSelectDatabase().addItemListener(itemEvent -> {
@@ -248,7 +248,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       ApplicationManager.getApplication().invokeLater(() -> updateConnectionUrl(true));
 
       // save database driver path
-      DatabaseSettingsState databaseSettingsState = ServiceManager.getService(DatabaseSettingsState.class);
+      DatabaseSettingsState databaseSettingsState = ServiceManager.getService(project, DatabaseSettingsState.class);
       databaseSettingsState.registerJarPath(databaseDrivers, virtualFile.getPath());
     } catch (MalformedURLException ex) {
       log.error("url not valid " + databaseDrivers.getDriverClass(), ex);
@@ -294,7 +294,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
   }
 
   private void saveTextField(String host, String port, String username, String password) {
-    databaseSettings.getData(ServiceManager.getService(DatabaseSettingsState.class));
+    databaseSettings.getData(ServiceManager.getService(project, DatabaseSettingsState.class));
     // 存储密码
     CredentialAttributes credentialAttributes = createCredentialAttributes(host, port, username);
     Credentials credentials = new Credentials(username, password);
@@ -311,7 +311,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     setOKButtonText(LocaleContextHolder.format("button_next_step"));
     setCancelButtonText(LocaleContextHolder.format("button_cancel"));
 
-    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(DatabaseSettingsState.class);
+    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(project, DatabaseSettingsState.class);
     databaseSettings.setData(databaseSettingsState);
     // update connection url
     updateConnectionUrl(false);

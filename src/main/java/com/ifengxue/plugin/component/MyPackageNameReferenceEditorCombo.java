@@ -5,20 +5,10 @@ import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaCodeFragment.VisibilityChecker;
 import com.intellij.psi.PsiPackage;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.ReferenceEditorComboWithBrowseButton;
-import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 public class MyPackageNameReferenceEditorCombo extends ReferenceEditorComboWithBrowseButton {
-
-  /**
-   * 被选择的包的路径
-   */
-  @Setter
-  @Getter
-  private String selectedPackagePath;
 
   public MyPackageNameReferenceEditorCombo(String text, @NotNull Project project, String recentsKey,
       String chooserTitle) {
@@ -31,10 +21,6 @@ public class MyPackageNameReferenceEditorCombo extends ReferenceEditorComboWithB
         final PsiPackage aPackage = chooser.getSelectedPackage();
         if (aPackage != null) {
           setText(aPackage.getQualifiedName());
-          setSelectedPackagePath(
-              aPackage.getDirectories(GlobalSearchScope.projectScope(project))[0].getVirtualFile().getPath());
-        } else {
-          setSelectedPackagePath(null);
         }
       }
     });
