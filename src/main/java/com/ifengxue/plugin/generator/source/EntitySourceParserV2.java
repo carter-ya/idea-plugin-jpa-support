@@ -8,7 +8,6 @@ import com.ifengxue.plugin.generator.tree.Element;
 import com.ifengxue.plugin.util.StringHelper;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import org.apache.velocity.VelocityContext;
 
@@ -39,8 +38,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     if (tablesConfig.isSerializable()) {
       importClassList.add(Serializable.class.getName());
       implementClassList.add(Serializable.class.getSimpleName());
-      //TODO 不能修改已存在的id
-      context.put("serialVersionUID", new Random().nextLong());
+      context.put("serialVersionUID", "1L");
     }
 
     // 设置是否使用Lombok
