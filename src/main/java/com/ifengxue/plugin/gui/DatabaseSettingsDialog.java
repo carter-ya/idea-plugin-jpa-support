@@ -294,11 +294,14 @@ public class DatabaseSettingsDialog extends DialogWrapper {
   }
 
   private void saveTextField(String host, String port, String username, String password) {
-    databaseSettings.getData(ServiceManager.getService(project, DatabaseSettingsState.class));
-    // 存储密码
-    CredentialAttributes credentialAttributes = createCredentialAttributes(host, port, username);
-    Credentials credentials = new Credentials(username, password);
-    PasswordSafe.getInstance().set(credentialAttributes, credentials);
+    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(project, DatabaseSettingsState.class);
+    databaseSettings.getData(databaseSettingsState);
+    if (databaseSettingsState.isRequireSavePassword()) {
+      // 存储密码
+      CredentialAttributes credentialAttributes = createCredentialAttributes(host, port, username);
+      Credentials credentials = new Credentials(username, password);
+      PasswordSafe.getInstance().set(credentialAttributes, credentials);
+    }
   }
 
   @NotNull
@@ -316,15 +319,17 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     // update connection url
     updateConnectionUrl(false);
 
-    // 加载密码
-    CredentialAttributes credentialAttributes = createCredentialAttributes(databaseSettings.getTextHost().getText(),
-        databaseSettings.getTextPort().getText(), databaseSettings.getTextUsername().getText());
-    Credentials credentials = PasswordSafe.getInstance().get(credentialAttributes);
-    String password = "";
-    if (credentials != null) {
-      password = credentials.getPasswordAsString();
+    if (databaseSettingsState.isRequireSavePassword()) {
+      // 加载密码
+      CredentialAttributes credentialAttributes = createCredentialAttributes(databaseSettings.getTextHost().getText(),
+          databaseSettings.getTextPort().getText(), databaseSettings.getTextUsername().getText());
+      Credentials credentials = PasswordSafe.getInstance().get(credentialAttributes);
+      String password = "";
+      if (credentials != null) {
+        password = credentials.getPasswordAsString();
+      }
+      databaseSettings.getTextPassword().setText(password);
     }
-    databaseSettings.getTextPassword().setText(password);
 
     DatabaseDrivers databaseDrivers = Holder.getDatabaseDrivers();
     // load driver path

@@ -26,6 +26,10 @@ public class DatabaseSettingsState implements PersistentStateComponent<DatabaseS
   private String language = LocaleContextHolder.getCurrentLocale().toLanguageTag();
   private String databaseDriver = DatabaseDrivers.MYSQL.toString();
   private Map<String, String> databaseDriverToJarPath = new HashMap<>();
+  /**
+   * 是否需要保存数据库密码
+   */
+  private boolean requireSavePassword = true;
 
   @Nullable
   @Override

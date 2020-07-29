@@ -7,6 +7,7 @@ import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.state.DatabaseSettingsState;
 import java.util.Locale;
 import java.util.Objects;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,6 +29,7 @@ public class DatabaseSettings {
   private JTextField textConnectionUrl;
   private JComboBox<DatabaseDrivers> cbxSelectDatabase;
   private JComboBox<LocaleItem> cbxSelectLanguage;
+  private JCheckBox chkBoxRequireSavePassword;
 
   public void setData(DatabaseSettingsState data) {
     textHost.setText(data.getHost());
@@ -35,6 +37,7 @@ public class DatabaseSettings {
     textUsername.setText(data.getUsername());
     textDatabase.setText(data.getDatabase());
     textConnectionUrl.setText(data.getUrl());
+    chkBoxRequireSavePassword.setSelected(data.isRequireSavePassword());
 
     // 选择语言
     Locale locale = LocaleContextHolder.getCurrentLocale();
@@ -68,23 +71,6 @@ public class DatabaseSettings {
     data.setUrl(textConnectionUrl.getText());
     data.setLanguage(((LocaleItem) Objects.requireNonNull(cbxSelectLanguage.getSelectedItem())).getLanguageTag());
     data.setDatabaseDriver(((DatabaseDrivers) Objects.requireNonNull(cbxSelectDatabase.getSelectedItem())).toString());
-  }
-
-  public boolean isModified(DatabaseSettingsState data) {
-    if (textUsername.getText() != null ? !textUsername.getText().equals(data.getUsername())
-        : data.getUsername() != null) {
-      return true;
-    }
-    if (textDatabase.getText() != null ? !textDatabase.getText().equals(data.getDatabase())
-        : data.getDatabase() != null) {
-      return true;
-    }
-    if (textHost.getText() != null ? !textHost.getText().equals(data.getHost()) : data.getHost() != null) {
-      return true;
-    }
-    if (!(data.getPort() + "").equals(textPort.getText())) {
-      return true;
-    }
-    return false;
+    data.setRequireSavePassword(chkBoxRequireSavePassword.isSelected());
   }
 }
