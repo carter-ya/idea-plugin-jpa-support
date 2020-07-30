@@ -13,9 +13,13 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +29,7 @@ public class StringHelper {
 
   private static final Map<Class<?>, Class<?>> WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE = new HashMap<>();
   private static final Logger LOGGER = Logger.getInstance(StringHelper.class);
+  private static final Set<Class<?>> DATETIME_CLASSES = new HashSet<>();
 
   static {
     WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.put(Boolean.class, boolean.class);
@@ -32,6 +37,14 @@ public class StringHelper {
     WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.put(Float.class, float.class);
     WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.put(Long.class, long.class);
     WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.put(Double.class, double.class);
+
+    DATETIME_CLASSES.add(Date.class);
+    DATETIME_CLASSES.add(java.sql.Date.class);
+    DATETIME_CLASSES.add(Timestamp.class);
+    DATETIME_CLASSES.add(LocalDate.class);
+    DATETIME_CLASSES.add(LocalTime.class);
+    DATETIME_CLASSES.add(LocalDateTime.class);
+    DATETIME_CLASSES.add(ZonedDateTime.class);
   }
 
   /**
@@ -46,6 +59,13 @@ public class StringHelper {
       }
     });
     return clazzWrapper.get("clazz");
+  }
+
+  /**
+   * 是否是日期时间类型
+   */
+  public static boolean isDatetimeType(Class<?> clazz) {
+    return DATETIME_CLASSES.contains(clazz);
   }
 
   /**

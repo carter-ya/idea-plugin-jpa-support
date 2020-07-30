@@ -38,7 +38,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     if (tablesConfig.isSerializable()) {
       importClassList.add(Serializable.class.getName());
       implementClassList.add(Serializable.class.getSimpleName());
-      context.put("serialVersionUID", "1L");
+      context.put("serialVersionUID", "1");
     }
 
     // 设置是否使用Lombok

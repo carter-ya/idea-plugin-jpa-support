@@ -39,6 +39,8 @@ public class AutoGeneratorSettings {
   private JComboBox<String> cbxModule;
   private JTextField textEntityPackageParentPath;
   private JTextField textRepositoryPackageParentPath;
+  private JCheckBox chkBoxGenerateDefaultValue;
+  private JCheckBox chkBoxGenerateDatetimeDefaultValue;
 
   private void createUIComponents() {
     AutoGeneratorSettingsState service = ServiceManager
@@ -69,6 +71,8 @@ public class AutoGeneratorSettings {
     cbxModule.setSelectedItem(data.getModuleName());
     textEntityPackageParentPath.setText(data.getEntityParentDirectory());
     textRepositoryPackageParentPath.setText(data.getRepositoryParentDirectory());
+    chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
+    chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
   }
 
   public void getData(AutoGeneratorSettingsState data) {
@@ -90,5 +94,7 @@ public class AutoGeneratorSettings {
     data.setModuleName(Optional.ofNullable(cbxModule.getSelectedItem()).map(Object::toString).orElse(""));
     data.setEntityParentDirectory(textEntityPackageParentPath.getText());
     data.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
+    data.setGenerateDefaultValue(chkBoxGenerateDefaultValue.isSelected());
+    data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
   }
 }

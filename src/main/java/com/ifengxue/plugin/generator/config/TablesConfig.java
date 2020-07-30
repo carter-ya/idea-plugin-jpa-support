@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.generator.config;
 
+import com.ifengxue.plugin.entity.Column;
+import com.ifengxue.plugin.util.StringHelper;
 import java.util.Arrays;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -15,6 +17,7 @@ public class TablesConfig {
   private boolean isUseFieldComment;
   private boolean isUseMethodComment;
   private boolean useDefaultValue;
+  private boolean useDefaultDatetimeValue;
   private boolean serializable;
   private boolean useJava8DateType;
   private String indent;
@@ -27,6 +30,19 @@ public class TablesConfig {
   private String repositoryPackageName;
   private String basePackageName;
   private String extendsEntityName;
+
+  /**
+   * 是否需要输出默认值
+   */
+  public boolean requireWriteDefaultValue(Column column) {
+    if (!column.isHasDefaultValue()) {
+      return false;
+    }
+    if (StringHelper.isDatetimeType(column.getJavaDataType())) {
+      return useDefaultValue && useDefaultDatetimeValue;
+    }
+    return useDefaultValue;
+  }
 
   public enum ORM {
     BASIC, MYBATIS, JPA

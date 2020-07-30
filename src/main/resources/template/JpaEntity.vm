@@ -35,7 +35,7 @@ $indent.getIndent()@GeneratedValue(strategy = $primaryKeyGeneratorStrategy#if($p
 #if($primaryKeyGenerator)$indent.getIndent()@SequenceGenerator(name = "$primaryKeyGenerator", sequenceName = "$primaryKeyGenerator")#end
 #end
 $indent.getIndent()@Column(name = "$column.getColumnName()"#if(!$column.isNullable()), nullable = false#end)
-$indent.getIndent()private $column.getJavaDataType().getSimpleName() $column.getFieldName()#if($column.isHasDefaultValue()) = $column.getDefaultValue()#end;
+$indent.getIndent()private $column.getJavaDataType().getSimpleName() $column.getFieldName()#if($tablesConfig.requireWriteDefaultValue($column)) = $column.getDefaultValue()#end;
 
 #end
 #if(!$useLombok)

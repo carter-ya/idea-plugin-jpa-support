@@ -16,6 +16,7 @@ import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.third.MyLogChute;
 import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
@@ -61,8 +62,6 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.RuntimeServices;
-import org.apache.velocity.runtime.log.LogChute;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -273,59 +272,7 @@ public class SelectTablesDialog extends DialogWrapper {
       VelocityEngine velocityEngine = new VelocityEngine();
       // rewrite LogChute Avoid access denied exceptions (velocity.log)
       // link: https://github.com/carter-ya/idea-plugin-jpa-support/issues/4
-      velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new LogChute() {
-        @Override
-        public void init(RuntimeServices runtimeServices) {
-
-        }
-
-        @Override
-        public void log(int level, String message) {
-          logInternal(level, message, null);
-        }
-
-        @Override
-        public void log(int level, String message, Throwable ex) {
-          logInternal(level, message, ex);
-        }
-
-        private void logInternal(int level, String message, Throwable ex) {
-          switch (level) {
-            case LogChute.TRACE_ID:
-              log.trace(message);
-              return;
-            case LogChute.DEBUG_ID:
-              log.debug(message, ex);
-              return;
-            case LogChute.INFO_ID:
-              log.info(message, ex);
-              return;
-            case LogChute.WARN_ID:
-              log.warn(message, ex);
-              return;
-            case LogChute.ERROR_ID:
-              log.error(message, ex);
-              return;
-            default:
-              log.error("unknown log level " + level + ", raw log message is " + level, ex);
-          }
-        }
-
-        @Override
-        public boolean isLevelEnabled(int level) {
-          switch (level) {
-            case LogChute.TRACE_ID:
-              return log.isTraceEnabled();
-            case LogChute.DEBUG_ID:
-              return log.isDebugEnabled();
-            case LogChute.INFO_ID:
-            case LogChute.WARN_ID:
-            case LogChute.ERROR_ID:
-            default:
-              return true;
-          }
-        }
-      });
+      velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new MyLogChute());
       String encoding = StandardCharsets.UTF_8.name();
       velocityEngine.addProperty("input.encoding", encoding);
       velocityEngine.addProperty("output.encoding", encoding);
@@ -385,7 +332,8 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseClassComment(autoGeneratorSettingsState.isGenerateClassComment())
             .setUseFieldComment(autoGeneratorSettingsState.isGenerateFieldComment())
             .setUseMethodComment(autoGeneratorSettingsState.isGenerateMethodComment())
-            .setUseDefaultValue(true)
+            .setUseDefaultValue(autoGeneratorSettingsState.isGenerateDefaultValue())
+            .setUseDefaultDatetimeValue(autoGeneratorSettingsState.isGenerateDatetimeDefaultValue())
             .setUseWrapper(true)
             .setUseLombok(autoGeneratorSettingsState.isUseLombok())
             .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType()));

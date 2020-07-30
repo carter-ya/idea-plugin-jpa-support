@@ -132,15 +132,6 @@
           <text resource-bundle="bundles/ui_i18n" key="repository_package"/>
         </properties>
       </component>
-      <grid id="de01c" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
-        <constraints>
-          <grid row="24" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-          <forms/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
       <grid id="55e8e" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
         <constraints>
           <grid row="20" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -357,6 +348,31 @@
         </constraints>
         <properties/>
       </component>
+      <grid id="529cd" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+        <constraints>
+          <grid row="24" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="14260" class="javax.swing.JCheckBox" binding="chkBoxGenerateDefaultValue">
+            <constraints/>
+            <properties>
+              <selected value="false"/>
+              <text resource-bundle="bundles/ui_i18n" key="generate_default_value"/>
+              <toolTipText resource-bundle="bundles/ui_i18n" key="generate_default_value_tip"/>
+            </properties>
+          </component>
+          <component id="6f15f" class="javax.swing.JCheckBox" binding="chkBoxGenerateDatetimeDefaultValue">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="generate_datetime_default_value"/>
+              <toolTipText resource-bundle="bundles/ui_i18n" key="generate_default_value_tip"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>

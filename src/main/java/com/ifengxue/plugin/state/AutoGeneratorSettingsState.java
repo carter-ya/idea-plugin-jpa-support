@@ -92,6 +92,14 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * @see java.time.LocalDateTime
    */
   private boolean useJava8DateType;
+  /**
+   * 生成字段默认值（仅在列声明了默认值时有效）
+   */
+  private boolean generateDefaultValue = false;
+  /**
+   * 生成日期时间字段默认值（仅在列声明了默认值时有效）
+   */
+  private boolean generateDatetimeDefaultValue = false;
 
   @Nullable
   @Override
