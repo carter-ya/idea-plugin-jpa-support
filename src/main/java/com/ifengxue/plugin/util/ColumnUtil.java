@@ -7,9 +7,9 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class ColumnUtil {
-
   public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper,
       boolean useJava8DateType) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
@@ -66,14 +66,54 @@ public class ColumnUtil {
         }
       }
       column.setHasDefaultValue(true);
+      if (javaDataType == java.util.Date.class ||
+          javaDataType == java.sql.Date.class ||
+          javaDataType == java.sql.Timestamp.class ||
+          javaDataType == LocalDateTime.class) {
+        if (isNow(column.getDefaultValue())) {
+          if (javaDataType == java.util.Date.class) {
+            column.setDefaultValue("new Date()");
+          } else if (javaDataType == java.sql.Date.class) {
+            column.setDefaultValue("new Date(System.currentTimeMillis())");
+          } else if (javaDataType == Timestamp.class) {
+            column.setDefaultValue("new Timestamp(System.currentTimeMillis())");
+          } else {
+            column.setDefaultValue("LocalDateTime.now()");
+          }
+        } else {
+          LocalDateTime dateTime = tryParseDateTime(column.getDefaultValue());
+          if (dateTime == null) {
+            column.setDefaultValue(null);
+            column.setHasDefaultValue(false);
+          } else {
+            Timestamp timestamp = Timestamp.valueOf(dateTime);
+            if (javaDataType == java.util.Date.class || javaDataType == java.sql.Date.class) {
+              column.setDefaultValue("new Date(" + timestamp.getTime() + "L)");
+            } else if (javaDataType == Timestamp.class) {
+              column.setDefaultValue("new Timestamp(" + timestamp.getTime() + "L)");
+            } else {
+              column.setDefaultValue("new Timestamp(" + timestamp.getTime() + "L).toLocalDateTime()");
+            }
+          }
+        }
+      }
 
-      // 跳过设置 Date/Timestamp/LocalDate/LocalTime/LocalDateTime 的默认值
-      if (javaDataType == java.sql.Date.class || javaDataType == Timestamp.class
-          || javaDataType == LocalDate.class || javaDataType == LocalTime.class
-          || javaDataType == LocalDateTime.class) {
+      if (javaDataType == LocalDate.class || javaDataType == LocalTime.class) {
         column.setDefaultValue(null);
         column.setHasDefaultValue(false);
       }
+    }
+  }
+
+  private static boolean isNow(String value) {
+    return "CURRENT_TIMESTAMP".equals(value);
+  }
+
+  private static LocalDateTime tryParseDateTime(String value) {
+    try {
+      return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    } catch (Exception ex) {
+      return null;
     }
   }
 }
