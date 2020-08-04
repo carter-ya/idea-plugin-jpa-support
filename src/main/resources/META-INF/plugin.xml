@@ -46,6 +46,9 @@
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <!--  <idea-version since-build="171" until-build="191.*"/>-->
   <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable parentId="tools" instance="com.ifengxue.plugin.state.SettingsConfigurable"
+      id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="JpaSupport"/>
+    <applicationService serviceImplementation="com.ifengxue.plugin.state.SettingsState"/>
     <projectService serviceImplementation="com.ifengxue.plugin.state.DatabaseSettingsState"/>
     <projectService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorSettingsState"/>
   </extensions>
