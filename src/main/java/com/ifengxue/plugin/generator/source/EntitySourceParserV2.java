@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.generator.source;
 
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
@@ -84,7 +85,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
         importClassList.add(column.getJavaDataType().getName());
       }
     });
-    return evaluate(context, "template/JpaEntity.vm");
+    return evaluate(context, Constants.JPA_ENTITY_TEMPLATE_ID);
   }
 
 }

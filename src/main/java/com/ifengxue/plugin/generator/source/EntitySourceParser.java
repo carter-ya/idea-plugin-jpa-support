@@ -19,6 +19,7 @@ import java.io.Serializable;
 /**
  * 实体源码解析器
  */
+@Deprecated
 public class EntitySourceParser implements SourceParser {
 
   @Override
