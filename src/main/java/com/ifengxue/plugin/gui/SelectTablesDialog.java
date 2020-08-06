@@ -16,8 +16,8 @@ import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
-import com.ifengxue.plugin.third.MyLogChute;
 import com.ifengxue.plugin.util.StringHelper;
+import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
@@ -60,8 +60,6 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -268,19 +266,12 @@ public class SelectTablesDialog extends DialogWrapper {
       AnActionEvent event = Holder.getEvent();
       Project project = event.getProject();
 
-      // repository
-      VelocityEngine velocityEngine = new VelocityEngine();
-      // rewrite LogChute Avoid access denied exceptions (velocity.log)
-      // link: https://github.com/carter-ya/idea-plugin-jpa-support/issues/4
-      velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new MyLogChute());
       String encoding = StandardCharsets.UTF_8.name();
-      velocityEngine.addProperty("input.encoding", encoding);
-      velocityEngine.addProperty("output.encoding", encoding);
       JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
-      repositorySourceParser.setVelocityEngine(velocityEngine, encoding);
+      repositorySourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
 
       EntitySourceParserV2 sourceParser = new EntitySourceParserV2();
-      sourceParser.setVelocityEngine(velocityEngine, encoding);
+      sourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
 
       AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
           .getService(Holder.getProject(), AutoGeneratorSettingsState.class);

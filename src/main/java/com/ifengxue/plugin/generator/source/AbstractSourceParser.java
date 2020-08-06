@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.generator.source;
 
 import com.ifengxue.plugin.state.SettingsState;
+import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.openapi.components.ServiceManager;
 import java.io.StringWriter;
 import org.apache.velocity.VelocityContext;
@@ -12,6 +13,7 @@ public abstract class AbstractSourceParser implements SourceParser, VelocityEngi
   protected String encoding;
 
   protected String evaluate(VelocityContext ctx, String templateName) {
+    VelocityUtil.fillContext(ctx);
     SettingsState settingsState = ServiceManager.getService(SettingsState.class);
     try {
       StringWriter writer = new StringWriter();

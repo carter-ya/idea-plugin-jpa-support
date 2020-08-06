@@ -7,7 +7,7 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
-import com.ifengxue.plugin.third.MyLogChute;
+import com.ifengxue.plugin.util.MyLogChute;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Arrays;

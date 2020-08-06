@@ -3,6 +3,8 @@ package com.ifengxue.plugin.state;
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.component.Settings;
 import com.ifengxue.plugin.component.TemplateItem;
+import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
+import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.intellij.openapi.components.RoamingType;
@@ -58,12 +60,14 @@ public class SettingsConfigurable implements SearchableConfigurable {
             .setId(templateId)
             .setName("JpaEntity.vm")
             .setTemplate(settingsState.loadTemplate(templateId))
+            .setSourceParseClass(EntitySourceParserV2.class)
         );
         templateId = Constants.JPA_REPOSITORY_TEMPLATE_ID;
         settings.getCbxSelectCodeTemplate().addItem(new TemplateItem()
             .setId(templateId)
             .setName("JpaRepository.vm")
             .setTemplate(settingsState.loadTemplate(templateId))
+            .setSourceParseClass(JpaRepositorySourceParser.class)
         );
         settings.getCbxSelectCodeTemplate().addItemListener(event -> {
             if (event.getStateChange() == ItemEvent.SELECTED) {

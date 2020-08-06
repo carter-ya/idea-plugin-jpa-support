@@ -1,4 +1,4 @@
-package com.ifengxue.plugin.third;
+package com.ifengxue.plugin.util;
 
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.velocity.runtime.RuntimeServices;
