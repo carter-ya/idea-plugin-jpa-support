@@ -7,10 +7,8 @@ import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
-import com.intellij.openapi.components.RoamingType;
+import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -27,9 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Data
-@State(name = "JpaSupportSettings", storages = {
-    @Storage(value = StateConstants.APPLICATION_STATE_NAME, roamingType = RoamingType.DISABLED)
-})
 public class SettingsConfigurable implements SearchableConfigurable {
 
     private static final Logger log = Logger.getInstance(SettingsConfigurable.class);
@@ -85,9 +80,11 @@ public class SettingsConfigurable implements SearchableConfigurable {
         });
         settings.getBtnTestTemplate().addActionListener(event -> {
             SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(ProjectManager.getInstance().getDefaultProject(),
-                true);
-            dialog.setSourceCode(null);
+                false);
+            dialog.setSourceCode(TestTemplateHelper.evaluateToString(settings.getCbxSelectCodeTemplate()
+                .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex())));
             dialog.show();
+            dialog.toFront();
         });
         settings.getTxtSourceCode().addDocumentListener(new DocumentAdapter() {
             @Override

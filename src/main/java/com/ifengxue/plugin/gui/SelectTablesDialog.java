@@ -274,7 +274,7 @@ public class SelectTablesDialog extends DialogWrapper {
       sourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
 
       AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
-          .getService(Holder.getProject(), AutoGeneratorSettingsState.class);
+          .getService(AutoGeneratorSettingsState.class);
       // 生成数量
       for (Table table : tableList) {
         List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());

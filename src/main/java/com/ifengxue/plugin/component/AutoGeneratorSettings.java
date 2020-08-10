@@ -44,7 +44,7 @@ public class AutoGeneratorSettings {
 
   private void createUIComponents() {
     AutoGeneratorSettingsState service = ServiceManager
-        .getService(Holder.getProject(), AutoGeneratorSettingsState.class);
+        .getService(AutoGeneratorSettingsState.class);
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(service.getEntityPackageName(),
         Holder.getProject(), "", "Entity");
     repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(service.getRepositoryPackageName(),

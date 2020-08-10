@@ -3,7 +3,9 @@ package com.ifengxue.plugin.gui;
 import com.ifengxue.plugin.component.SourceCodeViewer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import javax.swing.Action;
 import javax.swing.JComponent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SourceCodeViewerDialog extends DialogWrapper {
@@ -21,6 +23,12 @@ public class SourceCodeViewerDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         return sourceCodeViewer.getRootComponent();
+    }
+
+    @NotNull
+    @Override
+    protected Action[] createActions() {
+        return new Action[]{getOKAction()};
     }
 
     public void setSourceCode(String sourceCode) {

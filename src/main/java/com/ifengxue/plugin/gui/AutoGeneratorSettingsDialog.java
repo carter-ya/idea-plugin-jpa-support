@@ -53,7 +53,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
     this.tableSchemaList = tableSchemaList;
     this.mapping = mapping;
-    this.autoGeneratorSettingsState = ServiceManager.getService(project, AutoGeneratorSettingsState.class);
+    this.autoGeneratorSettingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
     init();
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 

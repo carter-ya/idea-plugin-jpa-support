@@ -1,8 +1,7 @@
 package com.ifengxue.plugin.util;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -32,13 +31,14 @@ public enum VelocityUtil {
 
     public static void fillContext(VelocityContext ctx) {
         ctx.put("USER", System.getProperty("user.name"));
-        ctx.put("DATE", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        ctx.put("TIME", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-        ctx.put("YEAR", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy")));
-        ctx.put("MONTH", LocalDate.now().format(DateTimeFormatter.ofPattern("MM")));
-        ctx.put("DAY", LocalDate.now().format(DateTimeFormatter.ofPattern("dd")));
-        ctx.put("HOUR", LocalTime.now().format(DateTimeFormatter.ofPattern("HH")));
-        ctx.put("MINUTE", LocalTime.now().format(DateTimeFormatter.ofPattern("MM")));
-        ctx.put("SECOND", LocalTime.now().format(DateTimeFormatter.ofPattern("ss")));
+        LocalDateTime now = LocalDateTime.now();
+        ctx.put("DATE", now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        ctx.put("TIME", now.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        ctx.put("YEAR", now.format(DateTimeFormatter.ofPattern("yyyy")));
+        ctx.put("MONTH", now.format(DateTimeFormatter.ofPattern("MM")));
+        ctx.put("DAY", now.format(DateTimeFormatter.ofPattern("dd")));
+        ctx.put("HOUR", now.format(DateTimeFormatter.ofPattern("HH")));
+        ctx.put("MINUTE", now.format(DateTimeFormatter.ofPattern("mm")));
+        ctx.put("SECOND", now.format(DateTimeFormatter.ofPattern("ss")));
     }
 }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Data
 @State(name = "AutoGeneratorSettingsState", storages = {
-    @Storage(value = StateConstants.PROJECT_STATE_NAME, roamingType = RoamingType.DISABLED)
+    @Storage(value = StateConstants.APPLICATION_STATE_NAME, roamingType = RoamingType.PER_OS),
 })
 public class AutoGeneratorSettingsState implements PersistentStateComponent<AutoGeneratorSettingsState> {
 
