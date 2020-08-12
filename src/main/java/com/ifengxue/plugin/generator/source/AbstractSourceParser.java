@@ -1,9 +1,8 @@
 package com.ifengxue.plugin.generator.source;
 
-import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.VelocityUtil;
-import com.intellij.openapi.components.ServiceManager;
 import java.io.StringWriter;
+import java.util.function.Supplier;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
@@ -12,12 +11,11 @@ public abstract class AbstractSourceParser implements SourceParser, VelocityEngi
   protected VelocityEngine velocityEngine;
   protected String encoding;
 
-  protected String evaluate(VelocityContext ctx, String templateName) {
+  protected String evaluate(VelocityContext ctx, Supplier<String> templateProvider) {
     VelocityUtil.fillContext(ctx);
-    SettingsState settingsState = ServiceManager.getService(SettingsState.class);
     try {
       StringWriter writer = new StringWriter();
-      velocityEngine.evaluate(ctx, writer, getClass().getName(), settingsState.loadTemplate(templateName));
+      velocityEngine.evaluate(ctx, writer, getClass().getName(), templateProvider.get());
       return writer.toString();
     } catch (Exception e) {
       throw new EvaluateSourceCodeException(e);

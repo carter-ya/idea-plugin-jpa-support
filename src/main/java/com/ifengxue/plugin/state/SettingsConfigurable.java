@@ -82,7 +82,8 @@ public class SettingsConfigurable implements SearchableConfigurable {
             SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(ProjectManager.getInstance().getDefaultProject(),
                 false);
             dialog.setSourceCode(TestTemplateHelper.evaluateToString(settings.getCbxSelectCodeTemplate()
-                .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex())));
+                    .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex()).getSourceParseClass(),
+                settings.getTxtSourceCode().getText()));
             dialog.show();
             dialog.toFront();
         });

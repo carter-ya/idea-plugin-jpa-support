@@ -9,4 +9,8 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 public interface SourceParser {
 
   String parse(GeneratorConfig config, Table table);
+
+  default String parse(GeneratorConfig config, Table table, String template) {
+    throw new UnsupportedOperationException();
+  }
 }

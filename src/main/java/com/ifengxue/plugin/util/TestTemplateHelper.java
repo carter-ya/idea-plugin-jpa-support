@@ -1,7 +1,6 @@
 package com.ifengxue.plugin.util;
 
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
-import com.ifengxue.plugin.component.TemplateItem;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
@@ -22,7 +21,7 @@ import java.util.Collections;
 public enum TestTemplateHelper {
     ;
 
-    public static Object evaluate(TemplateItem item) {
+    public static Object evaluate(Class<? extends AbstractSourceParser> clazz, String template) {
         AutoGeneratorSettingsState settingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
         GeneratorConfig config = new GeneratorConfig();
         config.setDriverConfig(new DriverConfig()
@@ -49,7 +48,7 @@ public enum TestTemplateHelper {
                     .setUseLombok(settingsState.isUseLombok())
                     .setUseWrapper(true)
             );
-        AbstractSourceParser sourceParser = newInstance(item.getSourceParseClass());
+        AbstractSourceParser sourceParser = newInstance(clazz);
         sourceParser.setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");
         try {
             Table table = new Table();
@@ -123,14 +122,14 @@ public enum TestTemplateHelper {
             table.getColumns().forEach(column -> ColumnUtil
                 .parseColumn(DatabaseDrivers.MYSQL.getDriverAdapter(), column, settingsState.getRemoveFieldPrefix(),
                     true, settingsState.isUseJava8DateType()));
-            return sourceParser.parse(config, table);
+            return sourceParser.parse(config, table, template);
         } catch (Exception ex) {
             return ex;
         }
     }
 
-    public static String evaluateToString(TemplateItem item) {
-        Object evaluate = evaluate(item);
+    public static String evaluateToString(Class<? extends AbstractSourceParser> clazz, String template) {
+        Object evaluate = evaluate(clazz, template);
         if (evaluate instanceof String) {
             return (String) evaluate;
         }

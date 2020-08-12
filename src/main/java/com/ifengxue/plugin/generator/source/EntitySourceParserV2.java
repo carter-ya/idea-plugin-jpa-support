@@ -6,16 +6,29 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.tree.Element;
+import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
+import com.intellij.openapi.components.ServiceManager;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.apache.velocity.VelocityContext;
 
 public class EntitySourceParserV2 extends AbstractSourceParser {
 
   @Override
   public String parse(GeneratorConfig config, Table table) {
+    return parse(config, table,
+        () -> ServiceManager.getService(SettingsState.class).loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID));
+  }
+
+  @Override
+  public String parse(GeneratorConfig config, Table table, String template) {
+    return parse(config, table, () -> template);
+  }
+
+  protected String parse(GeneratorConfig config, Table table, Supplier<String> templateProvider) {
     VelocityContext context = new VelocityContext();
     TablesConfig tablesConfig = config.getTablesConfig();
     context.put("config", config);
@@ -85,7 +98,6 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
         importClassList.add(column.getJavaDataType().getName());
       }
     });
-    return evaluate(context, Constants.JPA_ENTITY_TEMPLATE_ID);
+    return evaluate(context, templateProvider);
   }
-
 }
