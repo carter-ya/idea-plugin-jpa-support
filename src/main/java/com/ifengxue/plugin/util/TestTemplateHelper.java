@@ -10,6 +10,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.source.AbstractSourceParser;
+import com.ifengxue.plugin.generator.source.EvaluateSourceCodeException;
 import com.ifengxue.plugin.generator.tree.Element.Indent;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.intellij.openapi.components.ServiceManager;
@@ -134,6 +135,9 @@ public enum TestTemplateHelper {
             return (String) evaluate;
         }
         Throwable throwable = (Throwable) evaluate;
+        if (throwable instanceof EvaluateSourceCodeException) {
+            throwable = throwable.getCause();
+        }
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
         throwable.printStackTrace(printWriter);
