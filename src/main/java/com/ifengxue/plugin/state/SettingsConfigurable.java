@@ -51,6 +51,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
         JTabbedPane tabbedPane = settings.getTabbedPane();
         tabbedPane.setTitleAt(0, LocaleContextHolder.format("source_code_template_tip"));
         String templateId = Constants.JPA_ENTITY_TEMPLATE_ID;
+        settings.getCbxSelectCodeTemplate().removeAllItems();
         settings.getCbxSelectCodeTemplate().addItem(new TemplateItem()
             .setId(templateId)
             .setName("JpaEntity.vm")
