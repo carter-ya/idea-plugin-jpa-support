@@ -86,7 +86,6 @@ public class SettingsConfigurable implements SearchableConfigurable {
                     .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex()).getSourceParseClass(),
                 settings.getTxtSourceCode().getText()));
             dialog.show();
-            dialog.toFront();
         });
         settings.getTxtSourceCode().addDocumentListener(new DocumentAdapter() {
             @Override
