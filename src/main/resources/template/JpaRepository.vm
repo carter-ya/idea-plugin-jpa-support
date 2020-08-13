@@ -15,6 +15,9 @@
 ### ${simpleName}: repository class simple name, eg: ExampleRepository
 ### ${entitySimpleName}: entity class simple name, eg: Example
 ### ${primaryKeyDataType}: entity class primary key field type simple name, eg: Long, String or Void
+###
+###
+### For more information: https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/src/main/java/com/ifengxue/plugin/generator/source/JpaRepositorySourceParser.java
 ########################################################################################################################
 #if(!$package.isEmpty())
 package $package;

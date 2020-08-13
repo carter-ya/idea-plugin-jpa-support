@@ -26,6 +26,9 @@
 ### ${serialVersionUID}: serialVersionUID
 ### ${useLombok}: use or not use Lombok
 ### ${columns}: table columns
+###
+###
+### For more information: https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/src/main/java/com/ifengxue/plugin/generator/source/EntitySourceParserV2.java
 ########################################################################################################################
 #if(!$package.isEmpty())
 package $package;
