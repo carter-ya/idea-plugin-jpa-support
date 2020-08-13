@@ -1,3 +1,32 @@
+########################################################################################################################
+### Here are the variables available in the template:
+### ${USER}: System.getProperty("user.name")
+### ${DATE}: current date, format is yyyy-MM-dd
+### ${TIME}: current time, format is HH:mm:ss
+### ${YEAR}: currrent year, format is yyyy
+### ${MONTH}: current month, format is MM
+### ${DAY}: current day of month, format is dd
+### ${HOUR}: current hour of day, format is HH
+### ${MINUTE}: current minute of hour, format is mm
+### ${SECOND}: current second of minute, format is ss
+###
+### ${package}: package name, eg: org.example
+### ${importClassList}: import class list, type is java.util.List
+### ${simpleName}: repository class simple name, eg: Example
+### ${parentClass}: parent class simple name, eg: AbstractEntity, may be empty
+### ${implementClassList}: implements interface list, type is java.util.Set
+### ${config}: generator config, type is com.ifengxue.plugin.generator.config.GeneratorConfig
+###            This is main configuration, contains driver config, tables config.
+### ${tablesConfig}: table config, type is com.ifengxue.plugin.generator.config.TablesConfig, contains generator settings, eg: use Lombok, generate field comment, etc.
+### ${table}: table info and columns info, type is com.ifengxue.plugin.entity.Table
+### ${empty}: empty string
+### ${stringHelper}: some string method, eg: parseSetMethodName, parseGetMethodName, type is com.ifengxue.plugin.util.StringHelper
+### ${indent}: indent, type is com.ifengxue.plugin.generator.tree.Element.Indent
+### ${annotationList}: annotation list, type is java.util.Set, eg: Data, Entity, Table(name = "example")
+### ${serialVersionUID}: serialVersionUID
+### ${useLombok}: use or not use Lombok
+### ${columns}: table columns
+########################################################################################################################
 #if(!$package.isEmpty())
 package $package;
 
@@ -6,13 +35,13 @@ package $package;
 import $importClass;
 #end
 #if($importClassList)
-## add empty line
+ ## add empty line
 
 #end
 #if($tablesConfig.isUseClassComment() && !$table.getTableComment().isEmpty())
 /*
- * $table.getTableComment()
- */
+* $table.getTableComment()
+*/
 #end
 #foreach($annotation in $annotationList)
 @$annotation
@@ -49,7 +78,7 @@ $indent.getIndent()public void $stringHelper.parseSetMethodName($column.getField
 $indent.getDoubleIndent()this.$column.getFieldName() = $column.getFieldName();
 $indent.getIndent()}
 
-#if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
+ #if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
 $indent.getIndent()/*
 $indent.getIndent() * $column.getColumnComment()
 $indent.getIndent() */
