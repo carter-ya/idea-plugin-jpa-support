@@ -1,3 +1,21 @@
+########################################################################################################################
+### Here are the variables available in the template:
+### ${USER}: System.getProperty("user.name")
+### ${DATE}: current date, format is yyyy-MM-dd
+### ${TIME}: current time, format is HH:mm:ss
+### ${YEAR}: currrent year, format is yyyy
+### ${MONTH}: current month, format is MM
+### ${DAY}: current day of month, format is dd
+### ${HOUR}: current hour of day, format is HH
+### ${MINUTE}: current minute of hour, format is mm
+### ${SECOND}: current second of minute, format is ss
+###
+### ${package}: package name, eg: org.example
+### ${importClassList}: import class list, type is java.util.List
+### ${simpleName}: repository class simple name, eg: ExampleRepository
+### ${entitySimpleName}: entity class simple name, eg: Example
+### ${primaryKeyDataType}: entity class primary key field type simple name, eg: Long, String or Void
+########################################################################################################################
 #if(!$package.isEmpty())
 package $package;
 
