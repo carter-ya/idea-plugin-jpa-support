@@ -157,6 +157,7 @@
           <component id="d9c83" class="javax.swing.JCheckBox" binding="chkBoxGenerateMethodComment">
             <constraints/>
             <properties>
+              <enabled value="true"/>
               <selected value="true"/>
               <text resource-bundle="bundles/ui_i18n" key="generate_method_comment"/>
             </properties>

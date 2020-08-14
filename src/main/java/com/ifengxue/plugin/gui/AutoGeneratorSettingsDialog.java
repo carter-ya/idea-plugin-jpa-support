@@ -58,7 +58,6 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 
     initTextField(generatorSettings);
-    generatorSettings.getChkBoxGenerateMethodComment().setEnabled(false);
 
     // 选择模块
     Module[] modules = ModuleManager.getInstance(project).getModules();
