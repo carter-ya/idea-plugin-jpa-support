@@ -42,9 +42,9 @@ import $importClass;
 
 #end
 #if($tablesConfig.isUseClassComment() && !$table.getTableComment().isEmpty())
-/*
-* $table.getTableComment()
-*/
+/**
+ * $table.getTableComment()
+ */
 #end
 #foreach($annotation in $annotationList)
 @$annotation
@@ -57,7 +57,7 @@ $indent.getIndent()private static final long serialVersionUID = ${serialVersionU
 #end
 #foreach($column in $columns)
 #if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
-$indent.getIndent()/*
+$indent.getIndent()/**
 $indent.getIndent() * $column.getColumnComment()
 $indent.getIndent() */
 #end
@@ -73,7 +73,7 @@ $indent.getIndent()private $column.getJavaDataType().getSimpleName() $column.get
 #if(!$useLombok)
 #foreach($column in $columns)
 #if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
-$indent.getIndent()/*
+$indent.getIndent()/**
 $indent.getIndent() * $column.getColumnComment()
 $indent.getIndent() */
 #end
@@ -82,7 +82,7 @@ $indent.getDoubleIndent()this.$column.getFieldName() = $column.getFieldName();
 $indent.getIndent()}
 
  #if($tablesConfig.isUseFieldComment() && !$column.getColumnComment().isEmpty())
-$indent.getIndent()/*
+$indent.getIndent()/**
 $indent.getIndent() * $column.getColumnComment()
 $indent.getIndent() */
 #end
