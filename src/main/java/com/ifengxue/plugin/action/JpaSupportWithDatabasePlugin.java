@@ -10,6 +10,7 @@ import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.DatabasePluginUtil;
+import com.intellij.database.model.DasColumn;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
@@ -53,7 +54,8 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
         columnSchema.setOrdinalPosition(dasColumn.getPosition());
         columnSchema.setDataType(dasColumn.getDataType().typeName);
         columnSchema.setColumnType(columnSchema.getDataType());
-        columnSchema.setExtra(DasUtil.isAutoVal(dasColumn) ? "auto_increment" : "");
+        boolean isAutoVal = dasColumn.getTable().getColumnAttrs(dasColumn).contains(DasColumn.Attribute.AUTO_GENERATED);
+        columnSchema.setExtra(isAutoVal ? "auto_increment" : "");
         columnSchema.setColumnComment(StringUtils.trimToEmpty(dasColumn.getComment()));
         columnSchema.setIsNullable(dasColumn.isNotNull() ? "NO" : "YES");
         String defaultVal = dasColumn.getDefault();
