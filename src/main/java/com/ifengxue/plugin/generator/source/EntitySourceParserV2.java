@@ -20,7 +20,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
   @Override
   public String parse(GeneratorConfig config, Table table) {
     return parse(config, table,
-        () -> ServiceManager.getService(SettingsState.class).loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID));
+        () -> ServiceManager.getService(SettingsState.class).loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID));
   }
 
   @Override
