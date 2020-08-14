@@ -100,6 +100,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 生成日期时间字段默认值（仅在列声明了默认值时有效）
    */
   private boolean generateDatetimeDefaultValue = false;
+  /**
+   * 是否使用流式编程风格
+   */
+  private boolean useFluidProgrammingStyle = false;
 
   @Nullable
   @Override

@@ -327,7 +327,9 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseDefaultDatetimeValue(autoGeneratorSettingsState.isGenerateDatetimeDefaultValue())
             .setUseWrapper(true)
             .setUseLombok(autoGeneratorSettingsState.isUseLombok())
-            .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType()));
+            .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType())
+            .setUseFluidProgrammingStyle(autoGeneratorSettingsState.isUseFluidProgrammingStyle())
+        );
         generatorConfig.setPluginConfigs(Collections.emptyList());
 
         // 生成源码

@@ -231,6 +231,13 @@
               <text resource-bundle="bundles/ui_i18n" key="use_java8_date_type"/>
             </properties>
           </component>
+          <component id="1c816" class="javax.swing.JCheckBox" binding="chkBoxUseFluidProgrammingStyle">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="use_fluid_programming_style"/>
+              <toolTipText resource-bundle="bundles/ui_i18n" key="use_fluid_programming_style_tips"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <grid id="f8ae7" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">

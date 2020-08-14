@@ -20,6 +20,7 @@ public class TablesConfig {
   private boolean useDefaultDatetimeValue;
   private boolean serializable;
   private boolean useJava8DateType;
+  private boolean useFluidProgrammingStyle;
   private String indent;
   private String lineSeparator;
   private String removeTablePrefix;

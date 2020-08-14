@@ -41,6 +41,7 @@ public class AutoGeneratorSettings {
   private JTextField textRepositoryPackageParentPath;
   private JCheckBox chkBoxGenerateDefaultValue;
   private JCheckBox chkBoxGenerateDatetimeDefaultValue;
+  private JCheckBox chkBoxUseFluidProgrammingStyle;
 
   private void createUIComponents() {
     AutoGeneratorSettingsState service = ServiceManager
@@ -73,6 +74,7 @@ public class AutoGeneratorSettings {
     textRepositoryPackageParentPath.setText(data.getRepositoryParentDirectory());
     chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
+    chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
   }
 
   public void getData(AutoGeneratorSettingsState data) {
@@ -96,5 +98,6 @@ public class AutoGeneratorSettings {
     data.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
     data.setGenerateDefaultValue(chkBoxGenerateDefaultValue.isSelected());
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
+    data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());
   }
 }

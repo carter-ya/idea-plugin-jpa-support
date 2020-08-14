@@ -77,8 +77,9 @@ private $column.getJavaDataType().getSimpleName() $column.getFieldName()#if($tab
  * $column.getColumnComment()
  */
 #end
-public void $stringHelper.parseSetMethodName($column.getFieldName())($column.getJavaDataType().getSimpleName() $column.getFieldName()) {
+public #if($tablesConfig.isUseFluidProgrammingStyle()) $simpleName #else void #end $stringHelper.parseSetMethodName($column.getFieldName())($column.getJavaDataType().getSimpleName() $column.getFieldName()) {
 this.$column.getFieldName() = $column.getFieldName();
+#if($tablesConfig.isUseFluidProgrammingStyle())return this;#end
 }
 
 #if($tablesConfig.isUseMethodComment() && !$column.getColumnComment().isEmpty())

@@ -61,6 +61,12 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       importClassList.add("lombok.Data");
       annotationList.add("Data");
 
+      // 使用Fluid Programming Style
+      if (tablesConfig.isUseFluidProgrammingStyle()) {
+        importClassList.add("lombok.experimental.Accessors");
+        annotationList.add("Accessors(chain = true)");
+      }
+
       if (!tablesConfig.getExtendsEntityName().isEmpty()) {
         importClassList.add("lombok.EqualsAndHashCode");
         annotationList.add("EqualsAndHashCode(callSuper = true)");
