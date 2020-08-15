@@ -52,9 +52,19 @@ intellij {
 patchPluginXml {
     version '2.0.1'
     changeNotes """
-      Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)
-      Feature: Support regex expressions when selecting tables
-      Feature: The window will be closed automatically after generating the source code
-      Fix bug: Fix sometimes the error of overwriting source code
+      <ol>
+          <li>Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)</li>
+          <li>Feature: Support regex expressions when selecting tables</li>
+          <li>Feature: The window will be closed automatically after generating the source code</li>
+          <li>Feature: Automatic window centering is supported</li>
+          <li>Feature: Support record window size</li>
+          <li>Feature: Support not persist password, and support password security storage(eg: Mac in Keychain or keepass)</li>
+          <li>Feature: Support to select whether to generate method comments</li>
+          <li>Feature: Support Fluid Programming Style(use or not use Lombok)</li>
+          <li>Feature: Support custom template, this is beta feature</li>
+          <li>Feature: Auto reimport and format code after the build is complete</li>
+          <li>Feature: Support generation date time type default value, this is beta feature </li>
+          <li>Fix bug: Fix sometimes the error of overwriting source code</li>
+      </ol>
       """
 }
