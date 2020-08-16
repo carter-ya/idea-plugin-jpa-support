@@ -83,6 +83,7 @@ public class SelectTablesDialog extends DialogWrapper {
           LocaleContextHolder.format("table_sequence"),
           LocaleContextHolder.format("table_table_name"),
           LocaleContextHolder.format("table_class_name"),
+          LocaleContextHolder.format("table_repository_name"),
           LocaleContextHolder.format("table_class_comment")
       };
 
@@ -103,7 +104,7 @@ public class SelectTablesDialog extends DialogWrapper {
 
       @Override
       public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 0 || columnIndex == 3 || columnIndex == 4;
+        return columnIndex == 0 || columnIndex == 3 || columnIndex == 4 || columnIndex == 5;
       }
 
       @Override
@@ -130,6 +131,8 @@ public class SelectTablesDialog extends DialogWrapper {
           case 3:
             return tableList.get(rowIndex).getEntityName();
           case 4:
+            return tableList.get(rowIndex).getRepositoryName();
+          case 5:
             return tableList.get(rowIndex).getTableComment();
           default:
             throw new IllegalStateException("无法识别的列索引:" + columnIndex);
@@ -143,10 +146,13 @@ public class SelectTablesDialog extends DialogWrapper {
             tableList.get(rowIndex).setSelected((Boolean) aValue);
             break;
           case 3:
-            tableList.get(rowIndex).setEntityName(aValue.toString());
+            tableList.get(rowIndex).setEntityName((String) aValue);
             break;
           case 4:
-            tableList.get(rowIndex).setTableComment(aValue.toString());
+            tableList.get(rowIndex).setRepositoryName((String) aValue);
+            break;
+          case 5:
+            tableList.get(rowIndex).setTableComment((String) aValue);
             break;
           default:
             break;
