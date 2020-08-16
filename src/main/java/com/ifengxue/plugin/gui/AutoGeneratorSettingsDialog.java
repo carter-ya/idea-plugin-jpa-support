@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.gui;
 
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
 import com.ifengxue.plugin.entity.ColumnSchema;
@@ -193,6 +194,12 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Override
   public void doCancelAction() {
     super.doCancelAction();
+  }
+
+  @Nullable
+  @Override
+  protected String getDimensionServiceKey() {
+    return Constants.NAME + ":" + getClass().getName();
   }
 
   private void initTextField(AutoGeneratorSettings settings) {

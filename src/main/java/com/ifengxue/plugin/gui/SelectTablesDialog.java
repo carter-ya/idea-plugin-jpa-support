@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.gui;
 
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.SelectTables;
 import com.ifengxue.plugin.entity.Column;
@@ -244,6 +245,12 @@ public class SelectTablesDialog extends DialogWrapper {
   @Override
   protected Action[] createActions() {
     return new Action[0];
+  }
+  
+  @Nullable
+  @Override
+  protected String getDimensionServiceKey() {
+    return Constants.NAME + ":" + getClass().getName();
   }
 
   public static void show(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping) {
