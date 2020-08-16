@@ -19,7 +19,6 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -33,6 +32,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 
@@ -159,19 +159,16 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     generatorSettings.getData(autoGeneratorSettingsState);
     //TODO 保留主键类型
     List<Table> tableList = new ArrayList<>(tableSchemaList.size());
-    VirtualFile vFile = LocalFileSystem.getInstance()
-        .findFileByPath(autoGeneratorSettingsState.getEntityParentDirectory());
-    if (vFile == null) {
-      Messages.showMessageDialog(
-          LocaleContextHolder.format("path_not_exists", autoGeneratorSettingsState.getEntityParentDirectory()),
-          LocaleContextHolder.format("prompt"), Messages.getErrorIcon());
-      return;
-    }
+    String entityDirectory = Paths.get(autoGeneratorSettingsState.getEntityParentDirectory(),
+        StringHelper.packageNameToFolder(autoGeneratorSettingsState.getEntityPackageName()))
+        .toAbsolutePath().toString();
+    VirtualFile entityDirectoryVF = LocalFileSystem.getInstance().findFileByPath(entityDirectory);
     for (TableSchema tableSchema : tableSchemaList) {
       String tableName = autoGeneratorSettingsState.removeTablePrefix(tableSchema.getTableName());
       String entityName = StringHelper.parseEntityName(tableName);
       entityName = autoGeneratorSettingsState.concatPrefixAndSuffix(entityName);
-      boolean selected = vFile.findChild(entityName + ".java") == null;
+      // 是否默认选中文件
+      boolean selected = entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
       if (selected) {
         // support flyway
         if (tableName.equals("flyway_schema_history")) {
