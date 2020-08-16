@@ -5,10 +5,11 @@ import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.Data;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @State(name = "AutoGeneratorSettingsState", storages = {
@@ -28,6 +29,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 被添加的实体后缀
    */
   private String addEntitySuffix = "";
+  /**
+   * Repository后缀
+   */
+  private String repositorySuffix = "Repository";
   /**
    * 模块名称
    */

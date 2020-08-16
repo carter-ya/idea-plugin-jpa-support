@@ -1,7 +1,6 @@
 package com.ifengxue.plugin.gui;
 
-import static java.util.stream.Collectors.toList;
-
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.SelectTables;
 import com.ifengxue.plugin.entity.Column;
@@ -43,6 +42,12 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -53,15 +58,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import javax.swing.Action;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static java.util.stream.Collectors.toList;
 
 public class SelectTablesDialog extends DialogWrapper {
 
@@ -86,6 +84,7 @@ public class SelectTablesDialog extends DialogWrapper {
           LocaleContextHolder.format("table_sequence"),
           LocaleContextHolder.format("table_table_name"),
           LocaleContextHolder.format("table_class_name"),
+          LocaleContextHolder.format("table_repository_name"),
           LocaleContextHolder.format("table_class_comment")
       };
 
@@ -106,7 +105,7 @@ public class SelectTablesDialog extends DialogWrapper {
 
       @Override
       public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 0 || columnIndex == 3 || columnIndex == 4;
+        return columnIndex == 0 || columnIndex == 3 || columnIndex == 4 || columnIndex == 5;
       }
 
       @Override
@@ -133,6 +132,8 @@ public class SelectTablesDialog extends DialogWrapper {
           case 3:
             return tableList.get(rowIndex).getEntityName();
           case 4:
+            return tableList.get(rowIndex).getRepositoryName();
+          case 5:
             return tableList.get(rowIndex).getTableComment();
           default:
             throw new IllegalStateException("无法识别的列索引:" + columnIndex);
@@ -146,10 +147,13 @@ public class SelectTablesDialog extends DialogWrapper {
             tableList.get(rowIndex).setSelected((Boolean) aValue);
             break;
           case 3:
-            tableList.get(rowIndex).setEntityName(aValue.toString());
+            tableList.get(rowIndex).setEntityName((String) aValue);
             break;
           case 4:
-            tableList.get(rowIndex).setTableComment(aValue.toString());
+            tableList.get(rowIndex).setRepositoryName((String) aValue);
+            break;
+          case 5:
+            tableList.get(rowIndex).setTableComment((String) aValue);
             break;
           default:
             break;
@@ -241,6 +245,12 @@ public class SelectTablesDialog extends DialogWrapper {
   @Override
   protected Action[] createActions() {
     return new Action[0];
+  }
+  
+  @Nullable
+  @Override
+  protected String getDimensionServiceKey() {
+    return Constants.NAME + ":" + getClass().getName();
   }
 
   public static void show(List<Table> tableList, Function<TableSchema, List<ColumnSchema>> mapping) {
@@ -335,12 +345,13 @@ public class SelectTablesDialog extends DialogWrapper {
         // 生成源码
         String sourceCode = sourceParser.parse(generatorConfig, table);
         WriteCommandAction.runWriteCommandAction(project, () -> {
-          String filename = table.getEntityName() + ".java";
+          String fileExtension = ".java";
+          String filename = table.getEntityName() + fileExtension;
           try {
             writeContent(project, filename, autoGeneratorSettingsState.getEntityParentDirectory(),
                 autoGeneratorSettingsState.getEntityPackageName(), sourceCode);
             if (autoGeneratorSettingsState.isGenerateRepository()) {
-              filename = table.getEntityName() + "Repository.java";
+              filename = table.getRepositoryName() + fileExtension;
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
               writeContent(project, filename, autoGeneratorSettingsState.getRepositoryParentDirectory(),
                   autoGeneratorSettingsState.getRepositoryPackageName(),

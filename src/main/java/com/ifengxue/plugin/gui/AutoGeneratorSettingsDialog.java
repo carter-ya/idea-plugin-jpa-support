@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.gui;
 
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
 import com.ifengxue.plugin.entity.ColumnSchema;
@@ -18,26 +19,22 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
-import java.awt.event.ItemEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import javax.swing.Action;
-import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.function.Function;
 
 public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
@@ -162,19 +159,16 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     generatorSettings.getData(autoGeneratorSettingsState);
     //TODO 保留主键类型
     List<Table> tableList = new ArrayList<>(tableSchemaList.size());
-    VirtualFile vFile = LocalFileSystem.getInstance()
-        .findFileByPath(autoGeneratorSettingsState.getEntityParentDirectory());
-    if (vFile == null) {
-      Messages.showMessageDialog(
-          LocaleContextHolder.format("path_not_exists", autoGeneratorSettingsState.getEntityParentDirectory()),
-          LocaleContextHolder.format("prompt"), Messages.getErrorIcon());
-      return;
-    }
+    String entityDirectory = Paths.get(autoGeneratorSettingsState.getEntityParentDirectory(),
+        StringHelper.packageNameToFolder(autoGeneratorSettingsState.getEntityPackageName()))
+        .toAbsolutePath().toString();
+    VirtualFile entityDirectoryVF = LocalFileSystem.getInstance().findFileByPath(entityDirectory);
     for (TableSchema tableSchema : tableSchemaList) {
       String tableName = autoGeneratorSettingsState.removeTablePrefix(tableSchema.getTableName());
       String entityName = StringHelper.parseEntityName(tableName);
       entityName = autoGeneratorSettingsState.concatPrefixAndSuffix(entityName);
-      boolean selected = vFile.findChild(entityName + ".java") == null;
+      // 是否默认选中文件
+      boolean selected = entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
       if (selected) {
         // support flyway
         if (tableName.equals("flyway_schema_history")) {
@@ -185,7 +179,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         // 强制选择所有表
         selected = Holder.isSelectAllTables();
       }
-      tableList.add(Table.from(tableSchema, entityName, selected));
+      String repositoryName = entityName + autoGeneratorSettingsState.getRepositorySuffix();
+      tableList.add(Table.from(tableSchema, entityName, repositoryName, selected));
     }
     ApplicationManager.getApplication().invokeLater(() -> {
       dispose();
@@ -196,6 +191,12 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Override
   public void doCancelAction() {
     super.doCancelAction();
+  }
+
+  @Nullable
+  @Override
+  protected String getDimensionServiceKey() {
+    return Constants.NAME + ":" + getClass().getName();
   }
 
   private void initTextField(AutoGeneratorSettings settings) {
