@@ -1,8 +1,9 @@
 package com.ifengxue.plugin.entity;
 
-import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -39,6 +40,11 @@ public class Table {
   private String entityName;
 
   /**
+   * Repository 名称
+   */
+  private String repositoryName;
+
+  /**
    * 包名称
    */
   private String packageName;
@@ -55,13 +61,18 @@ public class Table {
 
   private List<Column> columns;
 
-  public static Table from(TableSchema tableSchema, String entityName, boolean selected) {
+  public static Table from(
+      TableSchema tableSchema,
+      String entityName,
+      String repositoryName,
+      boolean selected) {
     Table table = new Table();
     table.setRawTableSchema(tableSchema);
     table.setTableName(tableSchema.getTableName());
     table.setTableComment(tableSchema.getTableComment());
     table.setTableSchema(tableSchema.getTableSchema());
     table.setEntityName(entityName);
+    table.setRepositoryName(repositoryName);
     table.setSelected(selected);
     return table;
   }

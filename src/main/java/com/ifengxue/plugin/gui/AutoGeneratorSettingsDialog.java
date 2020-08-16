@@ -25,19 +25,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
-import java.awt.event.ItemEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import javax.swing.Action;
-import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
+import java.util.*;
+import java.util.function.Function;
 
 public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
@@ -185,7 +181,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         // 强制选择所有表
         selected = Holder.isSelectAllTables();
       }
-      tableList.add(Table.from(tableSchema, entityName, selected));
+      String repositoryName = entityName + autoGeneratorSettingsState.getRepositorySuffix();
+      tableList.add(Table.from(tableSchema, entityName, repositoryName, selected));
     }
     ApplicationManager.getApplication().invokeLater(() -> {
       dispose();

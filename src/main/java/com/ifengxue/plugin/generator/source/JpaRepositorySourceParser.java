@@ -7,10 +7,11 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.openapi.components.ServiceManager;
+import org.apache.velocity.VelocityContext;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Supplier;
-import org.apache.velocity.VelocityContext;
 
 public class JpaRepositorySourceParser extends AbstractSourceParser {
 
@@ -36,7 +37,7 @@ public class JpaRepositorySourceParser extends AbstractSourceParser {
       context.put("importClassList",
           Collections.singletonList(tablesConfig.getEntityPackageName() + "." + table.getEntityName()));
     }
-    context.put("simpleName", table.getEntityName() + "Repository");
+    context.put("simpleName", table.getRepositoryName());
     context.put("entitySimpleName", table.getEntityName());
     context.put("primaryKeyDataType",
         Optional.ofNullable(table.getPrimaryKeyClassType())

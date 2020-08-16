@@ -1,7 +1,5 @@
 package com.ifengxue.plugin.gui;
 
-import static java.util.stream.Collectors.toList;
-
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.SelectTables;
 import com.ifengxue.plugin.entity.Column;
@@ -43,6 +41,12 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -53,15 +57,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import javax.swing.Action;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static java.util.stream.Collectors.toList;
 
 public class SelectTablesDialog extends DialogWrapper {
 
@@ -335,12 +332,13 @@ public class SelectTablesDialog extends DialogWrapper {
         // 生成源码
         String sourceCode = sourceParser.parse(generatorConfig, table);
         WriteCommandAction.runWriteCommandAction(project, () -> {
-          String filename = table.getEntityName() + ".java";
+          String fileExtension = ".java";
+          String filename = table.getEntityName() + fileExtension;
           try {
             writeContent(project, filename, autoGeneratorSettingsState.getEntityParentDirectory(),
                 autoGeneratorSettingsState.getEntityPackageName(), sourceCode);
             if (autoGeneratorSettingsState.isGenerateRepository()) {
-              filename = table.getEntityName() + "Repository.java";
+              filename = table.getRepositoryName() + fileExtension;
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
               writeContent(project, filename, autoGeneratorSettingsState.getRepositoryParentDirectory(),
                   autoGeneratorSettingsState.getRepositoryPackageName(),
