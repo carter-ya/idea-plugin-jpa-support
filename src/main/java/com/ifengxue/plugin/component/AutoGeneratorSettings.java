@@ -3,16 +3,12 @@ package com.ifengxue.plugin.component;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.intellij.openapi.components.ServiceManager;
+import lombok.Getter;
+
+import javax.swing.*;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import lombok.Getter;
 
 @Getter
 public class AutoGeneratorSettings {
@@ -42,6 +38,7 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxGenerateDefaultValue;
   private JCheckBox chkBoxGenerateDatetimeDefaultValue;
   private JCheckBox chkBoxUseFluidProgrammingStyle;
+  private JTextField textRepositorySuffix;
 
   private void createUIComponents() {
     AutoGeneratorSettingsState service = ServiceManager
@@ -75,6 +72,7 @@ public class AutoGeneratorSettings {
     chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
     chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
+    textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
   public void getData(AutoGeneratorSettingsState data) {
@@ -99,5 +97,6 @@ public class AutoGeneratorSettings {
     data.setGenerateDefaultValue(chkBoxGenerateDefaultValue.isSelected());
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
     data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());
+    data.setRepositorySuffix(textRepositorySuffix.getText());
   }
 }
