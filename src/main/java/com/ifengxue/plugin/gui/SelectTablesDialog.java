@@ -78,6 +78,8 @@ public class SelectTablesDialog extends DialogWrapper {
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
+    fillColumns(tableList);
+
     int rowCount = tableList.size();
     JTable table = selectTables.getTblTableSchema();
     table.setModel(new AbstractTableModel() {
@@ -238,6 +240,35 @@ public class SelectTablesDialog extends DialogWrapper {
     });
   }
 
+  /**
+   * fill columns
+   */
+  private void fillColumns(List<Table> tableList) {
+    AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
+    for (Table table : tableList) {
+      List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
+      if (columnSchemaList == null) {
+        // skip empty column schemas
+        continue;
+      }
+      // 解析字段列表
+      List<Column> columnList = new ArrayList<>(columnSchemaList.size());
+      for (ColumnSchema columnSchema : columnSchemaList) {
+        Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
+            autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
+            autoGeneratorSettingsState.isUseJava8DateType());
+        if (column.isPrimary()) {
+          table.setPrimaryKeyClassType(column.getJavaDataType());
+          table.incPrimaryKeyCount();
+        }
+        if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
+          columnList.add(column);
+        }
+      }
+      table.setColumns(columnList);
+    }
+  }
+
   @Nullable
   @Override
   protected JComponent createCenterPanel() {
@@ -290,27 +321,7 @@ public class SelectTablesDialog extends DialogWrapper {
           .getService(AutoGeneratorSettingsState.class);
       // 生成数量
       for (Table table : tableList) {
-        List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
-        if (columnSchemaList == null) {
-          // skip empty column schemas
-          continue;
-        }
-        // 解析字段列表
-        List<Column> columnList = new ArrayList<>(columnSchemaList.size());
-        for (ColumnSchema columnSchema : columnSchemaList) {
-          Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
-              autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
-              autoGeneratorSettingsState.isUseJava8DateType());
-          if (column.isPrimary()) {
-            table.setPrimaryKeyClassType(column.getJavaDataType());
-            table.incPrimaryKeyCount();
-          }
-          if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
-            columnList.add(column);
-          }
-        }
         table.setPackageName(autoGeneratorSettingsState.getEntityPackageName());
-        table.setColumns(columnList);
 
         // 配置源码生成信息
         GeneratorConfig generatorConfig = new GeneratorConfig();
