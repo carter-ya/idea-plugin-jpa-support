@@ -226,6 +226,10 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       table.updateUI();
     });
+    selectTables.getBtnTest().addActionListener(event -> {
+      new ColumnFieldMappingEditorDialog(project, true,
+          tableList.get(table.getSelectedRow())).showAndGet();
+    });
     // 开始生成
     selectTables.getBtnGenerate().addActionListener(event -> {
       if (tableList.stream().noneMatch(Table::isSelected)) {

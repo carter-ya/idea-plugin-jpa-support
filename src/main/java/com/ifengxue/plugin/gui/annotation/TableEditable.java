@@ -15,4 +15,6 @@ public @interface TableEditable {
   boolean editable() default true;
 
   Class<? extends EditorProvider> editorProvider() default NullEditorProvider.class;
+
+  Class<? extends RendererProvider> rendererProvider() default NullRendererProvider.class;
 }

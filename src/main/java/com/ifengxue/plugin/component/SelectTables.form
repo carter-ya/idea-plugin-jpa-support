@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="rootComponent" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="715" height="400"/>
+      <xy x="20" y="20" width="762" height="400"/>
     </constraints>
     <properties/>
     <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="select_table"/>
@@ -37,6 +37,12 @@
             <constraints/>
             <properties>
               <text resource-bundle="bundles/ui_i18n" key="button_select_by_regex"/>
+            </properties>
+          </component>
+          <component id="3d004" class="javax.swing.JButton" binding="btnTest">
+            <constraints/>
+            <properties>
+              <text value="Button"/>
             </properties>
           </component>
           <component id="33010" class="javax.swing.JButton" binding="btnCancel">

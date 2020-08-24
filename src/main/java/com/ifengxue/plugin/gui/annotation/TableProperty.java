@@ -12,11 +12,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface TableProperty {
 
+  int DEFAULT_INDEX = -1;
+
   String name() default "";
 
   String bundleName() default "";
 
-  int index() default -1;
+  int index() default DEFAULT_INDEX;
 
   Class<?> columnClass() default NullClass.class;
 

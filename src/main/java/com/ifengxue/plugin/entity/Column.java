@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.entity;
 
+import com.ifengxue.plugin.gui.annotation.TableEditable;
+import com.ifengxue.plugin.gui.annotation.TableProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,10 +12,14 @@ public class Column {
   /**
    * 数据库字段名
    */
+  @TableProperty(bundleName = "table_column_name_title", index = 0)
+  @TableEditable
   private String columnName;
   /**
    * 实体字段名
    */
+  @TableProperty(bundleName = "table_field_name_title", index = 100)
+  @TableEditable
   private String fieldName;
   /**
    * 字段顺序
@@ -26,6 +32,8 @@ public class Column {
   /**
    * Java数据类型
    */
+  @TableProperty(bundleName = "table_field_java_type_title", columnClass = String.class, index = 200)
+  @TableEditable
   private Class<?> javaDataType;
   /**
    * 是否是主键
@@ -50,6 +58,8 @@ public class Column {
   /**
    * 字段注释
    */
+  @TableProperty(bundleName = "table_column_comment_title", index = 300)
+  @TableEditable
   private String columnComment;
 
 }

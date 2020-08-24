@@ -18,6 +18,7 @@ import java.util.function.Function;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +31,9 @@ public class TableFactory {
             .stream()
             .collect(toMap(Field::getName, Function.identity()));
         List<PropertyHolder> propertyHolders = new ArrayList<>();
+        boolean shouldSort = false;
         for (PropertyDescriptor pd : pds) {
-            if (pd.getReadMethod() == null || pd.getWriteMethod() == null) {
+            if (pd.getReadMethod() == null) {
                 continue;
             }
             Field field = nameToField.get(pd.getName());
@@ -42,6 +44,9 @@ public class TableFactory {
             if (tableProperty == null) {
                 continue;
             }
+            if (tableProperty.index() != TableProperty.DEFAULT_INDEX) {
+                shouldSort = true;
+            }
             propertyHolders.add(new PropertyHolder()
                 .setTableProperty(tableProperty)
                 .setTableWidth(field.getAnnotation(TableWidth.class))
@@ -51,13 +56,23 @@ public class TableFactory {
                 .afterPropertiesSet()
             );
         }
-        propertyHolders.sort(Comparator.comparingInt(holder -> holder.getTableProperty().index()));
+        if (shouldSort) {
+            propertyHolders.sort(Comparator.comparingInt(holder -> holder.getTableProperty().index()));
+        }
         MyTableModel<T> myTableModel = new MyTableModel<>(propertyHolders, rows);
         table.setModel(myTableModel);
         for (int i = 0; i < propertyHolders.size(); i++) {
             TableWidth tableWidth = propertyHolders.get(i).getTableWidth();
             if (tableWidth != null) {
                 table.getColumnModel().getColumn(i).setMaxWidth(tableWidth.width());
+            }
+            TableCellEditor tableCellEditor = propertyHolders.get(i).getTableCellEditor();
+            if (tableCellEditor != null) {
+                table.getColumnModel().getColumn(i).setCellEditor(tableCellEditor);
+            }
+            TableCellRenderer tableCellRenderer = propertyHolders.get(i).getTableCellRenderer();
+            if (tableCellRenderer != null) {
+                table.getColumnModel().getColumn(i).setCellRenderer(tableCellRenderer);
             }
         }
     }
@@ -70,6 +85,7 @@ public class TableFactory {
         private TableWidth tableWidth;
         private TableEditable tableEditable;
         private TableCellEditor tableCellEditor;
+        private TableCellRenderer tableCellRenderer;
         private String columnName;
         private Class<?> columnClass;
         private PropertyDescriptor propertyDescriptor;
@@ -88,7 +104,10 @@ public class TableFactory {
 
         private PropertyHolder afterPropertiesSet() {
             if (tableEditable != null) {
-                tableCellEditor = BeanUtil.instantiate(tableEditable.editorProvider()).createEditor();
+                tableCellEditor = BeanUtil.instantiate(tableEditable.editorProvider())
+                    .createEditor(propertyDescriptor);
+                tableCellRenderer = BeanUtil.instantiate(tableEditable.rendererProvider())
+                    .createRenderer(propertyDescriptor);
             }
             if (StringUtils.isNotBlank(tableProperty.bundleName())) {
                 columnName = LocaleContextHolder.format(tableProperty.bundleName());
@@ -97,6 +116,8 @@ public class TableFactory {
             }
             if (tableProperty.columnClass() != NullClass.class) {
                 columnClass = tableProperty.columnClass();
+            } else {
+                columnClass = propertyDescriptor.getPropertyType();
             }
             return this;
         }
