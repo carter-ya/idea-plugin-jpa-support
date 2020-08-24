@@ -50,7 +50,7 @@ intellij {
 }
 
 patchPluginXml {
-    version '2.0.2'
+    version '2.0.3'
     changeNotes """
       <ol>
           <li>Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)</li>
@@ -65,6 +65,7 @@ patchPluginXml {
           <li>Feature: Auto reimport and format code after the build is complete</li>
           <li>Feature: Support generation date time type default value, this is beta feature </li>
           <li>Fix bug: Fix sometimes the error of overwriting source code</li>
+          <li>Fix bug: Fix create directory fail on Windows</li>
       </ol>
       """
 }

@@ -20,6 +20,7 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.ui.Messages;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -83,8 +84,9 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
     String productName = "";
     try {
       // 确保方法存在
-      dataSource.getClass().getMethod("getDatabaseProductName");
-      productName = StringUtils.trimToEmpty(dataSource.getDatabaseProductName());
+      Method method = dataSource.getClass().getMethod("getDatabaseProductName");
+      method.setAccessible(true);
+      productName = (String) method.invoke(dataSource);
     } catch (Exception e) {
       // ignore exception
     }
