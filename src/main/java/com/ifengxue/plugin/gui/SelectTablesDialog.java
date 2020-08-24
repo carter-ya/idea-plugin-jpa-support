@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.gui;
 
+import static java.util.stream.Collectors.toList;
+
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.SelectTables;
@@ -15,10 +17,10 @@ import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.util.FileUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
@@ -42,12 +44,6 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -58,8 +54,15 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import static java.util.stream.Collectors.toList;
+import javax.swing.Action;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SelectTablesDialog extends DialogWrapper {
 
@@ -389,9 +392,8 @@ public class SelectTablesDialog extends DialogWrapper {
 
     private void writeContent(Project project, String filename, String parentPath, String packageName,
         String sourceCode) {
-      String directory = Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)).toAbsolutePath()
-          .toString();
-      PsiDirectory psiDirectory = DirectoryUtil.mkdirs(PsiManager.getInstance(project), directory);
+      PsiDirectory psiDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
+          Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)));
       PsiFile psiFile = psiDirectory.findFile(filename);
       if (psiFile != null) {
         // 切换UI线程
