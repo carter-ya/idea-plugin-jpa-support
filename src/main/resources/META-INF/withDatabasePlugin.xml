@@ -1,0 +1,8 @@
+<idea-plugin>
+  <actions>
+    <action class="com.ifengxue.plugin.action.JpaSupportWithDatabasePlugin" description="Create new JPA entities."
+      id="JPASupport.NewEntities3" text="Generate JPA Entities(Support to Select Multiple Tables)">
+      <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
+    </action>
+  </actions>
+</idea-plugin>
