@@ -17,4 +17,6 @@ public @interface TableEditable {
   Class<? extends EditorProvider> editorProvider() default NullEditorProvider.class;
 
   Class<? extends RendererProvider> rendererProvider() default NullRendererProvider.class;
+
+  Class<? extends PropertyEditorProvider> propertyEditorProvider() default NullPropertyEditorProvider.class;
 }

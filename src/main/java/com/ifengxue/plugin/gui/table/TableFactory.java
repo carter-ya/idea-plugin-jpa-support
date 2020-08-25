@@ -9,6 +9,7 @@ import com.ifengxue.plugin.gui.annotation.TableWidth;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import fastjdbc.BeanUtil;
 import java.beans.PropertyDescriptor;
+import java.beans.PropertyEditor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -95,10 +96,21 @@ public class TableFactory {
         }
 
         public Object getValue(Object obj) {
+            PropertyEditor propertyEditor;
+            if (tableEditable != null && (propertyEditor = BeanUtil.instantiate(tableEditable.propertyEditorProvider())
+                .createPropertyEditor(obj, propertyDescriptor)) != null) {
+                return propertyEditor.getAsText();
+            }
             return BeanUtil.getValue(propertyDescriptor, obj);
         }
 
         public void setValue(Object obj, Object value) {
+            PropertyEditor propertyEditor;
+            if (tableEditable != null && (propertyEditor = BeanUtil.instantiate(tableEditable.propertyEditorProvider())
+                .createPropertyEditor(obj, propertyDescriptor)) != null) {
+                propertyEditor.setAsText((String) value);
+                return;
+            }
             BeanUtil.setValue(propertyDescriptor, obj, value);
         }
 

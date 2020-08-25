@@ -2,6 +2,7 @@ package com.ifengxue.plugin.entity;
 
 import com.ifengxue.plugin.gui.annotation.TableEditable;
 import com.ifengxue.plugin.gui.annotation.TableProperty;
+import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -33,7 +34,7 @@ public class Column {
    * Java数据类型
    */
   @TableProperty(bundleName = "table_field_java_type_title", columnClass = String.class, index = 200)
-  @TableEditable
+  @TableEditable(propertyEditorProvider = ClassNamePropertyEditor.class)
   private Class<?> javaDataType;
   /**
    * 是否是主键
