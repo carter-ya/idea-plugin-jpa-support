@@ -9,10 +9,6 @@
       id="JPASupport.NewEntities2" text="Generate JPA Entities">
       <add-to-group anchor="last" group-id="GenerateGroup"/>
     </action>
-    <action class="com.ifengxue.plugin.action.JpaSupportWithDatabasePlugin" description="Create new JPA entities."
-      id="JPASupport.NewEntities3" text="Generate JPA Entities(Support to Select Multiple Tables)">
-      <add-to-group group-id="DatabaseViewPopupMenu" anchor="first"/>
-    </action>
   </actions>
   <change-notes><![CDATA[
       <ul>
@@ -27,7 +23,7 @@
   <depends>com.intellij.modules.platform</depends>
   <depends>com.intellij.modules.lang</depends>
   <depends>com.intellij.modules.java</depends>
-  <depends optional="true">com.intellij.database</depends>
+  <depends optional="true" config-file="withDatabasePlugin.xml">com.intellij.database</depends>
 
   <description><![CDATA[
       <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
@@ -66,6 +62,6 @@
     https://github.com/carter-ya/idea-plugin-jpa-support
   </vendor>
 
-  <version>2.0.3</version>
+  <version>2.0.3.1</version>
 
 </idea-plugin>

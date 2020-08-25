@@ -50,7 +50,7 @@ intellij {
 }
 
 patchPluginXml {
-    version '2.0.3'
+    version '2.0.3.1'
     changeNotes """
       <ol>
           <li>Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)</li>
@@ -66,6 +66,7 @@ patchPluginXml {
           <li>Feature: Support generation date time type default value, this is beta feature </li>
           <li>Fix bug: Fix sometimes the error of overwriting source code</li>
           <li>Fix bug: Fix create directory fail on Windows</li>
+          <li>Fix bug: Fixed crash on idea community</li>
       </ol>
       """
 }
