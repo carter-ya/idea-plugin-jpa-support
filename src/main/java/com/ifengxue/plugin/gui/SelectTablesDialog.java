@@ -15,6 +15,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.util.FileUtil;
@@ -51,15 +52,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import javax.swing.Action;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,121 +69,39 @@ public class SelectTablesDialog extends DialogWrapper {
   private final SelectTables selectTables;
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
-  protected SelectTablesDialog(@Nullable Project project, List<Table> tableList,
+  protected SelectTablesDialog(@Nullable Project project, List<Table> tables,
       Function<TableSchema, List<ColumnSchema>> mapping) {
     super(project, true);
     this.mapping = mapping;
-    selectTables = new SelectTables(tableList);
+    selectTables = new SelectTables(tables);
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
-    int rowCount = tableList.size();
+    // sequence
+    AtomicInteger seq = new AtomicInteger(1);
+    tables.forEach(table -> table.setSequence(seq.getAndIncrement()));
+
     JTable table = selectTables.getTblTableSchema();
-    table.setModel(new AbstractTableModel() {
-      private static final long serialVersionUID = 8974669315458199207L;
-      final String[] columns = {
-          LocaleContextHolder.format("table_selected"),
-          LocaleContextHolder.format("table_sequence"),
-          LocaleContextHolder.format("table_table_name"),
-          LocaleContextHolder.format("table_class_name"),
-          LocaleContextHolder.format("table_repository_name"),
-          LocaleContextHolder.format("table_class_comment")
-      };
-
-      @Override
-      public int getRowCount() {
-        return rowCount;
-      }
-
-      @Override
-      public int getColumnCount() {
-        return columns.length;
-      }
-
-      @Override
-      public String getColumnName(int column) {
-        return columns[column];
-      }
-
-      @Override
-      public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 0 || columnIndex == 3 || columnIndex == 4 || columnIndex == 5;
-      }
-
-      @Override
-      public Class<?> getColumnClass(int columnIndex) {
-        switch (columnIndex) {
-          case 0:
-            return Boolean.class;
-          case 1:
-            return Integer.class;
-          default:
-            return String.class;
-        }
-      }
-
-      @Override
-      public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
-          case 0:
-            return tableList.get(rowIndex).isSelected();
-          case 1:
-            return rowIndex + 1;
-          case 2:
-            return tableList.get(rowIndex).getTableName();
-          case 3:
-            return tableList.get(rowIndex).getEntityName();
-          case 4:
-            return tableList.get(rowIndex).getRepositoryName();
-          case 5:
-            return tableList.get(rowIndex).getTableComment();
-          default:
-            throw new IllegalStateException("无法识别的列索引:" + columnIndex);
-        }
-      }
-
-      @Override
-      public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        switch (columnIndex) {
-          case 0:
-            tableList.get(rowIndex).setSelected((Boolean) aValue);
-            break;
-          case 3:
-            tableList.get(rowIndex).setEntityName((String) aValue);
-            break;
-          case 4:
-            tableList.get(rowIndex).setRepositoryName((String) aValue);
-            break;
-          case 5:
-            tableList.get(rowIndex).setTableComment((String) aValue);
-            break;
-          default:
-            break;
-        }
-      }
-    });
-    table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox()));
-    table.getColumnModel().getColumn(0).setMaxWidth(60);
-    table.getColumnModel().getColumn(1).setMaxWidth(40);
+    new TableFactory().decorateTable(table, Table.class, tables);
 
     selectTables.getBtnCancel().addActionListener(event -> dispose());
     // 选中所有行
     selectTables.getBtnSelectAll().addActionListener(event -> {
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(true);
       }
       table.updateUI();
     });
     // 全不选
     selectTables.getBtnSelectNone().addActionListener(event -> {
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(false);
       }
       table.updateUI();
     });
     // 反选
     selectTables.getBtnSelectOther().addActionListener(event -> {
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(!t.isSelected());
       }
       table.updateUI();
@@ -219,18 +136,18 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       initialValueRef.set(regex);
       Pattern pattern = Pattern.compile(regex);
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(pattern.matcher(t.getTableName()).matches());
       }
       table.updateUI();
     });
     selectTables.getBtnTest().addActionListener(event -> {
       new ColumnFieldMappingEditorDialog(project, true,
-          tableList.get(table.getSelectedRow()), this::findColumns).showAndGet();
+          tables.get(table.getSelectedRow()), this::findColumns).showAndGet();
     });
     // 开始生成
     selectTables.getBtnGenerate().addActionListener(event -> {
-      if (tableList.stream().noneMatch(Table::isSelected)) {
+      if (tables.stream().noneMatch(Table::isSelected)) {
         Messages.showWarningDialog(Holder.getEvent().getProject(),
             LocaleContextHolder.format("at_least_select_one_table"),
             LocaleContextHolder.format("prompt"));
@@ -238,7 +155,7 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       dispose();
       // 开始生成
-      new GeneratorRunner(tableList).run();
+      new GeneratorRunner(tables).run();
     });
   }
 

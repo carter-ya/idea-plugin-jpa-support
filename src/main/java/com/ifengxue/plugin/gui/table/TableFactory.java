@@ -70,7 +70,12 @@ public class TableFactory {
         for (int i = 0; i < propertyHolders.size(); i++) {
             TableWidth tableWidth = propertyHolders.get(i).getTableWidth();
             if (tableWidth != null) {
-                table.getColumnModel().getColumn(i).setMinWidth(tableWidth.width());
+                if (tableWidth.minWidth() != TableWidth.UNSET_WIDTH) {
+                    table.getColumnModel().getColumn(i).setMinWidth(tableWidth.minWidth());
+                }
+                if (tableWidth.maxWidth() != TableWidth.UNSET_WIDTH) {
+                    table.getColumnModel().getColumn(i).setMaxWidth(tableWidth.maxWidth());
+                }
             }
             TableCellEditor tableCellEditor = propertyHolders.get(i).getTableCellEditor();
             if (tableCellEditor != null) {

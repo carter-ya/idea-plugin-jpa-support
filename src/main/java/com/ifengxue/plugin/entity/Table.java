@@ -1,9 +1,12 @@
 package com.ifengxue.plugin.entity;
 
+import com.ifengxue.plugin.gui.annotation.TableEditable;
+import com.ifengxue.plugin.gui.annotation.TableProperty;
+import com.ifengxue.plugin.gui.annotation.TableWidth;
+import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
+import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -17,16 +20,30 @@ public class Table {
   /**
    * 是否被选择，选择后才可生成类
    */
+  @TableProperty(bundleName = "table_selected", columnClass = Boolean.class, index = 0)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
   private boolean selected;
+
+  /**
+   * 序号
+   */
+  @TableProperty(bundleName = "table_sequence", index = 1000)
+  @TableWidth(maxWidth = 40)
+  private int sequence;
 
   /**
    * 表名
    */
+  @TableProperty(bundleName = "table_table_name", index = 2000)
+  @TableEditable
   private String tableName;
 
   /**
    * 表注释
    */
+  @TableProperty(bundleName = "table_class_comment", index = 5000)
+  @TableEditable
   private String tableComment;
 
   /**
@@ -37,11 +54,14 @@ public class Table {
   /**
    * 实体名称
    */
+  @TableProperty(bundleName = "table_class_name", index = 3000)
+  @TableEditable
   private String entityName;
 
   /**
    * Repository 名称
    */
+  @TableProperty(bundleName = "table_repository_name", index = 4000)
   private String repositoryName;
 
   /**

@@ -39,7 +39,7 @@ public class Column {
    */
   @TableProperty(bundleName = "table_field_java_type_title", columnClass = String.class, index = 200)
   @TableEditable(editorProvider = JavaDataTypeEditorProvider.class, propertyEditorProvider = ClassNamePropertyEditor.class)
-  @TableWidth(width = 60)
+  @TableWidth(minWidth = 60)
   private Class<?> javaDataType;
   /**
    * 是否是主键

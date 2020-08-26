@@ -9,5 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface TableWidth {
 
-  int width();
+    int UNSET_WIDTH = -1;
+
+    int minWidth() default UNSET_WIDTH;
+
+    int maxWidth() default UNSET_WIDTH;
 }
