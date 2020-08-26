@@ -8,7 +8,9 @@ import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import javax.swing.Action;
 import javax.swing.JComponent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ColumnFieldMappingEditorDialog extends DialogWrapper {
@@ -26,12 +28,24 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
 
     new TableFactory()
         .decorateTable(columnFieldMappingEditor.getTableMapping(), Column.class, this.table.getColumns());
+    columnFieldMappingEditor.setData(table);
+  }
+
+  @Override
+  protected void doOKAction() {
+    columnFieldMappingEditor.getData(table);
   }
 
   @Nullable
   @Override
   protected JComponent createCenterPanel() {
     return columnFieldMappingEditor.getRootComponent();
+  }
+
+  @NotNull
+  @Override
+  protected Action[] createActions() {
+    return new Action[]{getOKAction()};
   }
 
   @Nullable
