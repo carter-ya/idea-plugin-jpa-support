@@ -39,6 +39,7 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
   @Override
   protected void doOKAction() {
     columnFieldMappingEditor.getData(table);
+    close(CLOSE_EXIT_CODE);
   }
 
   @Nullable
