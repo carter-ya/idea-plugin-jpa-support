@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.entity;
 
 import com.ifengxue.plugin.gui.annotation.TableEditable;
+import com.ifengxue.plugin.gui.annotation.TableHeight;
 import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
 import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
@@ -9,6 +10,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@TableHeight(height = 20)
 public class Column {
 
   /**

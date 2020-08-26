@@ -3,6 +3,7 @@ package com.ifengxue.plugin.gui.table;
 import static java.util.stream.Collectors.toMap;
 
 import com.ifengxue.plugin.gui.annotation.TableEditable;
+import com.ifengxue.plugin.gui.annotation.TableHeight;
 import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.annotation.TableProperty.NullClass;
 import com.ifengxue.plugin.gui.annotation.TableWidth;
@@ -62,6 +63,10 @@ public class TableFactory {
         }
         MyTableModel<T> myTableModel = new MyTableModel<>(propertyHolders, rows);
         table.setModel(myTableModel);
+        TableHeight tableHeight = headClass.getAnnotation(TableHeight.class);
+        if (tableHeight != null) {
+            table.setRowHeight(tableHeight.height());
+        }
         for (int i = 0; i < propertyHolders.size(); i++) {
             TableWidth tableWidth = propertyHolders.get(i).getTableWidth();
             if (tableWidth != null) {
