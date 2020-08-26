@@ -78,8 +78,6 @@ public class SelectTablesDialog extends DialogWrapper {
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
-    fillColumns(tableList);
-
     int rowCount = tableList.size();
     JTable table = selectTables.getTblTableSchema();
     table.setModel(new AbstractTableModel() {
@@ -228,7 +226,7 @@ public class SelectTablesDialog extends DialogWrapper {
     });
     selectTables.getBtnTest().addActionListener(event -> {
       new ColumnFieldMappingEditorDialog(project, true,
-          tableList.get(table.getSelectedRow())).showAndGet();
+          tableList.get(table.getSelectedRow()), this::findColumns).showAndGet();
     });
     // 开始生成
     selectTables.getBtnGenerate().addActionListener(event -> {
@@ -245,32 +243,29 @@ public class SelectTablesDialog extends DialogWrapper {
   }
 
   /**
-   * fill columns
+   * find columns
    */
-  private void fillColumns(List<Table> tableList) {
+  private List<Column> findColumns(Table table) {
     AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
-    for (Table table : tableList) {
-      List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
-      if (columnSchemaList == null) {
-        // skip empty column schemas
-        continue;
-      }
-      // 解析字段列表
-      List<Column> columnList = new ArrayList<>(columnSchemaList.size());
-      for (ColumnSchema columnSchema : columnSchemaList) {
-        Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
-            autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
-            autoGeneratorSettingsState.isUseJava8DateType());
-        if (column.isPrimary()) {
-          table.setPrimaryKeyClassType(column.getJavaDataType());
-          table.incPrimaryKeyCount();
-        }
-        if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
-          columnList.add(column);
-        }
-      }
-      table.setColumns(columnList);
+    List<ColumnSchema> columnSchemas = mapping.apply(table.getRawTableSchema());
+    if (columnSchemas == null) {
+      return Collections.emptyList();
     }
+    // 解析字段列表
+    List<Column> columns = new ArrayList<>(columnSchemas.size());
+    for (ColumnSchema columnSchema : columnSchemas) {
+      Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
+          autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
+          autoGeneratorSettingsState.isUseJava8DateType());
+      if (column.isPrimary()) {
+        table.setPrimaryKeyClassType(column.getJavaDataType());
+        table.incPrimaryKeyCount();
+      }
+      if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
+        columns.add(column);
+      }
+    }
+    return columns;
   }
 
   @Nullable
@@ -326,6 +321,9 @@ public class SelectTablesDialog extends DialogWrapper {
       // 生成数量
       for (Table table : tableList) {
         table.setPackageName(autoGeneratorSettingsState.getEntityPackageName());
+        if (table.getColumns() == null) {
+          table.setColumns(findColumns(table));
+        }
 
         // 配置源码生成信息
         GeneratorConfig generatorConfig = new GeneratorConfig();

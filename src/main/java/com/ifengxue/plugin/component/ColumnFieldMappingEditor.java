@@ -21,6 +21,6 @@ public class ColumnFieldMappingEditor {
 
   public void getData(Table table) {
     table.setEntityName(textClassname.getText());
-    table.setRepositoryName(textRepositoryName.getName());
+    table.setRepositoryName(textRepositoryName.getText());
   }
 }

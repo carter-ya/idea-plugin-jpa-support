@@ -8,6 +8,8 @@ import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import java.util.List;
+import java.util.function.Function;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import org.jetbrains.annotations.NotNull;
@@ -19,13 +21,16 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
   private final Table table;
 
   protected ColumnFieldMappingEditorDialog(@Nullable Project project, boolean canBeParent,
-      Table table) {
+      Table table, Function<Table, List<Column>> columnsMapping) {
     super(project, canBeParent);
     this.table = table;
     columnFieldMappingEditor = new ColumnFieldMappingEditor();
     init();
     setTitle(LocaleContextHolder.format("column_field_mapping_title"));
 
+    if (table.getColumns() == null) {
+      table.setColumns(columnsMapping.apply(table));
+    }
     new TableFactory()
         .decorateTable(columnFieldMappingEditor.getTableMapping(), Column.class, this.table.getColumns());
     columnFieldMappingEditor.setData(table);
