@@ -74,7 +74,7 @@
               </component>
             </children>
           </scrollpane>
-          <grid id="34b9b" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+          <grid id="34b9b" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -84,7 +84,8 @@
               <component id="1ae97" class="javax.swing.JButton" binding="btnModify">
                 <constraints/>
                 <properties>
-                  <icon value="actions/edit_dark.png"/>
+                  <enabled value="false"/>
+                  <icon value="toolbarDecorator/mac/edit.png"/>
                   <text value=""/>
                   <toolTipText resource-bundle="bundles/ui_i18n" key="modify_table_property"/>
                 </properties>

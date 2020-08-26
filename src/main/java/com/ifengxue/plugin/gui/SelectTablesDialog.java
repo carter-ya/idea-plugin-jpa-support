@@ -21,6 +21,7 @@ import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.util.FileUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
+import com.intellij.icons.AllIcons.ToolbarDecorator.Mac;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -45,6 +46,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -85,6 +88,15 @@ public class SelectTablesDialog extends DialogWrapper {
     new TableFactory().decorateTable(table, Table.class, tables);
 
     selectTables.getBtnCancel().addActionListener(event -> dispose());
+    table.addFocusListener(new FocusAdapter() {
+      @Override
+      public void focusGained(FocusEvent e) {
+        if (table.getSelectedRow() != -1) {
+          selectTables.getBtnModify().setEnabled(true);
+          selectTables.getBtnModify().setIcon(Mac.Edit);
+        }
+      }
+    });
     // 选中所有行
     selectTables.getBtnSelectAll().addActionListener(event -> {
       for (Table t : tables) {
