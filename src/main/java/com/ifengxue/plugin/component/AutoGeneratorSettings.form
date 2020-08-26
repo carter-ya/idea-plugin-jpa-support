@@ -409,6 +409,7 @@
           <component id="21687" class="javax.swing.JTextField" binding="textRepositorySuffix">
             <constraints/>
             <properties>
+              <columns value="10"/>
               <text value="Repository"/>
             </properties>
           </component>

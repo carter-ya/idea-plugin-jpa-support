@@ -21,7 +21,7 @@ import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.util.FileUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
-import com.intellij.icons.AllIcons.ToolbarDecorator.Mac;
+import com.intellij.icons.AllIcons.General;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -93,7 +93,7 @@ public class SelectTablesDialog extends DialogWrapper {
       public void focusGained(FocusEvent e) {
         if (table.getSelectedRow() != -1) {
           selectTables.getBtnModify().setEnabled(true);
-          selectTables.getBtnModify().setIcon(Mac.Edit);
+          selectTables.getBtnModify().setIcon(General.EditItemInSection);
         }
       }
     });
