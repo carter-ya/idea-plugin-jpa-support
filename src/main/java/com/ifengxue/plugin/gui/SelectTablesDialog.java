@@ -141,7 +141,10 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       table.updateUI();
     });
-    selectTables.getBtnTest().addActionListener(event -> {
+    selectTables.getBtnModify().addActionListener(event -> {
+      if (table.getSelectedRow() == -1) {
+        return;
+      }
       new ColumnFieldMappingEditorDialog(project, true,
           tables.get(table.getSelectedRow()), this::findColumns).showAndGet();
     });

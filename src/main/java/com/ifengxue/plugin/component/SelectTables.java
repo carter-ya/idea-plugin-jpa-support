@@ -19,7 +19,7 @@ public class SelectTables {
   private JButton btnCancel;
   private JButton btnGenerate;
   private JButton btnSelectByRegex;
-  private JButton btnTest;
+  private JButton btnModify;
 
   public SelectTables(List<Table> tableList) {
     this.tableList = tableList;
