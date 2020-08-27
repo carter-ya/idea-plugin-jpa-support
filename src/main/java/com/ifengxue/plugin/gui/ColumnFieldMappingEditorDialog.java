@@ -8,10 +8,13 @@ import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.table.JBTable;
 import java.util.List;
 import java.util.function.Function;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,8 +34,11 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
     if (table.getColumns() == null) {
       table.setColumns(columnsMapping.apply(table));
     }
-    new TableFactory()
-        .decorateTable(columnFieldMappingEditor.getTableMapping(), Column.class, this.table.getColumns());
+
+    JBTable jbTable = new JBTable();
+    new TableFactory().decorateTable(jbTable, Column.class, this.table.getColumns());
+    JPanel tablePanel = ToolbarDecorator.createDecorator(jbTable).createPanel();
+    columnFieldMappingEditor.getTablePanel().add(tablePanel);
     columnFieldMappingEditor.setData(table);
   }
 

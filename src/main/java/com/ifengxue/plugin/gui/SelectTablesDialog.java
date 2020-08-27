@@ -35,7 +35,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
@@ -46,8 +45,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.table.JBTable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -61,6 +60,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -76,8 +76,7 @@ public class SelectTablesDialog extends DialogWrapper {
       Function<TableSchema, List<ColumnSchema>> mapping) {
     super(project, true);
     this.mapping = mapping;
-    selectTables = new SelectTables(tables);
-    selectTables.getBtnModify().setIcon(IconLoader.getIcon("/icons/editItemInSection_dark.png"));
+    selectTables = new SelectTables();
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
@@ -85,18 +84,15 @@ public class SelectTablesDialog extends DialogWrapper {
     AtomicInteger seq = new AtomicInteger(1);
     tables.forEach(table -> table.setSequence(seq.getAndIncrement()));
 
-    JTable table = selectTables.getTblTableSchema();
+    JTable table = new JBTable();
     new TableFactory().decorateTable(table, Table.class, tables);
+    JPanel tablePanel = ToolbarDecorator.createDecorator(table)
+        .setEditAction(anActionButton -> new ColumnFieldMappingEditorDialog(project, true,
+            tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet())
+        .createPanel();
+    selectTables.getTablePanel().add(tablePanel);
 
     selectTables.getBtnCancel().addActionListener(event -> dispose());
-    table.addFocusListener(new FocusAdapter() {
-      @Override
-      public void focusGained(FocusEvent e) {
-        if (table.getSelectedRow() != -1) {
-          selectTables.getBtnModify().setEnabled(true);
-        }
-      }
-    });
     // 选中所有行
     selectTables.getBtnSelectAll().addActionListener(event -> {
       for (Table t : tables) {
@@ -152,13 +148,6 @@ public class SelectTablesDialog extends DialogWrapper {
         t.setSelected(pattern.matcher(t.getTableName()).matches());
       }
       table.updateUI();
-    });
-    selectTables.getBtnModify().addActionListener(event -> {
-      if (table.getSelectedRow() == -1) {
-        return;
-      }
-      new ColumnFieldMappingEditorDialog(project, true,
-          tables.get(table.getSelectedRow()), this::findColumns).showAndGet();
     });
     // 开始生成
     selectTables.getBtnGenerate().addActionListener(event -> {
