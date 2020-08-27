@@ -32,7 +32,7 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
       TableSchema tableSchema = new TableSchema();
       tableSchema.setTableName(row.getString("name"));
       tableSchema.setTableComment(Optional.ofNullable(row.getString("comment")).orElse(""));
-      tableSchema.setTableSchema("public");
+      tableSchema.setTableSchema(database);
       return tableSchema;
     }, database);
   }
@@ -69,7 +69,7 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
         + "    and pg_attr.attrelid = pg_class.oid\n"
         + "    and pg_class.relname = ?\n"
         + ") c on c.attname = information_schema.columns.column_name\n"
-        + "where table_schema = 'public'\n"
+        + "where table_schema = ?\n"
         + "  and table_name = ?\n"
         + "order by ordinal_position asc";
     return fastJdbc.find(sql, (row, rowNum) -> {
@@ -86,7 +86,7 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
       columnSchema.setColumnDefault(row.getString("column_default"));
       columnSchema.setColumnKey(row.getString("is_primary_key"));
       return columnSchema;
-    }, table, table, table);
+    }, table, table, database, table);
   }
 
   @Override
