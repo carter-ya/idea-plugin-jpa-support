@@ -28,13 +28,13 @@ public class PostgreSQLDriverAdapter extends AbstractDriverAdapter {
     FastJdbc fastJdbc = Holder.getFastJdbc();
     return fastJdbc.find("select a.relname as name , b.description as comment from pg_class a\n"
         + "left join (select * from pg_description where objsubid =0 ) b on a.oid = b.objoid\n"
-        + "where a.relname in (select tablename from pg_tables where schemaname = 'public')", (row, rowNum) -> {
+        + "where a.relname in (select tablename from pg_tables where schemaname = ?)", (row, rowNum) -> {
       TableSchema tableSchema = new TableSchema();
       tableSchema.setTableName(row.getString("name"));
       tableSchema.setTableComment(Optional.ofNullable(row.getString("comment")).orElse(""));
       tableSchema.setTableSchema("public");
       return tableSchema;
-    });
+    }, database);
   }
 
   @Override
