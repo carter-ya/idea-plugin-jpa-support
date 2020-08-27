@@ -25,22 +25,26 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
+import java.awt.event.ItemEvent;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
-import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Function;
-
 public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
   private final AutoGeneratorSettings generatorSettings;
   private final List<TableSchema> tableSchemaList;
-  private AutoGeneratorSettingsState autoGeneratorSettingsState;
+  private final AutoGeneratorSettingsState autoGeneratorSettingsState;
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
   protected AutoGeneratorSettingsDialog(Project project, List<TableSchema> tableSchemaList,

@@ -6,10 +6,12 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.LanguageTextField;
+import com.intellij.ui.ScrollPaneFactory;
 import java.util.Objects;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import lombok.Data;
 
@@ -22,8 +24,10 @@ public class Settings {
     private LanguageTextField txtSourceCode;
     private JButton btnTestTemplate;
     private JButton btnResetTemplate;
+    private JScrollPane sourceCodePane;
 
     private void createUIComponents() {
+        sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);
         Language velocityLanguage = Objects.requireNonNull(Language.findLanguageByID("VTL"));
         Project defaultProject = ProjectManager.getInstance().getDefaultProject();
         txtSourceCode = new LanguageTextField(velocityLanguage,
