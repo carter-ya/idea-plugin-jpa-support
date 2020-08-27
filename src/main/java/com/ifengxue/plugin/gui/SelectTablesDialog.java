@@ -77,7 +77,7 @@ public class SelectTablesDialog extends DialogWrapper {
     super(project, true);
     this.mapping = mapping;
     selectTables = new SelectTables(tables);
-    selectTables.getBtnModify().setIcon(IconLoader.getIcon("/icons/editItemInSection@2x_dark.png"));
+    selectTables.getBtnModify().setIcon(IconLoader.getIcon("/icons/editItemInSection_dark.png"));
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
