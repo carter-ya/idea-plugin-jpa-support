@@ -38,14 +38,12 @@ public class Table {
    * 表名
    */
   @TableProperty(bundleName = "table_table_name", index = 2000)
-  @TableEditable
   private String tableName;
 
   /**
    * 表注释
    */
   @TableProperty(bundleName = "table_class_comment", index = 5000)
-  @TableEditable
   private String tableComment;
 
   /**
@@ -57,14 +55,12 @@ public class Table {
    * 实体名称
    */
   @TableProperty(bundleName = "table_class_name", index = 3000)
-  @TableEditable
   private String entityName;
 
   /**
    * Repository 名称
    */
   @TableProperty(bundleName = "table_repository_name", index = 4000)
-  @TableEditable
   private String repositoryName;
 
   /**

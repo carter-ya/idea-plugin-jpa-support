@@ -45,8 +45,10 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -91,6 +93,18 @@ public class SelectTablesDialog extends DialogWrapper {
             tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet())
         .createPanel();
     selectTables.getTablePanel().add(tablePanel);
+
+    new DoubleClickListener() {
+      @Override
+      protected boolean onDoubleClick(MouseEvent event) {
+        if (table.getSelectedRow() == -1) {
+          return false;
+        }
+        new ColumnFieldMappingEditorDialog(project, true,
+            tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet();
+        return true;
+      }
+    }.installOn(table);
 
     selectTables.getBtnCancel().addActionListener(event -> dispose());
     // 选中所有行
