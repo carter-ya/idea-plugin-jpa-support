@@ -21,7 +21,6 @@ import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.util.FileUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
-import com.intellij.icons.AllIcons.General;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -36,6 +35,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
@@ -77,6 +77,7 @@ public class SelectTablesDialog extends DialogWrapper {
     super(project, true);
     this.mapping = mapping;
     selectTables = new SelectTables(tables);
+    selectTables.getBtnModify().setIcon(IconLoader.getIcon("/icons/editItemInSection@2x_dark.png"));
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
@@ -93,7 +94,6 @@ public class SelectTablesDialog extends DialogWrapper {
       public void focusGained(FocusEvent e) {
         if (table.getSelectedRow() != -1) {
           selectTables.getBtnModify().setEnabled(true);
-          selectTables.getBtnModify().setIcon(General.EditItemInSection);
         }
       }
     });

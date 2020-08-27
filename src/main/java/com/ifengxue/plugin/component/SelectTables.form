@@ -85,7 +85,6 @@
                 <constraints/>
                 <properties>
                   <enabled value="false"/>
-                  <icon value="general/editItemInSection.png"/>
                   <text value=""/>
                   <toolTipText resource-bundle="bundles/ui_i18n" key="modify_table_property"/>
                 </properties>

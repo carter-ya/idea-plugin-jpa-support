@@ -64,6 +64,7 @@ public class Table {
    * Repository 名称
    */
   @TableProperty(bundleName = "table_repository_name", index = 4000)
+  @TableEditable
   private String repositoryName;
 
   /**
