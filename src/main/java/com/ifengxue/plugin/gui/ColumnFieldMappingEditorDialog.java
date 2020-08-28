@@ -29,6 +29,7 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
     this.table = table;
     columnFieldMappingEditor = new ColumnFieldMappingEditor();
     init();
+    setSize(600, 600);
     setTitle(LocaleContextHolder.format("column_field_mapping_title"));
 
     if (table.getColumns() == null) {

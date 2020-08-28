@@ -80,6 +80,7 @@ public class SelectTablesDialog extends DialogWrapper {
     this.mapping = mapping;
     selectTables = new SelectTables();
     init();
+    setSize(600, 600);
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
     // sequence
