@@ -43,14 +43,16 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2017.1'
+//    version '2017.1'
+    version '2020.2.1'
     pluginName 'Jpa Support'
     type 'IU'
     updateSinceUntilBuild false
+    plugins = ['java']
 }
 
 patchPluginXml {
-    version '2.0.4'
+    version '2.0.4-EAP'
     changeNotes """
       <ol>
           <li>Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)</li>
