@@ -50,6 +50,10 @@ public class SettingsConfigurable implements SearchableConfigurable {
 
         JTabbedPane tabbedPane = settings.getTabbedPane();
         tabbedPane.setTitleAt(0, LocaleContextHolder.format("source_code_template_tip"));
+        tabbedPane.setTitleAt(1, LocaleContextHolder.format("db_java_type_tip"));
+
+        // template config
+
         String templateId = Constants.JPA_ENTITY_TEMPLATE_ID;
         settings.getCbxSelectCodeTemplate().removeAllItems();
         settings.getCbxSelectCodeTemplate().addItem(new TemplateItem()
@@ -95,6 +99,13 @@ public class SettingsConfigurable implements SearchableConfigurable {
                 item.setTemplate(e.getDocument().getText());
             }
         });
+
+        // type config 
+        settings.getTextFallbackType().setPreferredWidth(200);
+        settings.getRadioBtnFallbackType().addItemListener(
+            event -> settings.getTextFallbackType().setEnabled(event.getStateChange() == ItemEvent.SELECTED));
+
+        // bind data
         settings.setData(settingsState);
     }
 
@@ -123,7 +134,11 @@ public class SettingsConfigurable implements SearchableConfigurable {
 
     @Override
     public void apply() {
-        settings.getData(settingsState);
+        try {
+            settings.getData(settingsState);
+        } catch (ClassNotFoundException e) {
+            //TODO show message
+        }
     }
 
 }

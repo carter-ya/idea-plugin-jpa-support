@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +25,21 @@ import org.jetbrains.annotations.Nullable;
 public class SettingsState implements PersistentStateComponent<SettingsState> {
 
     private static final Logger log = Logger.getInstance(SettingsState.class);
+    // template config
+
     /**
      * template id to template
      */
     private Map<String, String> templateIdToTemplate = new HashMap<>();
+
+    // type config
+    private boolean fallbackType = true;
+    private boolean throwException;
+    private Class<?> fallbackTypeClass = java.lang.String.class;
+    /**
+     * class to db types
+     */
+    private Map<Class<?>, Set<String>> classToDbTypes = new HashMap<>();
 
     @Nullable
     @Override
@@ -35,7 +48,7 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
     }
 
     @Override
-    public void loadState(SettingsState state) {
+    public void loadState(@Nonnull SettingsState state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

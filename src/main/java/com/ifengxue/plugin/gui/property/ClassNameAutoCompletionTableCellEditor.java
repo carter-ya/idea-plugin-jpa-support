@@ -33,10 +33,8 @@ public class ClassNameAutoCompletionTableCellEditor extends AbstractCellEditor i
     TextFieldWithAutoCompletion<String> field = TextFieldWithAutoCompletion
         .create(project, classNames, true, (String) value);
     myDocument = field.getDocument();
-    if (myDocument != null) {
-      for (DocumentListener listener : myListeners) {
-        field.addDocumentListener(listener);
-      }
+    for (DocumentListener listener : myListeners) {
+      field.addDocumentListener(listener);
     }
     return field;
   }
