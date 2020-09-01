@@ -88,21 +88,20 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
       method.setAccessible(true);
       productName = (String) method.invoke(dataSource);
     } catch (Exception e) {
-      // ignore exception
+      productName = dataSource.getDelegate().getDatabaseProductName();
     }
-    switch (productName) {
-      case "PostgreSQL":
-        Holder.registerDatabaseDrivers(DatabaseDrivers.POSTGRE_SQL);
-        break;
-      case "MySQL":
-        Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
-        break;
-      default:
-        Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
-        Bus.notify(
-            new Notification("JpaSupport", "Info", "Find unknown driver vendor " + productName + ", reset to MySQL",
-                NotificationType.INFORMATION));
-        break;
+    if (StringUtils.isBlank(productName)) {
+      productName = dataSource.getName();
+    }
+    if (productName.startsWith("PostgreSQL")) {
+      Holder.registerDatabaseDrivers(DatabaseDrivers.POSTGRE_SQL);
+    } else if (productName.startsWith("MySQL")) {
+      Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
+    } else {
+      Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
+      Bus.notify(
+          new Notification("JpaSupport", "Info", "Find unknown driver vendor " + productName + ", reset to MySQL",
+              NotificationType.INFORMATION));
     }
   }
 }
