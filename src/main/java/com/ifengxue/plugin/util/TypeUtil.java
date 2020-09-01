@@ -1,6 +1,9 @@
 package com.ifengxue.plugin.util;
 
 import com.google.common.collect.Lists;
+import com.ifengxue.plugin.Constants;
+import com.ifengxue.plugin.i18n.LocaleContextHolder;
+import com.intellij.openapi.ui.Messages;
 import java.util.List;
 
 public final class TypeUtil {
@@ -37,6 +40,15 @@ public final class TypeUtil {
             java.time.LocalDateTime.class.getName(),
             java.time.ZonedDateTime.class.getName()
         );
+    }
+
+    public static Class<?> javaDbTypeToClassAndShowDialogOnError(String type) {
+        try {
+            return javaDbTypeToClass(type);
+        } catch (Exception e) {
+            Messages.showErrorDialog(LocaleContextHolder.format("invalid_type", type), Constants.PLUGIN_NAME);
+            return null;
+        }
     }
 
     public static Class<?> javaDbTypeToClass(String type) throws ClassNotFoundException {

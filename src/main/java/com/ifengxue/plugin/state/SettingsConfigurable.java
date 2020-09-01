@@ -3,9 +3,11 @@ package com.ifengxue.plugin.state;
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.component.Settings;
 import com.ifengxue.plugin.component.TemplateItem;
+import com.ifengxue.plugin.entity.TypeMapping;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
+import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.openapi.components.ServiceManager;
@@ -14,9 +16,16 @@ import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.ui.AnActionButton;
+import com.intellij.ui.AnActionButtonRunnable;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.awt.event.ItemEvent;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import lombok.Data;
 import org.jetbrains.annotations.Nls;
@@ -104,6 +113,33 @@ public class SettingsConfigurable implements SearchableConfigurable {
         settings.getTextFallbackType().setPreferredWidth(200);
         settings.getRadioBtnFallbackType().addItemListener(
             event -> settings.getTextFallbackType().setEnabled(event.getStateChange() == ItemEvent.SELECTED));
+
+        JBTable typeMappingTable = new JBTable();
+        new TableFactory().decorateTable(typeMappingTable, TypeMapping.class, Arrays.asList(
+            new TypeMapping().setJavaType(String.class).setDbColumnTypes("TEXT,VARCHAR"),
+            new TypeMapping().setJavaType(BigDecimal.class).setDbColumnTypes("DECIMAL")
+        ));
+        JPanel tablePanel = ToolbarDecorator.createDecorator(typeMappingTable)
+            .setAddAction(new AnActionButtonRunnable() {
+                @Override
+                public void run(AnActionButton anActionButton) {
+
+                }
+            })
+            .setEditAction(new AnActionButtonRunnable() {
+                @Override
+                public void run(AnActionButton anActionButton) {
+
+                }
+            })
+            .setRemoveAction(new AnActionButtonRunnable() {
+                @Override
+                public void run(AnActionButton anActionButton) {
+
+                }
+            })
+            .createPanel();
+        settings.getTypeMappingTablePane().add(tablePanel);
 
         // bind data
         settings.setData(settingsState);

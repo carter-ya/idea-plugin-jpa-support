@@ -31,6 +31,7 @@ public class Settings {
     private TextFieldWithAutoCompletion<String> textFallbackType;
     private JRadioButton radioBtnThrow;
     private JRadioButton radioBtnFallbackType;
+    private JPanel typeMappingTablePane;
 
     private void createUIComponents() {
         sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);
