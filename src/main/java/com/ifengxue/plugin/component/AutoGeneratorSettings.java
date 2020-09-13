@@ -1,14 +1,19 @@
 package com.ifengxue.plugin.component;
 
 import com.ifengxue.plugin.Holder;
+import com.ifengxue.plugin.state.AutoGeneratorModuleSettingsState;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
-import com.intellij.openapi.components.ServiceManager;
-import lombok.Getter;
-
-import javax.swing.*;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class AutoGeneratorSettings {
@@ -41,16 +46,13 @@ public class AutoGeneratorSettings {
   private JTextField textRepositorySuffix;
 
   private void createUIComponents() {
-    AutoGeneratorSettingsState service = ServiceManager
-        .getService(AutoGeneratorSettingsState.class);
-    entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(service.getEntityPackageName(),
+    entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
         Holder.getProject(), "", "Entity");
-    repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo(service.getRepositoryPackageName(),
-        Holder.getProject(), "",
+    repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(), "",
         "Repository");
   }
 
-  public void setData(AutoGeneratorSettingsState data) {
+  public void setData(AutoGeneratorSettingsState data, @Nullable AutoGeneratorModuleSettingsState moduleData) {
     textRemoveFieldPrefix.setText(data.getRemoveFieldPrefix());
     chkBoxUseLombok.setSelected(data.isUseLombok());
     chkBoxGenerateRepository.setSelected(data.isGenerateRepository());
@@ -64,18 +66,20 @@ public class AutoGeneratorSettings {
     textRemoveTablePrefix.setText(data.getRemoveEntityPrefix());
     textAddTableNamePrefix.setText(data.getAddEntityPrefix());
     textAddTableNameSuffix.setText(data.getAddEntitySuffix());
-    entityPackageReferenceEditorCombo.setText(data.getEntityPackageName());
-    repositoryPackageReferenceEditorCombo.setText(data.getRepositoryPackageName());
+    if (moduleData != null) {
+      entityPackageReferenceEditorCombo.setText(moduleData.getEntityPackageName());
+      repositoryPackageReferenceEditorCombo.setText(moduleData.getRepositoryPackageName());
+      textEntityPackageParentPath.setText(moduleData.getEntityParentDirectory());
+      textRepositoryPackageParentPath.setText(moduleData.getRepositoryParentDirectory());
+    }
     cbxModule.setSelectedItem(data.getModuleName());
-    textEntityPackageParentPath.setText(data.getEntityParentDirectory());
-    textRepositoryPackageParentPath.setText(data.getRepositoryParentDirectory());
     chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
     chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
     textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
-  public void getData(AutoGeneratorSettingsState data) {
+  public void getData(AutoGeneratorSettingsState data, AutoGeneratorModuleSettingsState moduleData) {
     data.setRemoveFieldPrefix(textRemoveFieldPrefix.getText());
     data.setUseLombok(chkBoxUseLombok.isSelected());
     data.setGenerateRepository(chkBoxGenerateRepository.isSelected());
@@ -89,11 +93,11 @@ public class AutoGeneratorSettings {
     data.setRemoveEntityPrefix(textRemoveTablePrefix.getText());
     data.setAddEntityPrefix(textAddTableNamePrefix.getText());
     data.setAddEntitySuffix(textAddTableNameSuffix.getText());
-    data.setEntityPackageName(entityPackageReferenceEditorCombo.getText());
-    data.setRepositoryPackageName(repositoryPackageReferenceEditorCombo.getText());
+    moduleData.setEntityPackageName(entityPackageReferenceEditorCombo.getText());
+    moduleData.setRepositoryPackageName(repositoryPackageReferenceEditorCombo.getText());
     data.setModuleName(Optional.ofNullable(cbxModule.getSelectedItem()).map(Object::toString).orElse(""));
-    data.setEntityParentDirectory(textEntityPackageParentPath.getText());
-    data.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
+    moduleData.setEntityParentDirectory(textEntityPackageParentPath.getText());
+    moduleData.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
     data.setGenerateDefaultValue(chkBoxGenerateDefaultValue.isSelected());
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
     data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());

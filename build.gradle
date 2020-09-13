@@ -20,7 +20,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'io.freefair.lombok'
 
 group 'com.ifengxue'
-version '2.0.1'
+version '2.0.4-EAP'
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8

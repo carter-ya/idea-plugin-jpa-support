@@ -5,11 +5,10 @@ import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import lombok.Data;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Data;
+import org.jetbrains.annotations.Nullable;
 
 @Data
 @State(name = "AutoGeneratorSettingsState", storages = {
@@ -49,24 +48,6 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 忽略的字段列表
    */
   private Set<String> ignoredFields = new HashSet<>();
-  /**
-   * 实体包名
-   */
-  private String entityPackageName = "";
-  /**
-   * 实体包parent路径<br>
-   * 如: /path/to/maven/module/src/main/java
-   */
-  private String entityParentDirectory = "";
-  /**
-   * repository包名
-   */
-  private String repositoryPackageName = "";
-  /**
-   * repository包名<br>
-   * 如:/path/to/maven/module/src/main/java
-   */
-  private String repositoryParentDirectory = "";
   /**
    * 是否使用Lombok<a href="https://projectlombok.org/">Lombok</a>
    */

@@ -7,6 +7,7 @@ import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
+import com.ifengxue.plugin.state.AutoGeneratorModuleSettingsState;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.util.BusUtil;
 import com.ifengxue.plugin.util.StringHelper;
@@ -16,6 +17,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -58,19 +60,23 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     init();
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 
-    initTextField(generatorSettings);
-
     // 选择模块
     Module[] modules = ModuleManager.getInstance(project).getModules();
+    Module selectedModule = null;
     for (Module module : modules) {
       generatorSettings.getCbxModule().addItem(module.getName());
       if (module.getName().equals(autoGeneratorSettingsState.getModuleName())) {
         generatorSettings.getCbxModule().setSelectedItem(module.getName());
+        selectedModule = module;
       }
     }
     if (generatorSettings.getCbxModule().getSelectedIndex() == -1) {
       generatorSettings.getCbxModule().setSelectedIndex(0);
+      selectedModule = modules[0];
     }
+
+    initTextField(generatorSettings, selectedModule);
+
     setPackagePath((String) generatorSettings.getCbxModule().getSelectedItem(), true);
     generatorSettings.getCbxModule().addItemListener(itemEvent -> {
       if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
@@ -149,22 +155,35 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
       return new ValidationInfo("Must set entity package",
           generatorSettings.getEntityPackageReferenceEditorCombo());
     }
-    if (generatorSettings.getChkBoxSerializable().isSelected() && generatorSettings
-        .getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
-      return new ValidationInfo("Must set repository package",
-          generatorSettings.getRepositoryPackageReferenceEditorCombo());
+    if (generatorSettings.getChkBoxGenerateRepository().isSelected()) {
+      if (generatorSettings.getChkBoxSerializable().isSelected() && generatorSettings
+          .getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set repository package",
+            generatorSettings.getRepositoryPackageReferenceEditorCombo());
+      }
+    }
+    Module module = ModuleManager.getInstance(Holder.getProject())
+        .findModuleByName(generatorSettings.getCbxModule().getName());
+    if (module == null) {
+      return new ValidationInfo("Must select valid module", generatorSettings.getCbxModule());
     }
     return null;
   }
 
   @Override
   protected void doOKAction() {
+    Module module = ModuleManager.getInstance(Holder.getProject())
+        .findModuleByName(generatorSettings.getCbxModule().getName());
+    assert module != null;
+    AutoGeneratorModuleSettingsState moduleSettingsState = ModuleServiceManager
+        .getService(module, AutoGeneratorModuleSettingsState.class);
+    assert moduleSettingsState != null;
     // 读取属性
-    generatorSettings.getData(autoGeneratorSettingsState);
+    generatorSettings.getData(autoGeneratorSettingsState, moduleSettingsState);
     //TODO 保留主键类型
     List<Table> tableList = new ArrayList<>(tableSchemaList.size());
-    String entityDirectory = Paths.get(autoGeneratorSettingsState.getEntityParentDirectory(),
-        StringHelper.packageNameToFolder(autoGeneratorSettingsState.getEntityPackageName()))
+    String entityDirectory = Paths.get(moduleSettingsState.getEntityParentDirectory(),
+        StringHelper.packageNameToFolder(moduleSettingsState.getEntityPackageName()))
         .toAbsolutePath().toString();
     VirtualFile entityDirectoryVF = LocalFileSystem.getInstance().findFileByPath(entityDirectory);
     for (TableSchema tableSchema : tableSchemaList) {
@@ -203,12 +222,14 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     return Constants.NAME + ":" + getClass().getName();
   }
 
-  private void initTextField(AutoGeneratorSettings settings) {
+  private void initTextField(AutoGeneratorSettings settings, Module selectedModule) {
     // 初始化取消，下一步按钮标题
     setOKButtonText(LocaleContextHolder.format("button_next_step"));
     setCancelButtonText(LocaleContextHolder.format("button_cancel"));
 
-    settings.setData(autoGeneratorSettingsState);
+    AutoGeneratorModuleSettingsState moduleSettingsState = ModuleServiceManager
+        .getService(selectedModule, AutoGeneratorModuleSettingsState.class);
+    settings.setData(autoGeneratorSettingsState, moduleSettingsState);
   }
 
   public static void show(List<TableSchema> tableSchemaList, Function<TableSchema, List<ColumnSchema>> mapping) {

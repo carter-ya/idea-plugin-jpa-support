@@ -49,6 +49,8 @@
     <applicationService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorSettingsState"/>
 
     <projectService serviceImplementation="com.ifengxue.plugin.state.DatabaseSettingsState"/>
+
+    <moduleService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorModuleSettingsState"/>
   </extensions>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
