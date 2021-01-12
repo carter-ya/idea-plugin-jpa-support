@@ -61,6 +61,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 
     // 选择模块
+    // TODO 仅1个module情况，包路径不正确
     Module[] modules = ModuleManager.getInstance(project).getModules();
     Module selectedModule = null;
     for (Module module : modules) {
