@@ -12,7 +12,7 @@ buildscript {
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.6.5'
-    id 'io.freefair.lombok' version '5.0.1'
+    id 'io.freefair.lombok' version '5.3.0'
 }
 
 apply plugin: 'java'
