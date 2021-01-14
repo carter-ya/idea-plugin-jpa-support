@@ -190,6 +190,10 @@ public class TableFactory {
             propertyHolders.get(columnIndex).setValue(rows.get(rowIndex), aValue);
         }
 
+        public List<T> getRows() {
+            return rows;
+        }
+
         public void removeRow(int rowIndex) {
             rows.remove(rowIndex);
             fireTableRowsDeleted(rowIndex, rowIndex);

@@ -10,6 +10,7 @@ import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.gui.table.TableFactory.MyTableModel;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
+import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -23,6 +24,7 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.awt.event.ItemEvent;
+import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -38,6 +40,8 @@ public class SettingsConfigurable implements SearchableConfigurable {
     private static final Logger log = Logger.getInstance(SettingsConfigurable.class);
     @Transient
     private Settings settings;
+    @Transient
+    private JBTable typeMappingTable;
     private SettingsState settingsState;
 
     @NotNull
@@ -113,7 +117,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
         settings.getRadioBtnFallbackType().addItemListener(
             event -> settings.getTextFallbackType().setEnabled(event.getStateChange() == ItemEvent.SELECTED));
 
-        JBTable typeMappingTable = new JBTable();
+        typeMappingTable = new JBTable();
         typeMappingTable.setAutoCreateRowSorter(true);
         if (settingsState.getDbTypeToJavaType() == null) {
             settingsState.resetTypeMapping();
@@ -170,8 +174,22 @@ public class SettingsConfigurable implements SearchableConfigurable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean isModified() {
-        return settings.isModified(settingsState);
+        if (settings.isModified(settingsState)) {
+            return true;
+        }
+        List<TypeMapping> rows = ((MyTableModel<TypeMapping>) typeMappingTable.getModel()).getRows();
+        if (rows.size() != settingsState.getDbTypeToJavaType().size()) {
+            return true;
+        }
+        for (TypeMapping row : rows) {
+            ClassWrapper classWrapper = settingsState.getDbTypeToJavaType().get(row.getDbColumnType());
+            if (classWrapper == null || classWrapper.getClazz() != row.getJavaType()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -179,7 +197,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
         try {
             settings.getData(settingsState);
         } catch (ClassNotFoundException e) {
-            //TODO show message
+            log.error("apply data error", e);
         }
     }
 
