@@ -15,7 +15,6 @@ public class ClassConverter extends Converter<Class<?>> {
         try {
             return StringUtils.isBlank(value) ? null : Class.forName(value);
         } catch (ClassNotFoundException e) {
-
             log.warn("Can't resolve class name " + value, e);
             return String.class;
         }

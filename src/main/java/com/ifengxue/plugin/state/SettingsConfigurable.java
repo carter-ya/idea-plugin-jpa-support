@@ -25,6 +25,7 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.awt.event.ItemEvent;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -131,20 +132,15 @@ public class SettingsConfigurable implements SearchableConfigurable {
 
                 }
             })
-            .setEditAction(new AnActionButtonRunnable() {
-                @Override
-                public void run(AnActionButton anActionButton) {
-
-                }
-            })
             .setRemoveAction(anActionButton -> {
                 int[] selectedRows = typeMappingTable.getSelectedRows();
                 if (selectedRows.length == 0) {
                     return;
                 }
-                for (int selectedRow : selectedRows) {
-                    String dbColumnType = (String) typeMappingTable.getValueAt(selectedRow, 0);
-                    ((MyTableModel<?>) typeMappingTable.getModel()).removeRow(selectedRow);
+                for (int index = selectedRows.length - 1; index >= 0; index--) {
+                    log.info("db type is " + typeMappingTable.getValueAt(selectedRows[index], 0));
+                    ((MyTableModel<?>) typeMappingTable.getModel())
+                        .removeRow(typeMappingTable.convertRowIndexToModel(selectedRows[index]));
                 }
                 typeMappingTable.updateUI();
             })
@@ -193,12 +189,16 @@ public class SettingsConfigurable implements SearchableConfigurable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void apply() {
         try {
             settings.getData(settingsState);
         } catch (ClassNotFoundException e) {
             log.error("apply data error", e);
         }
+        List<TypeMapping> rows = ((MyTableModel<TypeMapping>) typeMappingTable.getModel()).getRows();
+        settingsState.setDbTypeToJavaType(rows.stream()
+            .collect(Collectors.toMap(TypeMapping::getDbColumnType, tm -> new ClassWrapper(tm.getJavaType()))));
     }
 
 }

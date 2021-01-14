@@ -51,14 +51,7 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
     @Nullable
     @Override
     public SettingsState getState() {
-        SettingsState settingsState = new SettingsState();
-        settingsState.templateIdToTemplate = templateIdToTemplate;
-        settingsState.fallbackType = fallbackType;
-        settingsState.throwException = throwException;
-        settingsState.fallbackTypeClass = fallbackTypeClass;
-
-        dbTypeToJavaType = null;
-        return settingsState;
+        return this;
     }
 
     @Override
