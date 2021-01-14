@@ -145,14 +145,14 @@ public class TableFactory {
         }
     }
 
-    private static class MyTableModel<T> extends AbstractTableModel {
+    public static class MyTableModel<T> extends AbstractTableModel {
 
         private final List<PropertyHolder> propertyHolders;
         private final List<T> rows;
 
         private MyTableModel(List<PropertyHolder> propertyHolders, List<T> rows) {
-            this.propertyHolders = propertyHolders;
-            this.rows = rows;
+            this.propertyHolders = new ArrayList<>(propertyHolders);
+            this.rows = new ArrayList<>(rows);
         }
 
         @Override
@@ -188,6 +188,11 @@ public class TableFactory {
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             propertyHolders.get(columnIndex).setValue(rows.get(rowIndex), aValue);
+        }
+
+        public void removeRow(int rowIndex) {
+            rows.remove(rowIndex);
+            fireTableRowsDeleted(rowIndex, rowIndex);
         }
     }
 }

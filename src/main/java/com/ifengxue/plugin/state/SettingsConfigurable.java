@@ -8,6 +8,7 @@ import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
 import com.ifengxue.plugin.gui.table.TableFactory;
+import com.ifengxue.plugin.gui.table.TableFactory.MyTableModel;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.openapi.components.ServiceManager;
@@ -22,8 +23,6 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.awt.event.ItemEvent;
-import java.math.BigDecimal;
-import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -115,10 +114,12 @@ public class SettingsConfigurable implements SearchableConfigurable {
             event -> settings.getTextFallbackType().setEnabled(event.getStateChange() == ItemEvent.SELECTED));
 
         JBTable typeMappingTable = new JBTable();
-        new TableFactory().decorateTable(typeMappingTable, TypeMapping.class, Arrays.asList(
-            new TypeMapping().setJavaType(String.class).setDbColumnTypes("TEXT,VARCHAR"),
-            new TypeMapping().setJavaType(BigDecimal.class).setDbColumnTypes("DECIMAL")
-        ));
+        typeMappingTable.setAutoCreateRowSorter(true);
+        if (settingsState.getDbTypeToJavaType() == null) {
+            settingsState.resetTypeMapping();
+        }
+        new TableFactory().decorateTable(typeMappingTable, TypeMapping.class,
+            TypeMapping.from(settingsState.getDbTypeToJavaType()));
         JPanel tablePanel = ToolbarDecorator.createDecorator(typeMappingTable)
             .setAddAction(new AnActionButtonRunnable() {
                 @Override
@@ -132,11 +133,16 @@ public class SettingsConfigurable implements SearchableConfigurable {
 
                 }
             })
-            .setRemoveAction(new AnActionButtonRunnable() {
-                @Override
-                public void run(AnActionButton anActionButton) {
-
+            .setRemoveAction(anActionButton -> {
+                int[] selectedRows = typeMappingTable.getSelectedRows();
+                if (selectedRows.length == 0) {
+                    return;
                 }
+                for (int selectedRow : selectedRows) {
+                    String dbColumnType = (String) typeMappingTable.getValueAt(selectedRow, 0);
+                    ((MyTableModel<?>) typeMappingTable.getModel()).removeRow(selectedRow);
+                }
+                typeMappingTable.updateUI();
             })
             .createPanel();
         settings.getTypeMappingTablePane().add(tablePanel);
