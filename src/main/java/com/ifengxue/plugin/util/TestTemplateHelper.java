@@ -1,6 +1,5 @@
 package com.ifengxue.plugin.util;
 
-import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
@@ -121,7 +120,7 @@ public enum TestTemplateHelper {
                 ))
                 .setSelected(true);
             table.getColumns().forEach(column -> ColumnUtil
-                .parseColumn(DatabaseDrivers.MYSQL.getDriverAdapter(), column, settingsState.getRemoveFieldPrefix(),
+                .parseColumn(column, settingsState.getRemoveFieldPrefix(),
                     true, settingsState.isUseJava8DateType()));
             return sourceParser.parse(config, table, template);
         } catch (Exception ex) {

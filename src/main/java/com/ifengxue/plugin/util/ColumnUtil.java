@@ -1,6 +1,5 @@
 package com.ifengxue.plugin.util;
 
-import com.ifengxue.plugin.adapter.DriverAdapter;
 import com.ifengxue.plugin.entity.Column;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -10,11 +9,11 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class ColumnUtil {
-  public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper,
+  public static void parseColumn(Column column, String removePrefix, boolean useWrapper,
       boolean useJava8DateType) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
-    Class<?> javaDataType = StringHelper
-        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
+    Class<?> javaDataType = StringHelper.parseJavaDataType(
+        column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
     if ((javaDataType == Integer.class || javaDataType == int.class)
         && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
       if (useWrapper) {

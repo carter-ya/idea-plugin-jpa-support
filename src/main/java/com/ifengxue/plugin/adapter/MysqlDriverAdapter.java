@@ -58,7 +58,7 @@ public class MysqlDriverAdapter extends AbstractDriverAdapter {
     column.setAutoIncrement(columnSchema.getExtra().contains("auto_increment"));
     column.setColumnComment(columnSchema.getColumnComment());
     column.setDefaultValue(columnSchema.getColumnDefault());
-    ColumnUtil.parseColumn(this, column, removeFieldPrefix, useWrapper, useJava8DateType);
+    ColumnUtil.parseColumn(column, removeFieldPrefix, useWrapper, useJava8DateType);
     return column;
   }
 }
