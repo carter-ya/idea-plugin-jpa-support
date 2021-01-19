@@ -147,6 +147,7 @@ public class TableFactory {
 
     public static class MyTableModel<T> extends AbstractTableModel {
 
+        private static final long serialVersionUID = -695323907031155562L;
         private final List<PropertyHolder> propertyHolders;
         private final List<T> rows;
 
@@ -190,13 +191,35 @@ public class TableFactory {
             propertyHolders.get(columnIndex).setValue(rows.get(rowIndex), aValue);
         }
 
+        public T getRow(int rowIndex) {
+            return rows.get(rowIndex);
+        }
+
         public List<T> getRows() {
             return rows;
+        }
+
+        public void resetRows(List<T> newRows) {
+            int oldSize = rows.size();
+            rows.clear();
+            fireTableRowsDeleted(0, oldSize - 1);
+            rows.addAll(newRows);
+            fireTableRowsInserted(0, newRows.size() - 1);
+        }
+
+        public void addRow(T value) {
+            rows.add(value);
+            fireTableRowsInserted(rows.size() - 1, rows.size() - 1);
         }
 
         public void removeRow(int rowIndex) {
             rows.remove(rowIndex);
             fireTableRowsDeleted(rowIndex, rowIndex);
+        }
+
+        public void updateRow(T newValue, int rowIndex) {
+            rows.set(rowIndex, newValue);
+            fireTableRowsUpdated(rowIndex, rowIndex);
         }
     }
 }

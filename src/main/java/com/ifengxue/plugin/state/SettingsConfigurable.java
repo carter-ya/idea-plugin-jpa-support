@@ -7,6 +7,7 @@ import com.ifengxue.plugin.entity.TypeMapping;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
+import com.ifengxue.plugin.gui.TypeEditorDialog;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.gui.table.TableFactory.MyTableModel;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
@@ -14,18 +15,17 @@ import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.ui.AnActionButton;
-import com.intellij.ui.AnActionButtonRunnable;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -58,6 +58,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void reset() {
         settingsState = ServiceManager.getService(SettingsState.class);
 
@@ -104,9 +105,9 @@ public class SettingsConfigurable implements SearchableConfigurable {
                 settings.getTxtSourceCode().getText()));
             dialog.show();
         });
-        settings.getTxtSourceCode().addDocumentListener(new DocumentAdapter() {
+        settings.getTxtSourceCode().addDocumentListener(new DocumentListener() {
             @Override
-            public void documentChanged(DocumentEvent e) {
+            public void documentChanged(@Nonnull DocumentEvent e) {
                 TemplateItem item = settings.getCbxSelectCodeTemplate()
                     .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex());
                 item.setTemplate(e.getDocument().getText());
@@ -118,34 +119,54 @@ public class SettingsConfigurable implements SearchableConfigurable {
         settings.getRadioBtnFallbackType().addItemListener(
             event -> settings.getTextFallbackType().setEnabled(event.getStateChange() == ItemEvent.SELECTED));
 
-        typeMappingTable = new JBTable();
-        typeMappingTable.setAutoCreateRowSorter(true);
         if (settingsState.getDbTypeToJavaType() == null) {
             settingsState.resetTypeMapping();
         }
-        new TableFactory().decorateTable(typeMappingTable, TypeMapping.class,
-            TypeMapping.from(settingsState.getDbTypeToJavaType()));
-        JPanel tablePanel = ToolbarDecorator.createDecorator(typeMappingTable)
-            .setAddAction(new AnActionButtonRunnable() {
-                @Override
-                public void run(AnActionButton anActionButton) {
+        if (typeMappingTable == null) {
+            typeMappingTable = new JBTable();
+            typeMappingTable.setAutoCreateRowSorter(true);
 
-                }
-            })
-            .setRemoveAction(anActionButton -> {
-                int[] selectedRows = typeMappingTable.getSelectedRows();
-                if (selectedRows.length == 0) {
-                    return;
-                }
-                for (int index = selectedRows.length - 1; index >= 0; index--) {
-                    log.info("db type is " + typeMappingTable.getValueAt(selectedRows[index], 0));
-                    ((MyTableModel<?>) typeMappingTable.getModel())
-                        .removeRow(typeMappingTable.convertRowIndexToModel(selectedRows[index]));
-                }
-                typeMappingTable.updateUI();
-            })
-            .createPanel();
-        settings.getTypeMappingTablePane().add(tablePanel);
+            new TableFactory().decorateTable(typeMappingTable, TypeMapping.class,
+                TypeMapping.from(settingsState.getDbTypeToJavaType()));
+            MyTableModel<TypeMapping> tableModel = (MyTableModel<TypeMapping>) typeMappingTable.getModel();
+            JPanel tablePanel = ToolbarDecorator.createDecorator(typeMappingTable)
+                .setAddAction(anActionButton -> {
+                    TypeEditorDialog dialog = new TypeEditorDialog(null, null, tableModel.getRows());
+                    if (dialog.showAndGet()) {
+                        tableModel.addRow(new TypeMapping()
+                            .setDbColumnType(dialog.getDbType())
+                            .setJavaType(dialog.getJavaType()));
+                    }
+                })
+                .setEditAction(anActionButton -> {
+                    int selectedRow = typeMappingTable.getSelectedRow();
+                    int realRowIndex = typeMappingTable.convertRowIndexToModel(selectedRow);
+                    TypeMapping typeMapping = tableModel.getRow(realRowIndex);
+                    TypeEditorDialog dialog = new TypeEditorDialog(null, typeMapping, tableModel.getRows());
+                    if (dialog.showAndGet()) {
+                        tableModel.updateRow(new TypeMapping()
+                            .setDbColumnType(dialog.getDbType())
+                            .setJavaType(dialog.getJavaType()), realRowIndex);
+                    }
+                })
+                .setRemoveAction(anActionButton -> {
+                    int[] selectedRows = typeMappingTable.getSelectedRows();
+                    if (selectedRows.length == 0) {
+                        return;
+                    }
+                    for (int index = selectedRows.length - 1; index >= 0; index--) {
+                        log.info("db type is " + typeMappingTable.getValueAt(selectedRows[index], 0));
+                        (tableModel)
+                            .removeRow(typeMappingTable.convertRowIndexToModel(selectedRows[index]));
+                    }
+                    typeMappingTable.updateUI();
+                })
+                .createPanel();
+            settings.getTypeMappingTablePane().add(tablePanel);
+        } else {
+            ((MyTableModel<TypeMapping>) typeMappingTable.getModel())
+                .resetRows(TypeMapping.from(settingsState.getDbTypeToJavaType()));
+        }
 
         // bind data
         settings.setData(settingsState);

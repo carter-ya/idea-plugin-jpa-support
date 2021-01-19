@@ -19,11 +19,11 @@ import lombok.experimental.Accessors;
 public class TypeMapping {
 
     @TableProperty(name = "DB Column Type", index = 1)
-    @TableEditable
+    @TableEditable(editable = false)
     private String dbColumnType;
 
     @TableProperty(name = "Java Type", columnClass = String.class, index = 100)
-    @TableEditable(editorProvider = JavaDataTypeEditorProvider.class, propertyEditorProvider = ClassNamePropertyEditor.class)
+    @TableEditable(editable = false, editorProvider = JavaDataTypeEditorProvider.class, propertyEditorProvider = ClassNamePropertyEditor.class)
     @TableWidth(minWidth = 60)
     private Class<?> javaType;
 
