@@ -10,6 +10,7 @@ import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TextFieldWithAutoCompletion;
 import java.util.Objects;
+import java.util.Optional;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -35,7 +36,8 @@ public class Settings {
 
     private void createUIComponents() {
         sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);
-        Language velocityLanguage = Objects.requireNonNull(Language.findLanguageByID("VTL"));
+        Language velocityLanguage = Optional.ofNullable(Language.findLanguageByID("VTL"))
+            .orElse(Language.ANY);
         Project defaultProject = ProjectManager.getInstance().getDefaultProject();
         txtSourceCode = new LanguageTextField(velocityLanguage,
             defaultProject, "",
