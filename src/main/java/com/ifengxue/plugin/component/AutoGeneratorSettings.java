@@ -1,8 +1,8 @@
 package com.ifengxue.plugin.component;
 
 import com.ifengxue.plugin.Holder;
-import com.ifengxue.plugin.state.AutoGeneratorModuleSettingsState;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.state.ModuleSettings;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,7 +52,7 @@ public class AutoGeneratorSettings {
         "Repository");
   }
 
-  public void setData(AutoGeneratorSettingsState data, @Nullable AutoGeneratorModuleSettingsState moduleData) {
+  public void setData(AutoGeneratorSettingsState data, @Nullable ModuleSettings moduleSettings) {
     textRemoveFieldPrefix.setText(data.getRemoveFieldPrefix());
     chkBoxUseLombok.setSelected(data.isUseLombok());
     chkBoxGenerateRepository.setSelected(data.isGenerateRepository());
@@ -66,20 +66,19 @@ public class AutoGeneratorSettings {
     textRemoveTablePrefix.setText(data.getRemoveEntityPrefix());
     textAddTableNamePrefix.setText(data.getAddEntityPrefix());
     textAddTableNameSuffix.setText(data.getAddEntitySuffix());
-    if (moduleData != null) {
-      entityPackageReferenceEditorCombo.setText(moduleData.getEntityPackageName());
-      repositoryPackageReferenceEditorCombo.setText(moduleData.getRepositoryPackageName());
-      textEntityPackageParentPath.setText(moduleData.getEntityParentDirectory());
-      textRepositoryPackageParentPath.setText(moduleData.getRepositoryParentDirectory());
+    if (moduleSettings != null) {
+      entityPackageReferenceEditorCombo.setText(moduleSettings.getEntityPackageName());
+      repositoryPackageReferenceEditorCombo.setText(moduleSettings.getRepositoryPackageName());
+      textEntityPackageParentPath.setText(moduleSettings.getEntityParentDirectory());
+      textRepositoryPackageParentPath.setText(moduleSettings.getRepositoryParentDirectory());
     }
-    cbxModule.setSelectedItem(data.getModuleName());
     chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
     chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
     textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
-  public void getData(AutoGeneratorSettingsState data, AutoGeneratorModuleSettingsState moduleData) {
+  public void getData(AutoGeneratorSettingsState data, ModuleSettings moduleData) {
     data.setRemoveFieldPrefix(textRemoveFieldPrefix.getText());
     data.setUseLombok(chkBoxUseLombok.isSelected());
     data.setGenerateRepository(chkBoxGenerateRepository.isSelected());

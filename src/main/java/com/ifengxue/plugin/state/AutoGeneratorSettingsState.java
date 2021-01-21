@@ -5,14 +5,17 @@ import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 @Data
 @State(name = "AutoGeneratorSettingsState", storages = {
-    @Storage(value = StateConstants.APPLICATION_STATE_NAME, roamingType = RoamingType.PER_OS),
+    @Storage(value = StateConstants.PROJECT_STATE_NAME, roamingType = RoamingType.PER_OS),
 })
 public class AutoGeneratorSettingsState implements PersistentStateComponent<AutoGeneratorSettingsState> {
 
@@ -36,6 +39,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 模块名称
    */
   private String moduleName = "";
+  /**
+   * 模块名称，模块配置
+   */
+  private Map<String, ModuleSettings> moduleNameToSettings;
   /**
    * 被移除的字段前缀
    */
@@ -111,5 +118,19 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
 
   public String concatPrefixAndSuffix(String entityName) {
     return addEntityPrefix + entityName + addEntitySuffix;
+  }
+
+  public ModuleSettings getModuleSettings() {
+    if (StringUtils.isBlank(moduleName)) {
+      throw new IllegalStateException("module name can't be empty");
+    }
+    return getModuleSettings(moduleName);
+  }
+
+  public ModuleSettings getModuleSettings(String moduleName) {
+    if (moduleNameToSettings == null) {
+      moduleNameToSettings = new HashMap<>();
+    }
+    return moduleNameToSettings.computeIfAbsent(moduleName, key -> new ModuleSettings());
   }
 }

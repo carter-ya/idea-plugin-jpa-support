@@ -17,8 +17,8 @@ import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
-import com.ifengxue.plugin.state.AutoGeneratorModuleSettingsState;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.state.ModuleSettings;
 import com.ifengxue.plugin.util.FileUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
@@ -32,9 +32,6 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.ModuleServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
@@ -187,7 +184,8 @@ public class SelectTablesDialog extends DialogWrapper {
    * find columns
    */
   private List<Column> findColumns(Table table) {
-    AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
+    AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
+        .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
     List<ColumnSchema> columnSchemas = mapping.apply(table.getRawTableSchema());
     if (columnSchemas == null) {
       return Collections.emptyList();
@@ -258,16 +256,11 @@ public class SelectTablesDialog extends DialogWrapper {
       sourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
 
       AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
-          .getService(AutoGeneratorSettingsState.class);
-      assert project != null;
-      Module module = ModuleManager.getInstance(project)
-          .findModuleByName(autoGeneratorSettingsState.getModuleName());
-      assert module != null;
-      AutoGeneratorModuleSettingsState moduleSettingsState = ModuleServiceManager
-          .getService(module, AutoGeneratorModuleSettingsState.class);
+          .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+      ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings();
       // 生成数量
       for (Table table : tableList) {
-        table.setPackageName(moduleSettingsState.getEntityPackageName());
+        table.setPackageName(moduleSettings.getEntityPackageName());
         if (table.getColumns() == null) {
           table.setColumns(findColumns(table));
         }
@@ -277,13 +270,13 @@ public class SelectTablesDialog extends DialogWrapper {
         generatorConfig.setDriverConfig(new DriverConfig()
             .setVendor(Holder.getDatabaseDrivers().getVendor2()));
         int lastIndex;
-        String basePackageName = moduleSettingsState.getEntityPackageName();
+        String basePackageName = moduleSettings.getEntityPackageName();
         if ((lastIndex = basePackageName.lastIndexOf('.')) != -1) {
           basePackageName = basePackageName.substring(0, lastIndex);
         }
         generatorConfig.setTablesConfig(new TablesConfig()
             .setBasePackageName(basePackageName)
-            .setEntityPackageName(moduleSettingsState.getEntityPackageName())
+            .setEntityPackageName(moduleSettings.getEntityPackageName())
             .setEnumSubPackageName(basePackageName + ".enums")
             .setIndent(getIndent())
             .setLineSeparator(getLineSeparator())
@@ -291,7 +284,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setExtendsEntityName(autoGeneratorSettingsState.getInheritedParentClassName())
             .setRemoveTablePrefix(autoGeneratorSettingsState.getRemoveEntityPrefix())
             .setRemoveFieldPrefix(autoGeneratorSettingsState.getRemoveFieldPrefix())
-            .setRepositoryPackageName(moduleSettingsState.getRepositoryPackageName())
+            .setRepositoryPackageName(moduleSettings.getRepositoryPackageName())
             .setSerializable(autoGeneratorSettingsState.isSerializable())
             .setUseClassComment(autoGeneratorSettingsState.isGenerateClassComment())
             .setUseFieldComment(autoGeneratorSettingsState.isGenerateFieldComment())
@@ -311,13 +304,13 @@ public class SelectTablesDialog extends DialogWrapper {
           String fileExtension = ".java";
           String filename = table.getEntityName() + fileExtension;
           try {
-            writeContent(project, filename, moduleSettingsState.getEntityParentDirectory(),
-                moduleSettingsState.getEntityPackageName(), sourceCode);
+            writeContent(project, filename, moduleSettings.getEntityParentDirectory(),
+                moduleSettings.getEntityPackageName(), sourceCode);
             if (autoGeneratorSettingsState.isGenerateRepository()) {
               filename = table.getRepositoryName() + fileExtension;
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-              writeContent(project, filename, moduleSettingsState.getRepositoryParentDirectory(),
-                  moduleSettingsState.getRepositoryPackageName(),
+              writeContent(project, filename, moduleSettings.getRepositoryParentDirectory(),
+                  moduleSettings.getRepositoryPackageName(),
                   repositorySourceCode);
             }
           } catch (Exception e) {

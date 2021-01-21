@@ -43,14 +43,12 @@
   <!--  <idea-version since-build="171" until-build="191.*"/>-->
   <extensions defaultExtensionNs="com.intellij">
     <applicationConfigurable parentId="tools" instance="com.ifengxue.plugin.state.SettingsConfigurable"
-      id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="Jpa Support"/>
+        id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="Jpa Support"/>
 
     <applicationService serviceImplementation="com.ifengxue.plugin.state.SettingsState"/>
-    <applicationService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorSettingsState"/>
 
+    <projectService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorSettingsState"/>
     <projectService serviceImplementation="com.ifengxue.plugin.state.DatabaseSettingsState"/>
-
-    <moduleService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorModuleSettingsState"/>
   </extensions>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html

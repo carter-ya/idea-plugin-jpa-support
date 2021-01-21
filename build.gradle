@@ -50,6 +50,10 @@ intellij {
     plugins = ['java']
 }
 
+runIde {
+    systemProperty('idea.auto.reload.plugins', true)
+}
+
 patchPluginXml {
     version '2.0.4-EAP'
     changeNotes """

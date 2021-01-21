@@ -4,9 +4,11 @@ import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import fastjdbc.FastJdbc;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Holder {
 
@@ -24,6 +26,11 @@ public class Holder {
 
   public static synchronized Project getProject() {
     return project;
+  }
+
+  public static synchronized Project getOrDefaultProject() {
+    return Optional.ofNullable(getProject())
+        .orElseGet(() -> ProjectManager.getInstance().getDefaultProject());
   }
 
   public static synchronized void registerEvent(AnActionEvent event) {

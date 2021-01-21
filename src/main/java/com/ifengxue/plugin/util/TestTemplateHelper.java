@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.util;
 
+import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
@@ -21,7 +22,8 @@ public enum TestTemplateHelper {
     ;
 
     public static Object evaluate(Class<? extends AbstractSourceParser> clazz, String template) {
-        AutoGeneratorSettingsState settingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
+        AutoGeneratorSettingsState settingsState = ServiceManager.getService(
+            Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
         GeneratorConfig config = new GeneratorConfig();
         config.setDriverConfig(new DriverConfig()
             .setVendor(Vendor.MYSQL))
