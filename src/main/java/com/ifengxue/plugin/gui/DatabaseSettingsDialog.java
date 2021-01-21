@@ -1,7 +1,5 @@
 package com.ifengxue.plugin.gui;
 
-import static org.apache.commons.lang3.StringUtils.trim;
-
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.action.JpaSupport;
@@ -39,6 +37,13 @@ import com.intellij.util.lang.UrlClassLoader;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -49,19 +54,10 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static org.apache.commons.lang3.StringUtils.trim;
 
 public class DatabaseSettingsDialog extends DialogWrapper {
 
@@ -181,11 +177,14 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         FastJdbc fastJdbc = new SimpleFastJdbc(new NoPoolDataSource(connectionUrl, username, password));
         Holder.registerFastJdbc(fastJdbc);
       } catch (SQLException se) {
-        ApplicationManager.getApplication().invokeLater(() -> Bus
-            .notify(new Notification(Constants.GROUP_ID, "Error",
-                LocaleContextHolder.format("connect_to_database_failed",
-                    se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR)));
-        log.error("connect to database failed", se);
+        ApplicationManager.getApplication().invokeLater(() -> {
+          Bus.notify(new Notification(Constants.GROUP_ID, "Error",
+              LocaleContextHolder.format("connect_to_database_failed",
+                  se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR));
+          Messages.showErrorDialog(LocaleContextHolder.format("connect_to_database_failed",
+              se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), Constants.NAME);
+        });
+        log.warn("connect to database failed", se);
         return;
       }
 
