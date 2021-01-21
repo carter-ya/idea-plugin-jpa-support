@@ -109,9 +109,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     return databaseSettings.getRootComponent();
   }
 
-  @NotNull
   @Override
-  protected Action[] createActions() {
+  protected Action @NotNull [] createActions() {
     return new Action[]{getOKAction(), getCancelAction()};
   }
 
@@ -126,9 +125,6 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     }
     if (databaseSettings.getTextUsername().getText().trim().isEmpty()) {
       return new ValidationInfo("Must set username", databaseSettings.getTextUsername());
-    }
-    if (databaseSettings.getTextPassword().getPassword().length == 0) {
-      return new ValidationInfo("Must set password", databaseSettings.getTextPassword());
     }
     if (databaseSettings.getTextDatabase().getText().trim().isEmpty()) {
       return new ValidationInfo("Must set database", databaseSettings.getTextDatabase());
@@ -175,18 +171,18 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         }
       } catch (ReflectiveOperationException | SQLException e1) {
         ApplicationManager.getApplication().invokeLater(() -> Bus
-            .notify(new Notification("JpaSupport", "Error",
+            .notify(new Notification(Constants.GROUP_ID, "Error",
                 LocaleContextHolder.format("database_not_exists", Holder.getDatabaseDrivers().getDriverClass()),
                 NotificationType.ERROR)));
         return;
       }
       // 尝试获取连接
-      try (Connection connection = DriverManager.getConnection(connectionUrl, username, password)) {
+      try (Connection ignored = DriverManager.getConnection(connectionUrl, username, password)) {
         FastJdbc fastJdbc = new SimpleFastJdbc(new NoPoolDataSource(connectionUrl, username, password));
         Holder.registerFastJdbc(fastJdbc);
       } catch (SQLException se) {
         ApplicationManager.getApplication().invokeLater(() -> Bus
-            .notify(new Notification("JpaSupport", "Error",
+            .notify(new Notification(Constants.GROUP_ID, "Error",
                 LocaleContextHolder.format("connect_to_database_failed",
                     se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR)));
         log.error("connect to database failed", se);
@@ -206,7 +202,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
             } catch (SQLException se) {
               log.error("read table " + tableSchema.getTableName() + " schema failed", se);
               ApplicationManager.getApplication()
-                  .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
+                  .invokeLater(() -> Bus.notify(new Notification(Constants.GROUP_ID, "Error",
                       se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
                       NotificationType.ERROR)));
               return null;
@@ -218,7 +214,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
             + "\nSQL error state: " + se.getSQLState() + "\n"
             + "Error message: " + se.getLocalizedMessage();
         ApplicationManager.getApplication()
-            .invokeLater(() -> Bus.notify(new Notification("JpaSupport", "Error",
+            .invokeLater(() -> Bus.notify(new Notification(Constants.GROUP_ID, "Error",
                 sb, NotificationType.ERROR)));
       }
     });
@@ -260,14 +256,14 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     } catch (MalformedURLException ex) {
       log.error("url not valid " + databaseDrivers.getDriverClass(), ex);
       ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-          new Notification("JpaSupport", "Error",
+          new Notification(Constants.GROUP_ID, "Error",
               "url not valid " + databaseDrivers.getDriverClass(),
               NotificationType.ERROR)
       ));
     } catch (ReflectiveOperationException | SQLException ex) {
       log.error("driver class not found", ex);
       ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-          new Notification("JpaSupport", "Error",
+          new Notification(Constants.GROUP_ID, "Error",
               "driver class not found: " + databaseDrivers.getDriverClass(), NotificationType.ERROR)
       ));
     }
@@ -350,7 +346,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       } catch (MalformedURLException e) {
         log.error("url not valid " + databaseDrivers.getDriverClass(), e);
         ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-            new Notification("JpaSupport", "Error",
+            new Notification(Constants.GROUP_ID, "Error",
                 "url not valid " + databaseDrivers.getDriverClass(),
                 NotificationType.ERROR)));
       }
@@ -418,7 +414,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
               jarFile.delete(this);
             } catch (IOException e) {
               ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-                  new Notification("JpaSupport", "Error",
+                  new Notification(Constants.GROUP_ID, "Error",
                       "delete invalid file error: " + e.getLocalizedMessage(),
                       NotificationType.ERROR)));
             }
@@ -442,7 +438,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
             } catch (IOException e) {
               log.error("copy file error, file path " + databaseDrivers.getUrl(), e);
               ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-                  new Notification("JpaSupport", "Error",
+                  new Notification(Constants.GROUP_ID, "Error",
                       "copy file error, file path " + databaseDrivers.getJarFilename(),
                       NotificationType.ERROR)));
               return;
@@ -451,7 +447,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
           String downloadUrl = LocaleContextHolder.format(databaseDrivers.getUrl());
           ApplicationManager.getApplication().invokeLater(
               () -> Bus.notify(new Notification(
-                  "JpaSupport", "Download drivers", "Download drivers from " + downloadUrl,
+                  Constants.GROUP_ID, "Download drivers", "Download drivers from " + downloadUrl,
                   NotificationType.INFORMATION)));
           DownloadableFileService downloadableFileService = DownloadableFileService.getInstance();
           DownloadableFileDescription downloadableFileDescription = downloadableFileService
@@ -469,7 +465,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
           } catch (IOException e1) {
             log.error("rename driver error", e1);
             ApplicationManager.getApplication().invokeLater(() -> Bus.notify(
-                new Notification("JpaSupport", "Error", "rename driver error " + databaseDrivers.getJarFilename(),
+                new Notification(Constants.GROUP_ID, "Error", "rename driver error " + databaseDrivers.getJarFilename(),
                     NotificationType.ERROR))
             );
             return;
