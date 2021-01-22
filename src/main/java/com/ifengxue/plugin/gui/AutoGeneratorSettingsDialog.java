@@ -26,22 +26,16 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
-import java.awt.event.ItemEvent;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import javax.swing.Action;
-import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.function.Function;
 
 public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
@@ -51,7 +45,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
   protected AutoGeneratorSettingsDialog(Project project, List<TableSchema> tableSchemaList,
-      Function<TableSchema, List<ColumnSchema>> mapping) {
+                                        Function<TableSchema, List<ColumnSchema>> mapping) {
     super(project, true);
     generatorSettings = new AutoGeneratorSettings();
 
@@ -76,8 +70,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     }
 
     initTextField();
-    moduleChange(selectedModule);
     setPackagePath(selectedModule, true);
+    moduleChange(selectedModule);
 
     generatorSettings.getCbxModule().addItemListener(itemEvent -> {
       if (itemEvent.getStateChange() != ItemEvent.SELECTED) {

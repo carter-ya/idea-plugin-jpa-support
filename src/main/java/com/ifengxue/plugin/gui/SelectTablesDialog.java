@@ -394,22 +394,32 @@ public class SelectTablesDialog extends DialogWrapper {
           psiFile = originalFile;
         } else {
           psiFile = psiFileFactory.createFileFromText(filename, JavaFileType.INSTANCE, sourceCode);
-          psiDirectory.add(psiFile);
         }
+
         Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
         if (document != null) {
           PsiDocumentManager.getInstance(project).commitDocument(document);
         }
-        JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(project);
-        try {
-          javaCodeStyleManager.optimizeImports(psiFile);
-        } catch (Exception e) {
-          log.error("optimize imports error", e);
-        }
+
         try {
           CodeStyleManager.getInstance(project).reformat(psiFile);
         } catch (Exception e) {
           log.error("reformat source code error", e);
+        }
+
+        JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(project);
+        try {
+          javaCodeStyleManager.optimizeImports(psiFile);
+          javaCodeStyleManager.shortenClassReferences(psiFile);
+        } catch (Exception e) {
+          log.error("optimize imports error", e);
+        }
+
+        if (document != null) {
+          PsiDocumentManager.getInstance(project).commitDocument(document);
+        } else {
+          // The new file needs to be saved last, otherwise the formatting will not take effect
+          psiDirectory.add(psiFile);
         }
       }
     }
