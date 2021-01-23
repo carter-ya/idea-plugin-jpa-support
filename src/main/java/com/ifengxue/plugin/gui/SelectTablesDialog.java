@@ -25,6 +25,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -258,8 +259,10 @@ public class SelectTablesDialog extends DialogWrapper {
             Paths.get(moduleSettings.getRepositoryParentDirectory(),
                 StringHelper.packageNameToFolder(moduleSettings.getRepositoryPackageName())));
       }
-      Map<String, Boolean> filenameToOverride = awaitFilenameToOverride(autoGeneratorSettingsState,
+      Map<String, Boolean> filenameToOverwrite = awaitFilenameToOverwrite(autoGeneratorSettingsState,
           entityDirectory, repositoryDirectory);
+
+      AtomicInteger leftGenerateCount = new AtomicInteger(tableList.size());
       for (Table table : tableList) {
         table.setPackageName(moduleSettings.getEntityPackageName());
         if (table.getColumns() == null) {
@@ -305,25 +308,28 @@ public class SelectTablesDialog extends DialogWrapper {
           try {
             writeContent(project, filename, moduleSettings.getEntityParentDirectory(),
                 moduleSettings.getEntityPackageName(), sourceCode,
-                filenameToOverride.get(filename));
+                filenameToOverwrite.get(filename));
             if (autoGeneratorSettingsState.isGenerateRepository()) {
               filename = table.getRepositoryName() + fileExtension;
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
               writeContent(project, filename, moduleSettings.getRepositoryParentDirectory(),
                   moduleSettings.getRepositoryPackageName(),
-                  repositorySourceCode, filenameToOverride.get(filename));
+                  repositorySourceCode, filenameToOverwrite.get(filename));
             }
           } catch (Exception e) {
-            Bus.notify(
-                new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e, NotificationType.ERROR),
-                project);
+            Bus.notify(new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e, NotificationType.ERROR), project);
+          } finally {
+            if (leftGenerateCount.decrementAndGet() == 0) {
+              ApplicationManager.getApplication().invokeLater(
+                  () -> Messages.showInfoMessage(LocaleContextHolder.format("generate_source_code_success"), Constants.NAME));
+            }
           }
         });
       }
     }
 
-    private Map<String, Boolean> awaitFilenameToOverride(AutoGeneratorSettingsState settingsState,
-                                                         PsiDirectory entityDirectory, PsiDirectory repositoryDirectory) {
+    private Map<String, Boolean> awaitFilenameToOverwrite(AutoGeneratorSettingsState settingsState,
+                                                          PsiDirectory entityDirectory, PsiDirectory repositoryDirectory) {
       Map<String, Boolean> filenameToOverwrite = new HashMap<>();
       String[] filenames = new String[2];
       PsiDirectory[] directories = new PsiDirectory[2];
@@ -380,11 +386,11 @@ public class SelectTablesDialog extends DialogWrapper {
     }
 
     private void writeContent(Project project, String filename, String parentPath, String packageName,
-                              String sourceCode, boolean override) {
+                              String sourceCode, boolean overwrite) {
       PsiDirectory psiDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
           Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)));
       PsiFile originalFile = psiDirectory.findFile(filename);
-      if (originalFile == null || override) {
+      if (originalFile == null || overwrite) {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
         PsiFile psiFile;
         if (originalFile != null) {
