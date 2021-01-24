@@ -65,6 +65,8 @@ public class MybatisGeneratorColumnSchema extends ColumnSchema implements Column
           } catch (ClassNotFoundException ignored) {
             return null;
           }
-        }).orElse(null);
+        })
+        .filter(clazz -> clazz != Object.class) // skip Object
+        .orElse(null);
   }
 }

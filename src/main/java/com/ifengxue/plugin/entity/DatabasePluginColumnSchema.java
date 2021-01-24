@@ -82,6 +82,8 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
           } catch (ClassNotFoundException ignored) {
             return null;
           }
-        }).orElse(null);
+        })
+        .filter(clazz -> clazz != Object.class) // skip Object
+        .orElse(null);
   }
 }

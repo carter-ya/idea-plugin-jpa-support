@@ -15,12 +15,14 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Time;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import lombok.Data;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
+import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +62,7 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
         if (state.dbTypeToJavaType == null) {
             resetTypeMapping();
         }
+        dbTypeToJavaType = ListOrderedMap.listOrderedMap(new CaseInsensitiveMap<>(dbTypeToJavaType));
     }
 
     public void resetTypeMapping() {
@@ -98,8 +101,8 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
 
         dbTypeToJavaType.put("TIME", new ClassWrapper(Time.class));
 
-        dbTypeToJavaType.put("DATETIME", new ClassWrapper(Timestamp.class));
-        dbTypeToJavaType.put("TIMESTAMP", new ClassWrapper(Timestamp.class));
+        dbTypeToJavaType.put("DATETIME", new ClassWrapper(Date.class));
+        dbTypeToJavaType.put("TIMESTAMP", new ClassWrapper(Date.class));
 
         // Postgre SQL
         dbTypeToJavaType.put("CHARACTER VARYING", new ClassWrapper(String.class));
