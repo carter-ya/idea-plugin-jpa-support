@@ -1,7 +1,8 @@
 package com.ifengxue.plugin.util;
 
-import com.ifengxue.plugin.adapter.DriverAdapter;
 import com.ifengxue.plugin.entity.Column;
+import com.ifengxue.plugin.entity.ColumnSchema;
+import com.ifengxue.plugin.entity.ColumnSchemaExtension;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -10,11 +11,36 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class ColumnUtil {
-  public static void parseColumn(DriverAdapter driverAdapter, Column column, String removePrefix, boolean useWrapper,
+
+  public static Column columnSchemaToColumn(ColumnSchema columnSchema, String removePrefix, boolean useWrapper,
+      boolean useJava8DateType) {
+    if (!(columnSchema instanceof ColumnSchemaExtension)) {
+      throw new IllegalStateException(
+          columnSchema.getClass().getName() + " is not instance of " + ColumnSchemaExtension.class.getName());
+    }
+    ColumnSchemaExtension<?> extension = (ColumnSchemaExtension<?>) columnSchema;
+    Column column = new Column();
+    column.setColumnName(columnSchema.getColumnName());
+    column.setSort(columnSchema.getOrdinalPosition());
+    column.setDbDataType(columnSchema.getDataType());
+    column.setPrimary(extension.primary());
+    column.setNullable(extension.nullable());
+    column.setAutoIncrement(extension.autoIncrement());
+    column.setColumnComment(columnSchema.getColumnComment());
+    column.setDefaultValue(columnSchema.getColumnDefault());
+    column.setJavaDataType(extension.javaTypeClass());
+    column.setJdbcType(extension.jdbcType());
+    column.setJdbcTypeName(extension.jdbcTypeName());
+    column.setSequenceColumn(extension.sequenceColumn());
+    ColumnUtil.parseColumn(column, removePrefix, useWrapper, useJava8DateType);
+    return column;
+  }
+
+  public static void parseColumn(Column column, String removePrefix, boolean useWrapper,
       boolean useJava8DateType) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
-    Class<?> javaDataType = StringHelper
-        .parseJavaDataType(driverAdapter, column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
+    Class<?> javaDataType = StringHelper.parseJavaDataType(column.getJavaDataType(),
+        column.getJdbcTypeName(), column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
     if ((javaDataType == Integer.class || javaDataType == int.class)
         && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
       if (useWrapper) {

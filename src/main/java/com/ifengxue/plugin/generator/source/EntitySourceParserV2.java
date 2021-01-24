@@ -4,7 +4,6 @@ import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
-import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.tree.Element;
 import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
@@ -88,10 +87,10 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       if (column.isPrimary()) {
         importClassList.add("javax.persistence.Id");
       }
-      if (column.isAutoIncrement()) {
+      if (column.isAutoIncrement() || column.isSequenceColumn()) {
         importClassList.add("javax.persistence.GeneratedValue");
         importClassList.add("javax.persistence.GenerationType");
-        if (config.getDriverConfig().getVendor() == Vendor.ORACLE) {
+        if (column.isSequenceColumn()) {
           context.put("primaryKeyGeneratorStrategy", "GenerationType.SEQUENCE");
           context.put("primaryKeyGenerator", "//FIXME Please input your generator name");
           importClassList.add("javax.persistence.SequenceGenerator");

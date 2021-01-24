@@ -58,7 +58,7 @@
                   </component>
                 </children>
               </grid>
-              <scrollpane id="4ce8b">
+              <scrollpane id="4ce8b" binding="sourceCodePane" custom-create="true">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -73,8 +73,86 @@
               </scrollpane>
             </children>
           </grid>
+          <grid id="a26d" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <tabbedpane title="Untitled"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="3d996" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="if_no_type_match_title"/>
+                <children>
+                  <grid id="f10cd" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="e9e55" class="javax.swing.JRadioButton" binding="radioBtnThrow">
+                        <constraints/>
+                        <properties>
+                          <text resource-bundle="bundles/ui_i18n" key="no_matching_type_throw"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                  <grid id="935e9" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="2d066" class="javax.swing.JRadioButton" binding="radioBtnFallbackType">
+                        <constraints/>
+                        <properties>
+                          <horizontalAlignment value="10"/>
+                          <horizontalTextPosition value="11"/>
+                          <text resource-bundle="bundles/ui_i18n" key="no_matching_type_fallback_type"/>
+                        </properties>
+                      </component>
+                      <component id="3a66b" class="com.intellij.ui.TextFieldWithAutoCompletion" binding="textFallbackType" custom-create="true">
+                        <constraints/>
+                        <properties/>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <scrollpane id="6d4fa">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="type_mapping_title"/>
+                <children>
+                  <grid id="724f4" binding="typeMappingTablePane" layout-manager="BorderLayout" hgap="0" vgap="0">
+                    <constraints/>
+                    <properties/>
+                    <border type="none"/>
+                    <children/>
+                  </grid>
+                </children>
+              </scrollpane>
+            </children>
+          </grid>
         </children>
       </tabbedpane>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="no_matching_type_button_group">
+      <member id="3bc64"/>
+      <member id="2d066"/>
+      <member id="e9e55"/>
+    </group>
+  </buttonGroups>
 </form>

@@ -1,19 +1,30 @@
 package com.ifengxue.plugin.entity;
 
+import com.ifengxue.plugin.gui.annotation.TableEditable;
+import com.ifengxue.plugin.gui.annotation.TableHeight;
+import com.ifengxue.plugin.gui.annotation.TableProperty;
+import com.ifengxue.plugin.gui.annotation.TableWidth;
+import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
+import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
+@TableHeight(height = 20)
 public class Column {
 
   /**
    * 数据库字段名
    */
+  @TableProperty(bundleName = "table_column_name_title", index = 0)
+  @TableEditable
   private String columnName;
   /**
    * 实体字段名
    */
+  @TableProperty(bundleName = "table_field_name_title", index = 100)
+  @TableEditable
   private String fieldName;
   /**
    * 字段顺序
@@ -24,8 +35,19 @@ public class Column {
    */
   private String dbDataType;
   /**
+   * @see ColumnSchemaExtension#jdbcType()
+   */
+  private int jdbcType;
+  /**
+   * @see ColumnSchemaExtension#jdbcTypeName()
+   */
+  private String jdbcTypeName;
+  /**
    * Java数据类型
    */
+  @TableProperty(bundleName = "table_field_java_type_title", columnClass = String.class, index = 200)
+  @TableEditable(editorProvider = JavaDataTypeEditorProvider.class, propertyEditorProvider = ClassNamePropertyEditor.class)
+  @TableWidth(minWidth = 60)
   private Class<?> javaDataType;
   /**
    * 是否是主键
@@ -39,6 +61,7 @@ public class Column {
    * 是否是自增字段
    */
   private boolean autoIncrement;
+  private boolean sequenceColumn;
   /**
    * 是否有默认值
    */
@@ -50,6 +73,8 @@ public class Column {
   /**
    * 字段注释
    */
+  @TableProperty(bundleName = "table_column_comment_title", index = 300)
+  @TableEditable
   private String columnComment;
 
 }

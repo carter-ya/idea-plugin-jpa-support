@@ -249,13 +249,51 @@ public final class BeanUtil {
         if (!method.isAccessible()) {
           method.setAccessible(true);
         }
-        return method;
+          return method;
       } catch (NoSuchMethodException e) {
-        // skip
+          // skip
       }
-      superClass = superClass.getSuperclass();
+        superClass = superClass.getSuperclass();
     }
-    return null;
+      return null;
+  }
+
+  public static Object getValue(PropertyDescriptor propertyDescriptor, Object obj) {
+    Method readMethod = propertyDescriptor.getReadMethod();
+    readMethod.setAccessible(true);
+    try {
+      return readMethod.invoke(obj);
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public static void setValue(PropertyDescriptor propertyDescriptor, Object obj, Object value) {
+    Method writeMethod = propertyDescriptor.getWriteMethod();
+    if (writeMethod != null) {
+      writeMethod.setAccessible(true);
+      try {
+        writeMethod.invoke(obj, value);
+      } catch (ReflectiveOperationException e) {
+        throw new IllegalStateException(e);
+      }
+    } else {
+      setValue(propertyDescriptor.getName(), obj, value);
+    }
+  }
+
+  public static void setValue(String propertyName, Object obj, Object value) {
+    List<Field> fields = findFields(obj.getClass());
+    for (Field field : fields) {
+      if (field.getName().equals(propertyName)) {
+        field.setAccessible(true);
+        try {
+          field.set(obj, value);
+        } catch (IllegalAccessException e) {
+          throw new IllegalStateException(e);
+        }
+      }
+    }
   }
 
   private static Set<String> wrapToSet(String[] array) {

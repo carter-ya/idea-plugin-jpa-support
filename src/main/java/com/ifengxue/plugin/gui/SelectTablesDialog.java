@@ -15,9 +15,13 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.state.ModuleSettings;
+import com.ifengxue.plugin.util.ColumnUtil;
 import com.ifengxue.plugin.util.FileUtil;
+import com.ifengxue.plugin.util.SourceFormatter;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
@@ -34,32 +38,35 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
-import com.intellij.psi.codeStyle.JavaCodeStyleManager;
-import java.io.IOException;
+import com.intellij.ui.DoubleClickListener;
+import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.table.JBTable;
+import java.awt.event.MouseEvent;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import javax.swing.Action;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,121 +77,57 @@ public class SelectTablesDialog extends DialogWrapper {
   private final SelectTables selectTables;
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
-  protected SelectTablesDialog(@Nullable Project project, List<Table> tableList,
-      Function<TableSchema, List<ColumnSchema>> mapping) {
+  protected SelectTablesDialog(@Nullable Project project, List<Table> tables,
+                               Function<TableSchema, List<ColumnSchema>> mapping) {
     super(project, true);
     this.mapping = mapping;
-    selectTables = new SelectTables(tableList);
+    selectTables = new SelectTables();
     init();
+    setSize(600, 600);
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
-    int rowCount = tableList.size();
-    JTable table = selectTables.getTblTableSchema();
-    table.setModel(new AbstractTableModel() {
-      private static final long serialVersionUID = 8974669315458199207L;
-      final String[] columns = {
-          LocaleContextHolder.format("table_selected"),
-          LocaleContextHolder.format("table_sequence"),
-          LocaleContextHolder.format("table_table_name"),
-          LocaleContextHolder.format("table_class_name"),
-          LocaleContextHolder.format("table_repository_name"),
-          LocaleContextHolder.format("table_class_comment")
-      };
+    // sequence
+    AtomicInteger seq = new AtomicInteger(1);
+    tables.forEach(table -> table.setSequence(seq.getAndIncrement()));
 
-      @Override
-      public int getRowCount() {
-        return rowCount;
-      }
+    JTable table = new JBTable();
+    new TableFactory().decorateTable(table, Table.class, tables);
+    JPanel tablePanel = ToolbarDecorator.createDecorator(table)
+        .setEditAction(anActionButton -> new ColumnFieldMappingEditorDialog(project, true,
+            tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet())
+        .createPanel();
+    selectTables.getTablePanel().add(tablePanel);
 
+    new DoubleClickListener() {
       @Override
-      public int getColumnCount() {
-        return columns.length;
-      }
-
-      @Override
-      public String getColumnName(int column) {
-        return columns[column];
-      }
-
-      @Override
-      public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 0 || columnIndex == 3 || columnIndex == 4 || columnIndex == 5;
-      }
-
-      @Override
-      public Class<?> getColumnClass(int columnIndex) {
-        switch (columnIndex) {
-          case 0:
-            return Boolean.class;
-          case 1:
-            return Integer.class;
-          default:
-            return String.class;
+      protected boolean onDoubleClick(@Nonnull MouseEvent event) {
+        if (table.getSelectedRow() == -1) {
+          return false;
         }
+        new ColumnFieldMappingEditorDialog(project, true,
+            tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet();
+        return true;
       }
-
-      @Override
-      public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
-          case 0:
-            return tableList.get(rowIndex).isSelected();
-          case 1:
-            return rowIndex + 1;
-          case 2:
-            return tableList.get(rowIndex).getTableName();
-          case 3:
-            return tableList.get(rowIndex).getEntityName();
-          case 4:
-            return tableList.get(rowIndex).getRepositoryName();
-          case 5:
-            return tableList.get(rowIndex).getTableComment();
-          default:
-            throw new IllegalStateException("无法识别的列索引:" + columnIndex);
-        }
-      }
-
-      @Override
-      public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        switch (columnIndex) {
-          case 0:
-            tableList.get(rowIndex).setSelected((Boolean) aValue);
-            break;
-          case 3:
-            tableList.get(rowIndex).setEntityName((String) aValue);
-            break;
-          case 4:
-            tableList.get(rowIndex).setRepositoryName((String) aValue);
-            break;
-          case 5:
-            tableList.get(rowIndex).setTableComment((String) aValue);
-            break;
-          default:
-            break;
-        }
-      }
-    });
-    table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox()));
-    table.getColumnModel().getColumn(0).setMaxWidth(60);
-    table.getColumnModel().getColumn(1).setMaxWidth(40);
+    }.installOn(table);
 
     selectTables.getBtnCancel().addActionListener(event -> dispose());
     // 选中所有行
     selectTables.getBtnSelectAll().addActionListener(event -> {
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(true);
       }
       table.updateUI();
     });
     // 全不选
     selectTables.getBtnSelectNone().addActionListener(event -> {
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(false);
       }
       table.updateUI();
     });
     // 反选
     selectTables.getBtnSelectOther().addActionListener(event -> {
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(!t.isSelected());
       }
       table.updateUI();
@@ -219,23 +162,49 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       initialValueRef.set(regex);
       Pattern pattern = Pattern.compile(regex);
-      for (Table t : tableList) {
+      for (Table t : tables) {
         t.setSelected(pattern.matcher(t.getTableName()).matches());
       }
       table.updateUI();
     });
     // 开始生成
     selectTables.getBtnGenerate().addActionListener(event -> {
-      if (tableList.stream().noneMatch(Table::isSelected)) {
+      if (tables.stream().noneMatch(Table::isSelected)) {
         Messages.showWarningDialog(Holder.getEvent().getProject(),
             LocaleContextHolder.format("at_least_select_one_table"),
             LocaleContextHolder.format("prompt"));
         return;
       }
-      dispose();
       // 开始生成
-      new GeneratorRunner(tableList).run();
+      new GeneratorRunner(tables).run();
     });
+  }
+
+  /**
+   * find columns
+   */
+  private List<Column> findColumns(Table table) {
+    AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
+        .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+    List<ColumnSchema> columnSchemas = mapping.apply(table.getRawTableSchema());
+    if (columnSchemas == null) {
+      return Collections.emptyList();
+    }
+    // column schema to column
+    List<Column> columns = new ArrayList<>(columnSchemas.size());
+    for (ColumnSchema columnSchema : columnSchemas) {
+      Column column = ColumnUtil.columnSchemaToColumn(columnSchema,
+          autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
+          autoGeneratorSettingsState.isUseJava8DateType());
+      if (column.isPrimary()) {
+        table.setPrimaryKeyClassType(column.getJavaDataType());
+        table.incPrimaryKeyCount();
+      }
+      if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
+        columns.add(column);
+      }
+    }
+    return columns;
   }
 
   @Nullable
@@ -244,12 +213,11 @@ public class SelectTablesDialog extends DialogWrapper {
     return selectTables.getRootComponent();
   }
 
-  @NotNull
   @Override
-  protected Action[] createActions() {
+  protected Action @NotNull [] createActions() {
     return new Action[0];
   }
-  
+
   @Nullable
   @Override
   protected String getDimensionServiceKey() {
@@ -278,6 +246,7 @@ public class SelectTablesDialog extends DialogWrapper {
     public void run() {
       AnActionEvent event = Holder.getEvent();
       Project project = event.getProject();
+      assert project != null;
 
       String encoding = StandardCharsets.UTF_8.name();
       JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
@@ -287,43 +256,41 @@ public class SelectTablesDialog extends DialogWrapper {
       sourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
 
       AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
-          .getService(AutoGeneratorSettingsState.class);
-      // 生成数量
-      for (Table table : tableList) {
-        List<ColumnSchema> columnSchemaList = mapping.apply(table.getRawTableSchema());
-        if (columnSchemaList == null) {
-          // skip empty column schemas
-          continue;
-        }
-        // 解析字段列表
-        List<Column> columnList = new ArrayList<>(columnSchemaList.size());
-        for (ColumnSchema columnSchema : columnSchemaList) {
-          Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
-              autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
-              autoGeneratorSettingsState.isUseJava8DateType());
-          if (column.isPrimary()) {
-            table.setPrimaryKeyClassType(column.getJavaDataType());
-            table.incPrimaryKeyCount();
-          }
-          if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
-            columnList.add(column);
-          }
-        }
-        table.setPackageName(autoGeneratorSettingsState.getEntityPackageName());
-        table.setColumns(columnList);
+          .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+      ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings();
 
-        // 配置源码生成信息
+      // create entity directory
+      PsiDirectory entityDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
+          Paths.get(moduleSettings.getEntityParentDirectory(),
+              StringHelper.packageNameToFolder(moduleSettings.getEntityPackageName())));
+      PsiDirectory repositoryDirectory = null;
+      // create repository dir
+      if (autoGeneratorSettingsState.isGenerateRepository()) {
+        repositoryDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
+            Paths.get(moduleSettings.getRepositoryParentDirectory(),
+                StringHelper.packageNameToFolder(moduleSettings.getRepositoryPackageName())));
+      }
+      Map<String, Boolean> filenameToOverwrite = awaitFilenameToOverwrite(autoGeneratorSettingsState,
+          entityDirectory, repositoryDirectory);
+
+      AtomicInteger leftGenerateCount = new AtomicInteger(tableList.size());
+      for (Table table : tableList) {
+        table.setPackageName(moduleSettings.getEntityPackageName());
+        if (table.getColumns() == null) {
+          table.setColumns(findColumns(table));
+        }
+
+        // configure source code generator config
         GeneratorConfig generatorConfig = new GeneratorConfig();
-        generatorConfig.setDriverConfig(new DriverConfig()
-            .setVendor(Holder.getDatabaseDrivers().getVendor2()));
+        generatorConfig.setDriverConfig(new DriverConfig());
         int lastIndex;
-        String basePackageName = autoGeneratorSettingsState.getEntityPackageName();
+        String basePackageName = moduleSettings.getEntityPackageName();
         if ((lastIndex = basePackageName.lastIndexOf('.')) != -1) {
           basePackageName = basePackageName.substring(0, lastIndex);
         }
         generatorConfig.setTablesConfig(new TablesConfig()
             .setBasePackageName(basePackageName)
-            .setEntityPackageName(autoGeneratorSettingsState.getEntityPackageName())
+            .setEntityPackageName(moduleSettings.getEntityPackageName())
             .setEnumSubPackageName(basePackageName + ".enums")
             .setIndent(getIndent())
             .setLineSeparator(getLineSeparator())
@@ -331,7 +298,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setExtendsEntityName(autoGeneratorSettingsState.getInheritedParentClassName())
             .setRemoveTablePrefix(autoGeneratorSettingsState.getRemoveEntityPrefix())
             .setRemoveFieldPrefix(autoGeneratorSettingsState.getRemoveFieldPrefix())
-            .setRepositoryPackageName(autoGeneratorSettingsState.getRepositoryPackageName())
+            .setRepositoryPackageName(moduleSettings.getRepositoryPackageName())
             .setSerializable(autoGeneratorSettingsState.isSerializable())
             .setUseClassComment(autoGeneratorSettingsState.isGenerateClassComment())
             .setUseFieldComment(autoGeneratorSettingsState.isGenerateFieldComment())
@@ -344,29 +311,67 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseFluidProgrammingStyle(autoGeneratorSettingsState.isUseFluidProgrammingStyle())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
-
-        // 生成源码
         String sourceCode = sourceParser.parse(generatorConfig, table);
         WriteCommandAction.runWriteCommandAction(project, () -> {
           String fileExtension = ".java";
           String filename = table.getEntityName() + fileExtension;
           try {
-            writeContent(project, filename, autoGeneratorSettingsState.getEntityParentDirectory(),
-                autoGeneratorSettingsState.getEntityPackageName(), sourceCode);
+            writeContent(project, filename, moduleSettings.getEntityParentDirectory(),
+                moduleSettings.getEntityPackageName(), sourceCode,
+                filenameToOverwrite.get(filename));
             if (autoGeneratorSettingsState.isGenerateRepository()) {
               filename = table.getRepositoryName() + fileExtension;
               String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-              writeContent(project, filename, autoGeneratorSettingsState.getRepositoryParentDirectory(),
-                  autoGeneratorSettingsState.getRepositoryPackageName(),
-                  repositorySourceCode);
+              writeContent(project, filename, moduleSettings.getRepositoryParentDirectory(),
+                  moduleSettings.getRepositoryPackageName(),
+                  repositorySourceCode, filenameToOverwrite.get(filename));
             }
           } catch (Exception e) {
-            Bus.notify(
-                new Notification("JpaSupport", "Error", "Generate source code error. " + e, NotificationType.ERROR),
-                project);
+            Bus.notify(new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e, NotificationType.ERROR), project);
+          } finally {
+            if (leftGenerateCount.decrementAndGet() == 0) {
+              ApplicationManager.getApplication().invokeLater(
+                  () -> Messages.showInfoMessage(LocaleContextHolder.format("generate_source_code_success"), Constants.NAME));
+            }
           }
         });
       }
+    }
+
+    private Map<String, Boolean> awaitFilenameToOverwrite(AutoGeneratorSettingsState settingsState,
+                                                          PsiDirectory entityDirectory, PsiDirectory repositoryDirectory) {
+      Map<String, Boolean> filenameToOverwrite = new HashMap<>();
+      String[] filenames = new String[2];
+      PsiDirectory[] directories = new PsiDirectory[2];
+      for (Table table : tableList) {
+        String fileExtension = ".java";
+        filenames[0] = table.getEntityName() + fileExtension;
+        directories[0] = entityDirectory;
+        if (settingsState.isGenerateRepository()) {
+          filenames[1] = table.getRepositoryName() + fileExtension;
+          directories[1] = repositoryDirectory;
+        }
+        for (int i = 0; i < filenames.length; i++) {
+          String filename = filenames[i];
+          PsiDirectory directory = directories[i];
+          if (filename != null) {
+            PsiFile psiFile = directory.findFile(filename);
+            if (psiFile != null) {
+              int selectButton = Messages
+                  .showOkCancelDialog(
+                      LocaleContextHolder.format("file_already_exists_overwritten", filename),
+                      LocaleContextHolder.format("prompt"),
+                      Messages.OK_BUTTON,
+                      Messages.CANCEL_BUTTON,
+                      Messages.getQuestionIcon());
+              filenameToOverwrite.put(filename, selectButton == Messages.OK);
+            } else {
+              filenameToOverwrite.put(filename, Boolean.TRUE);
+            }
+          }
+        }
+      }
+      return filenameToOverwrite;
     }
 
     private String getIndent() {
@@ -391,74 +396,35 @@ public class SelectTablesDialog extends DialogWrapper {
     }
 
     private void writeContent(Project project, String filename, String parentPath, String packageName,
-        String sourceCode) {
+                              String sourceCode, boolean overwrite) {
       PsiDirectory psiDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
           Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)));
-      PsiFile psiFile = psiDirectory.findFile(filename);
-      if (psiFile != null) {
-        // 切换UI线程
-        ApplicationManager.getApplication().invokeLater(() -> {
-          int selectButton = Messages
-              .showOkCancelDialog(
-                  LocaleContextHolder.format("file_already_exists_overwritten", filename),
-                  LocaleContextHolder.format("prompt"),
-                  Messages.OK_BUTTON,
-                  Messages.CANCEL_BUTTON,
-                  Messages.getQuestionIcon());
-          // 不覆盖
-          if (selectButton != Messages.OK) {
-            return;
-          }
-          // 切换IO线程
-          WriteCommandAction.runWriteCommandAction(project, () -> {
-            PsiFile pf = psiDirectory.findFile(filename);
-            assert pf != null;
-            VirtualFile vf = pf.getVirtualFile();
-            writeContent(sourceCode, vf, project, pf);
-            JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
-            try {
-              javaCodeStyleManager.optimizeImports(pf);
-            } catch (Exception e) {
-              log.error("optimize imports error", e);
-            }
-            try {
-              CodeStyleManager.getInstance(Holder.getProject()).reformat(pf);
-            } catch (Exception e) {
-              log.error("reformat source code error", e);
-            }
-          });
-        });
-      } else {
-        psiFile = psiDirectory.createFile(filename);
-        VirtualFile vFile = psiFile.getVirtualFile();
-        writeContent(sourceCode, vFile, project, psiFile);
-        JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(Holder.getProject());
-        try {
-          javaCodeStyleManager.optimizeImports(psiFile);
-        } catch (Exception e) {
-          log.error("optimize imports error", e);
+      PsiFile originalFile = psiDirectory.findFile(filename);
+      if (originalFile == null || overwrite) {
+        PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
+        PsiFile psiFile;
+        if (originalFile != null) {
+          Document document = PsiDocumentManager.getInstance(project).getDocument(originalFile);
+          assert document != null;
+          document.replaceString(0, document.getTextLength(), sourceCode);
+          psiFile = originalFile;
+        } else {
+          psiFile = psiFileFactory.createFileFromText(filename, JavaFileType.INSTANCE, sourceCode);
         }
-        try {
-          CodeStyleManager.getInstance(Holder.getProject()).reformat(psiFile);
-        } catch (Exception e) {
-          log.error("reformat source code error", e);
-        }
-      }
-    }
 
-    private void writeContent(String sourceCode, VirtualFile vFile, Project project, PsiFile psiFile) {
-      try {
-        vFile.setWritable(true);
-        vFile.setCharset(StandardCharsets.UTF_8);
-        vFile.setBinaryContent(sourceCode.getBytes(StandardCharsets.UTF_8));
-
-        // commit document
-        Document cachedDocument = PsiDocumentManager.getInstance(project).getCachedDocument(psiFile);
-        if (cachedDocument != null) {
-          PsiDocumentManager.getInstance(project).commitDocument(cachedDocument);
+        Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
+        if (document != null) {
+          PsiDocumentManager.getInstance(project).commitDocument(document);
         }
-      } catch (IOException e) {
-        log.error("generate source code error", e);
+
+        SourceFormatter.formatJavaCode(project, psiFile);
+
+        if (document != null) {
+          PsiDocumentManager.getInstance(project).commitDocument(document);
+        } else {
+          // The new file needs to be saved last, otherwise the formatting will not take effect
+          psiDirectory.add(psiFile);
+        }
       }
     }
   }

@@ -28,3 +28,17 @@
 3. 步骤 3(Step 3)<br>
 
 ![Step 3](doc/select_and_generate.png)
+
+4. 步骤 4(Step 4)<br>
+
+![Step 4](doc/column_mapping.png)
+
+## 其他配置(Other settings)
+
+1. 自定义模板(Custom template)<br>
+
+![Custom template](doc/template.png)
+
+2. 自定义数据类型映射(Custom type mapping)<br>
+
+![Custom type mapping](doc/type_mapping.png)

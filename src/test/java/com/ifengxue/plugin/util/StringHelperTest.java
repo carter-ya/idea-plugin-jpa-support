@@ -21,4 +21,12 @@ public class StringHelperTest {
           StringHelper.packagePathTrimToParentFolder(path, packageName + ".bar"));
     }
   }
+
+  @Test
+  public void parseFieldName() {
+    assertEquals("columnName", StringHelper.parseFieldName("column_name"));
+    assertEquals("columnName", StringHelper.parseFieldName("_column_name_"));
+    assertEquals("columnName", StringHelper.parseFieldName("COLUMN_NAME"));
+    assertEquals("columnName", StringHelper.parseFieldName("ColumnName"));
+  }
 }

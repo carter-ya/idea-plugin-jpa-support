@@ -20,7 +20,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'io.freefair.lombok'
 
 group 'com.ifengxue'
-version '2.0.1'
+version '2.0.5-EAP'
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -33,40 +33,37 @@ repositories {
 
 dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
     compileOnly fileTree('lib')
     testCompile group: 'junit', name: 'junit', version: '4.13.1'
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2017.1'
+    version '2020.3.1'
     pluginName 'Jpa Support'
     type 'IU'
     updateSinceUntilBuild false
+    plugins = ['java']
+}
+
+runIde {
+    systemProperty('idea.auto.reload.plugins', true)
 }
 
 patchPluginXml {
-    version '2.0.3.1'
+    version '2.0.5-EAP'
     changeNotes """
       <ol>
-          <li>Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)</li>
-          <li>Feature: Support regex expressions when selecting tables</li>
-          <li>Feature: The window will be closed automatically after generating the source code</li>
-          <li>Feature: Automatic window centering is supported</li>
-          <li>Feature: Support record window size</li>
-          <li>Feature: Support not persist password, and support password security storage(eg: Mac in Keychain or keepass)</li>
-          <li>Feature: Support to select whether to generate method comments</li>
-          <li>Feature: Support Fluid Programming Style(use or not use Lombok)</li>
-          <li>Feature: Support custom template, this is beta feature</li>
-          <li>Feature: Auto reimport and format code after the build is complete</li>
-          <li>Feature: Support generation date time type default value, this is beta feature </li>
-          <li>Fix bug: Fix sometimes the error of overwriting source code</li>
-          <li>Fix bug: Fix create directory fail on Windows</li>
-          <li>Fix bug: Fixed crash on idea community</li>
+          <li>Support all databases.</li>
+          <li>Support generate source code from Database plugin</li>
+          <li>Support custom generate code template</li>
+          <li>Support custom db type mapping</li>
       </ol>
       """
 }

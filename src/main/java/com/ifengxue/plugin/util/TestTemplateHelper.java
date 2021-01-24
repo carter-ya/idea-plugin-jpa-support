@@ -1,6 +1,6 @@
 package com.ifengxue.plugin.util;
 
-import com.ifengxue.plugin.adapter.DatabaseDrivers;
+import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
@@ -22,7 +22,8 @@ public enum TestTemplateHelper {
     ;
 
     public static Object evaluate(Class<? extends AbstractSourceParser> clazz, String template) {
-        AutoGeneratorSettingsState settingsState = ServiceManager.getService(AutoGeneratorSettingsState.class);
+        AutoGeneratorSettingsState settingsState = ServiceManager.getService(
+            Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
         GeneratorConfig config = new GeneratorConfig();
         config.setDriverConfig(new DriverConfig()
             .setVendor(Vendor.MYSQL))
@@ -30,14 +31,14 @@ public enum TestTemplateHelper {
             .setTablesConfig(
                 new TablesConfig()
                     .setBasePackageName("")
-                    .setEntityPackageName(settingsState.getEntityPackageName())
+                    .setEntityPackageName("org.example.jpa.support.test.domain")
                     .setExtendsEntityName(settingsState.getInheritedParentClassName())
                     .setIndent(Indent.FOUR_SPACE.getIndent())
                     .setLineSeparator("\n")
                     .setOrm(ORM.JPA)
                     .setRemoveFieldPrefix(settingsState.getRemoveFieldPrefix())
                     .setRemoveTablePrefix(settingsState.getRemoveEntityPrefix())
-                    .setRepositoryPackageName(settingsState.getRepositoryPackageName())
+                    .setRepositoryPackageName("org.example.jpa.support.test.repo")
                     .setSerializable(settingsState.isSerializable())
                     .setUseClassComment(settingsState.isGenerateClassComment())
                     .setUseFieldComment(settingsState.isGenerateFieldComment())
@@ -57,6 +58,7 @@ public enum TestTemplateHelper {
                 .setTableName("t_example_table")
                 .setTableSchema("example_db")
                 .setEntityName(StringHelper.parseEntityName(settingsState.removeTablePrefix(table.getTableName())))
+                .setRepositoryName(table.getEntityName() + "Repository")
                 .setPackageName("org.example")
                 .setPrimaryKeyClassType(Long.class)
                 .setPrimaryKeyCount(1)
@@ -120,9 +122,9 @@ public enum TestTemplateHelper {
                 ))
                 .setSelected(true);
             table.getColumns().forEach(column -> ColumnUtil
-                .parseColumn(DatabaseDrivers.MYSQL.getDriverAdapter(), column, settingsState.getRemoveFieldPrefix(),
+                .parseColumn(column, settingsState.getRemoveFieldPrefix(),
                     true, settingsState.isUseJava8DateType()));
-            return sourceParser.parse(config, table, template);
+            return SourceFormatter.formatJavaCode(sourceParser.parse(config, table, template));
         } catch (Exception ex) {
             return ex;
         }

@@ -1,14 +1,11 @@
 package com.ifengxue.plugin.util;
 
-import com.ifengxue.plugin.adapter.DriverAdapter;
-import com.ifengxue.plugin.adapter.MysqlDriverAdapter;
-import com.ifengxue.plugin.adapter.PostgreSQLDriverAdapter;
-import com.intellij.openapi.diagnostic.Logger;
+import com.ifengxue.plugin.state.SettingsState;
+import com.ifengxue.plugin.state.wrapper.ClassWrapper;
+import com.intellij.openapi.components.ServiceManager;
 import java.beans.Introspector;
-import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * 字符串工具类
@@ -28,7 +26,6 @@ import java.util.stream.Collectors;
 public class StringHelper {
 
   private static final Map<Class<?>, Class<?>> WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE = new HashMap<>();
-  private static final Logger LOGGER = Logger.getInstance(StringHelper.class);
   private static final Set<Class<?>> DATETIME_CLASSES = new HashSet<>();
 
   static {
@@ -75,18 +72,10 @@ public class StringHelper {
     return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(clazz, clazz);
   }
 
-  public static Class<?> parseJavaDataType(DriverAdapter driverAdapter, String dbDataType, String columnName,
-      boolean useWrapper, boolean useJava8DataType) {
-    Class<?> javaDataType = null;
-    if (driverAdapter instanceof MysqlDriverAdapter) {
-      javaDataType = parseJavaDataType((MysqlDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
-    }
-    if (driverAdapter instanceof PostgreSQLDriverAdapter) {
-      javaDataType = parseJavaDataType((PostgreSQLDriverAdapter) driverAdapter, dbDataType, columnName, useWrapper);
-    }
-    if (javaDataType == null) {
-      throw new IllegalStateException("不支持的类型:" + driverAdapter.getClass().getName());
-    }
+  public static Class<?> parseJavaDataType(
+      @Nullable Class<?> fallbackJavaDataType, String jdbcTypeName,
+      String dbDataType, String columnName, boolean useWrapper, boolean useJava8DataType) {
+    Class<?> javaDataType = parseJavaDataType(fallbackJavaDataType, jdbcTypeName, dbDataType, columnName, useWrapper);
     if (!useJava8DataType) {
       return javaDataType;
     }
@@ -102,128 +91,21 @@ public class StringHelper {
     }
   }
 
-  private static Class<?> parseJavaDataType(MysqlDriverAdapter driverAdapter, String dbDataType,
-      String columnName, boolean useWrapper) {
-    dbDataType = dbDataType.toUpperCase();
-    Class<?> javaDataType;
-    switch (dbDataType) {
-      case "CLOB":
-      case "TEXT":
-      case "VARCHAR":
-      case "CHAR":
-        javaDataType = String.class;
-        break;
-      case "TINYBLOB":
-      case "BLOB":
-      case "MEDIUMBLOB":
-      case "LONGBLOB":
-        javaDataType = byte[].class;
-        break;
-      case "ID":
-      case "BIGINT":
-      case "INTEGER":
-        javaDataType = Long.class;
-        break;
-      case "TINYINT":
-      case "SMALLINT":
-      case "INT":
-      case "MEDIUMINT":
-        javaDataType = Integer.class;
-        break;
-      case "BIT":
-        javaDataType = Boolean.class;
-        break;
-      case "FLOAT":
-        javaDataType = Float.class;
-        break;
-      case "DOUBLE":
-        javaDataType = Double.class;
-        break;
-      case "DECIMAL":
-        javaDataType = BigDecimal.class;
-        break;
-      case "YEAR":
-        javaDataType = Short.class;
-        break;
-      case "DATE":
-        javaDataType = java.sql.Date.class;
-        break;
-      case "TIME":
-        javaDataType = Time.class;
-        break;
-      case "DATETIME":
-      case "TIMESTAMP":
-        javaDataType = Timestamp.class;
-        break;
-      default:
-        javaDataType = String.class;
-        LOGGER.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
-        break;
+  private static Class<?> parseJavaDataType(@Nullable Class<?> fallbackJavaDataType, String jdbcTypeName,
+      String dbDataType, String columnName, boolean useWrapper) {
+    SettingsState settingsState = ServiceManager.getService(SettingsState.class);
+    ClassWrapper classWrapper = settingsState.getDbTypeToJavaType().get(dbDataType);
+    if (classWrapper == null) {
+      classWrapper = settingsState.getDbTypeToJavaType().get(jdbcTypeName);
     }
-    if (columnName.startsWith("is_")) {
-      javaDataType = Boolean.class;
+    if (classWrapper == null && fallbackJavaDataType == null) {
+      if (settingsState.isThrowException()) {
+        throw new NoMatchTypeException(dbDataType);
+      } else {
+        return settingsState.getFallbackTypeClass();
+      }
     }
-    if (useWrapper) {
-      return javaDataType;
-    }
-    return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(javaDataType, javaDataType);
-  }
-
-  private static Class<?> parseJavaDataType(PostgreSQLDriverAdapter driverAdapter, String dbDataType,
-      String columnName, boolean useWrapper) {
-    dbDataType = dbDataType.toUpperCase();
-    Class<?> javaDataType;
-    switch (dbDataType) {
-      case "CHARACTER VARYING":
-      case "TEXT":
-      case "VARCHAR":
-      case "CHAR":
-        javaDataType = String.class;
-        break;
-      case "BYTEA":
-        javaDataType = byte[].class;
-        break;
-      case "BIGINT":
-      case "BIGSERIAL":
-        javaDataType = Long.class;
-        break;
-      case "INT":
-      case "SMALLINT":
-      case "INTEGER":
-        javaDataType = Integer.class;
-        break;
-      case "BIT":
-      case "BOOLEAN":
-        javaDataType = Boolean.class;
-        break;
-      case "REAL":
-        javaDataType = Float.class;
-        break;
-      case "DOUBLE PRECISION":
-        javaDataType = Double.class;
-        break;
-      case "DECIMAL":
-      case "NUMERIC":
-        javaDataType = BigDecimal.class;
-        break;
-      case "YEAR":
-        javaDataType = Short.class;
-        break;
-      case "DATE":
-        javaDataType = java.sql.Date.class;
-        break;
-      case "TIME":
-        javaDataType = Time.class;
-        break;
-      case "DATETIME":
-      case "TIMESTAMP":
-        javaDataType = Timestamp.class;
-        break;
-      default:
-        javaDataType = String.class;
-        LOGGER.warn("不支持的数据库类型:" + dbDataType + "，用String替代");
-        break;
-    }
+    Class<?> javaDataType = classWrapper == null ? fallbackJavaDataType : classWrapper.getClazz();
     if (columnName.startsWith("is_")) {
       javaDataType = Boolean.class;
     }

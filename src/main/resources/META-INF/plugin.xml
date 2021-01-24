@@ -28,8 +28,10 @@
   <description><![CDATA[
       <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
       <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
-      <p>Support multiple types of databases. Currently supported database are Mysql, PostgreSQL.</p>
+      <p>Support all databases.</p>
       <p>Support generate source code from Database plugin</p>
+      <p>Support custom generate code template</p>
+      <p>Support custom db type mapping</p>
       <p>Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b></p>
       <a href="https://github.com/carter-ya/idea-plugin-jpa-support">README</a> <br>
       <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/set_database_connection.png?raw=true" alt="Use tips.">
@@ -43,11 +45,11 @@
   <!--  <idea-version since-build="171" until-build="191.*"/>-->
   <extensions defaultExtensionNs="com.intellij">
     <applicationConfigurable parentId="tools" instance="com.ifengxue.plugin.state.SettingsConfigurable"
-      id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="Jpa Support"/>
+        id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="Jpa Support"/>
 
     <applicationService serviceImplementation="com.ifengxue.plugin.state.SettingsState"/>
-    <applicationService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorSettingsState"/>
 
+    <projectService serviceImplementation="com.ifengxue.plugin.state.AutoGeneratorSettingsState"/>
     <projectService serviceImplementation="com.ifengxue.plugin.state.DatabaseSettingsState"/>
   </extensions>
 
@@ -55,13 +57,13 @@
        on how to target different products -->
 
   <id>com.ifengxue.plugin.jpa-support</id>
-  <idea-version since-build="171"/>
+  <idea-version since-build="183.3795.13"/>
   <name>Jpa Support</name>
 
   <vendor email="liukefeng2008@hotmail.com" url="https://github.com/carter-ya/idea-plugin-jpa-support">
     https://github.com/carter-ya/idea-plugin-jpa-support
   </vendor>
 
-  <version>2.0.3.1</version>
+  <version>2.0.5-EAP</version>
 
 </idea-plugin>

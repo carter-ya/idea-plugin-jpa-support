@@ -24,9 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.sql.DataSource;
+import lombok.Getter;
 
 public class SimpleFastJdbc implements FastJdbc {
 
+  @Getter
   private final DataSource datasource;
 
   public SimpleFastJdbc(DataSource dataSource) {

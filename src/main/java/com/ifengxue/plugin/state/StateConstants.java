@@ -5,5 +5,6 @@ import com.ifengxue.plugin.Constants;
 public interface StateConstants {
 
   String APPLICATION_STATE_NAME = Constants.NAME + ".xml";
-  String PROJECT_STATE_NAME = Constants.NAME + ".xml";
+  String PROJECT_STATE_NAME = Constants.NAME + "-project.xml";
+  String MODULE_STATE_NAME = Constants.NAME + "-module.xml";
 }
