@@ -50,12 +50,15 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.event.DocumentEvent;
@@ -63,6 +66,11 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.ModelType;
+import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.internal.db.DatabaseIntrospector;
+import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
 
 public class DatabaseSettingsDialog extends DialogWrapper {
 
@@ -194,11 +202,10 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       }
 
       try {
-        List<TableSchema> tableSchemaList = Holder.getDatabaseDrivers().getDriverAdapter()
-            .findDatabaseSchemas(database);
+        List<TableSchema> tableSchemaList = findDatabaseSchemas(database);
         ApplicationManager.getApplication().invokeLater(() -> {
           dispose();
-          // 显示自动生成器配置窗口
+          // show dialog
           AutoGeneratorSettingsDialog
               .show(tableSchemaList, tableSchema -> ((MybatisGeneratorTableSchema) tableSchema).toColumnSchemas());
         });
@@ -211,6 +218,22 @@ public class DatabaseSettingsDialog extends DialogWrapper {
                 sb, NotificationType.ERROR)));
       }
     });
+  }
+
+  private List<TableSchema> findDatabaseSchemas(String database) throws SQLException {
+    DataSource datasource = ((SimpleFastJdbc) Holder.getFastJdbc()).getDatasource();
+    try (Connection connection = datasource.getConnection()) {
+      List<String> warnings = new ArrayList<>();
+      Context context = new Context(ModelType.FLAT);
+      DatabaseIntrospector introspector = new DatabaseIntrospector(
+          context, connection.getMetaData(), new JavaTypeResolverDefaultImpl(), warnings);
+      TableConfiguration tc = new TableConfiguration(context);
+      tc.setCatalog(database);
+      return introspector.introspectTables(tc)
+          .stream()
+          .map(MybatisGeneratorTableSchema::new)
+          .collect(Collectors.toList());
+    }
   }
 
   @Nullable
