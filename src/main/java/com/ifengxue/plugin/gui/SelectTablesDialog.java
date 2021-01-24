@@ -283,8 +283,7 @@ public class SelectTablesDialog extends DialogWrapper {
 
         // configure source code generator config
         GeneratorConfig generatorConfig = new GeneratorConfig();
-        generatorConfig.setDriverConfig(new DriverConfig()
-            .setVendor(Holder.getDatabaseDrivers().getVendor2()));
+        generatorConfig.setDriverConfig(new DriverConfig());
         int lastIndex;
         String basePackageName = moduleSettings.getEntityPackageName();
         if ((lastIndex = basePackageName.lastIndexOf('.')) != -1) {

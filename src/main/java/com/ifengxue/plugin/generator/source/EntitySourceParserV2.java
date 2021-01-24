@@ -91,7 +91,8 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       if (column.isAutoIncrement()) {
         importClassList.add("javax.persistence.GeneratedValue");
         importClassList.add("javax.persistence.GenerationType");
-        if (config.getDriverConfig().getVendor() == Vendor.ORACLE) {
+        Vendor vendor = config.getDriverConfig().getVendor();
+        if (vendor == Vendor.ORACLE) {
           context.put("primaryKeyGeneratorStrategy", "GenerationType.SEQUENCE");
           context.put("primaryKeyGenerator", "//FIXME Please input your generator name");
           importClassList.add("javax.persistence.SequenceGenerator");
