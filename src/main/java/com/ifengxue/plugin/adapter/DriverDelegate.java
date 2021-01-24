@@ -1,6 +1,5 @@
 package com.ifengxue.plugin.adapter;
 
-import com.ifengxue.plugin.Holder;
 import java.sql.Driver;
 import java.sql.SQLException;
 import lombok.Getter;
@@ -14,19 +13,14 @@ public class DriverDelegate implements Driver {
   }
 
   @Getter
-  @Delegate(excludes = ExcludeMethods.class)
+  @Delegate
   private final Driver driver;
   @Getter
-  private final DatabaseDrivers databaseDrivers;
+  private final String driverPath;
 
-  public DriverDelegate(Driver driver, DatabaseDrivers databaseDrivers) {
+  public DriverDelegate(Driver driver, String driverPath) {
     this.driver = driver;
-    this.databaseDrivers = databaseDrivers;
-  }
-
-  @Override
-  public boolean acceptsURL(String url) throws SQLException {
-    return Holder.getDatabaseDrivers() == databaseDrivers && driver.acceptsURL(url);
+    this.driverPath = driverPath;
   }
 
 }

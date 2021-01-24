@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * 驱动适配器
  */
+@Deprecated
 public interface DriverAdapter {
 
   /**

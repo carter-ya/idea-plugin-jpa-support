@@ -1,10 +1,9 @@
 package com.ifengxue.plugin.component;
 
-import com.ifengxue.plugin.Holder;
-import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.state.DatabaseSettingsState;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import java.util.Locale;
 import java.util.Objects;
 import javax.swing.JCheckBox;
@@ -27,9 +26,10 @@ public class DatabaseSettings {
   private JTextField textPort;
   private JLabel lblSelectLanguage;
   private JTextField textConnectionUrl;
-  private JComboBox<DatabaseDrivers> cbxSelectDatabase;
   private JComboBox<LocaleItem> cbxSelectLanguage;
   private JCheckBox chkBoxRequireSavePassword;
+  private TextFieldWithBrowseButton textDriverPath;
+  private JTextField textDriverClass;
 
   public void setData(DatabaseSettingsState data) {
     textHost.setText(data.getHost());
@@ -38,25 +38,15 @@ public class DatabaseSettings {
     textDatabase.setText(data.getDatabase());
     textConnectionUrl.setText(data.getUrl());
     chkBoxRequireSavePassword.setSelected(data.isRequireSavePassword());
-
-    // 选择语言
+    textDriverPath.setText(data.getDriverPath());
+    textDriverClass.setText(data.getDriverClass());
+    // select language
     Locale locale = LocaleContextHolder.getCurrentLocale();
     cbxSelectLanguage.removeAllItems();
     for (LocaleItem localeItem : LocaleContextHolder.LOCALE_ITEMS) {
       cbxSelectLanguage.addItem(localeItem);
       if (locale.equals(localeItem.getLocale())) {
         cbxSelectLanguage.setSelectedItem(localeItem);
-      }
-    }
-
-    // 选择数据库
-    cbxSelectDatabase.removeAllItems();
-    String databaseVendor = data.getDatabaseDriver();
-    for (DatabaseDrivers databaseDrivers : DatabaseDrivers.values()) {
-      cbxSelectDatabase.addItem(databaseDrivers);
-      if (databaseDrivers.toString().equalsIgnoreCase(databaseVendor)) {
-        cbxSelectDatabase.setSelectedItem(databaseDrivers);
-        Holder.registerDatabaseDrivers(databaseDrivers);
       }
     }
   }
@@ -70,7 +60,8 @@ public class DatabaseSettings {
     data.setDatabase(textDatabase.getText());
     data.setUrl(textConnectionUrl.getText());
     data.setLanguage(((LocaleItem) Objects.requireNonNull(cbxSelectLanguage.getSelectedItem())).getLanguageTag());
-    data.setDatabaseDriver(((DatabaseDrivers) Objects.requireNonNull(cbxSelectDatabase.getSelectedItem())).toString());
     data.setRequireSavePassword(chkBoxRequireSavePassword.isSelected());
+    data.setDriverPath(textDriverPath.getText());
+    data.setDriverClass(textDriverClass.getText());
   }
 }
