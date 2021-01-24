@@ -21,6 +21,7 @@ import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
 import com.ifengxue.plugin.util.ColumnUtil;
 import com.ifengxue.plugin.util.FileUtil;
+import com.ifengxue.plugin.util.SourceFormatter;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
@@ -42,11 +43,9 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
-import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -418,19 +417,7 @@ public class SelectTablesDialog extends DialogWrapper {
           PsiDocumentManager.getInstance(project).commitDocument(document);
         }
 
-        try {
-          CodeStyleManager.getInstance(project).reformat(psiFile);
-        } catch (Exception e) {
-          log.error("reformat source code error", e);
-        }
-
-        JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(project);
-        try {
-          javaCodeStyleManager.optimizeImports(psiFile);
-          javaCodeStyleManager.shortenClassReferences(psiFile);
-        } catch (Exception e) {
-          log.error("optimize imports error", e);
-        }
+        SourceFormatter.formatJavaCode(project, psiFile);
 
         if (document != null) {
           PsiDocumentManager.getInstance(project).commitDocument(document);

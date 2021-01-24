@@ -124,7 +124,7 @@ public enum TestTemplateHelper {
             table.getColumns().forEach(column -> ColumnUtil
                 .parseColumn(column, settingsState.getRemoveFieldPrefix(),
                     true, settingsState.isUseJava8DateType()));
-            return sourceParser.parse(config, table, template);
+            return SourceFormatter.formatJavaCode(sourceParser.parse(config, table, template));
         } catch (Exception ex) {
             return ex;
         }
