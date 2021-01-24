@@ -28,6 +28,7 @@ public enum DatabaseDrivers {
       "org.postgresql.Driver",
       new PostgreSQLDriverAdapter(),
       "drivers_postgresql"),
+  UNKNOWN("UNKNOWN", null, null, null, null, null),
   ;
   public static final String CLASSPATH_PREFIX = "classpath:";
   @Getter

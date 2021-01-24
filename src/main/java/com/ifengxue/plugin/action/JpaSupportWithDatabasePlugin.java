@@ -2,7 +2,6 @@ package com.ifengxue.plugin.action;
 
 import static java.util.stream.Collectors.toList;
 
-import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.entity.ColumnSchema;
@@ -15,9 +14,6 @@ import com.ifengxue.plugin.util.DatabasePluginUtil;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.ui.Messages;
@@ -79,10 +75,7 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
     } else if (productName.startsWith("MySQL")) {
       Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
     } else {
-      Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
-      Bus.notify(
-          new Notification(Constants.GROUP_ID, "Info", "Find unknown driver vendor " + productName + ", reset to MySQL",
-              NotificationType.INFORMATION));
+      Holder.registerDatabaseDrivers(DatabaseDrivers.UNKNOWN);
     }
   }
 }
