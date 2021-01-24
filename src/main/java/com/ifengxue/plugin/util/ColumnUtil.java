@@ -28,6 +28,9 @@ public class ColumnUtil {
     column.setAutoIncrement(extension.autoIncrement());
     column.setColumnComment(columnSchema.getColumnComment());
     column.setDefaultValue(columnSchema.getColumnDefault());
+    column.setJavaDataType(extension.javaTypeClass());
+    column.setJdbcType(extension.jdbcType());
+    column.setJdbcTypeName(extension.jdbcTypeName());
     ColumnUtil.parseColumn(column, removePrefix, useWrapper, useJava8DateType);
     return column;
   }
@@ -35,8 +38,8 @@ public class ColumnUtil {
   public static void parseColumn(Column column, String removePrefix, boolean useWrapper,
       boolean useJava8DateType) {
     column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
-    Class<?> javaDataType = StringHelper.parseJavaDataType(
-        column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
+    Class<?> javaDataType = StringHelper.parseJavaDataType(column.getJavaDataType(),
+        column.getJdbcTypeName(), column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
     if ((javaDataType == Integer.class || javaDataType == int.class)
         && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
       if (useWrapper) {

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * 字符串工具类
@@ -71,9 +72,10 @@ public class StringHelper {
     return WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.getOrDefault(clazz, clazz);
   }
 
-  public static Class<?> parseJavaDataType(String dbDataType, String columnName,
-      boolean useWrapper, boolean useJava8DataType) {
-    Class<?> javaDataType = parseJavaDataType(dbDataType, columnName, useWrapper);
+  public static Class<?> parseJavaDataType(
+      @Nullable Class<?> fallbackJavaDataType, String jdbcTypeName,
+      String dbDataType, String columnName, boolean useWrapper, boolean useJava8DataType) {
+    Class<?> javaDataType = parseJavaDataType(fallbackJavaDataType, jdbcTypeName, dbDataType, columnName, useWrapper);
     if (!useJava8DataType) {
       return javaDataType;
     }
@@ -89,16 +91,21 @@ public class StringHelper {
     }
   }
 
-  private static Class<?> parseJavaDataType(String dbDataType, String columnName, boolean useWrapper) {
+  private static Class<?> parseJavaDataType(@Nullable Class<?> fallbackJavaDataType, String jdbcTypeName,
+      String dbDataType, String columnName, boolean useWrapper) {
     SettingsState settingsState = ServiceManager.getService(SettingsState.class);
     ClassWrapper classWrapper = settingsState.getDbTypeToJavaType().get(dbDataType);
-    if (classWrapper == null && settingsState.isThrowException()) {
-      throw new NoMatchTypeException(dbDataType);
-    }
     if (classWrapper == null) {
-      return settingsState.getFallbackTypeClass();
+      classWrapper = settingsState.getDbTypeToJavaType().get(jdbcTypeName);
     }
-    Class<?> javaDataType = classWrapper.getClazz();
+    if (classWrapper == null && fallbackJavaDataType == null) {
+      if (settingsState.isThrowException()) {
+        throw new NoMatchTypeException(dbDataType);
+      } else {
+        return settingsState.getFallbackTypeClass();
+      }
+    }
+    Class<?> javaDataType = classWrapper == null ? fallbackJavaDataType : classWrapper.getClazz();
     if (columnName.startsWith("is_")) {
       javaDataType = Boolean.class;
     }

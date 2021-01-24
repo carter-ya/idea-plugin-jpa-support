@@ -35,6 +35,14 @@ public class Column {
    */
   private String dbDataType;
   /**
+   * @see ColumnSchemaExtension#jdbcType()
+   */
+  private int jdbcType;
+  /**
+   * @see ColumnSchemaExtension#jdbcTypeName()
+   */
+  private String jdbcTypeName;
+  /**
    * Java数据类型
    */
   @TableProperty(bundleName = "table_field_java_type_title", columnClass = String.class, index = 200)

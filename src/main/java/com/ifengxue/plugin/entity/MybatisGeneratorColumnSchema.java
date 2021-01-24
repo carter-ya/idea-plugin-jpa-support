@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.entity;
 
+import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 
@@ -40,5 +42,29 @@ public class MybatisGeneratorColumnSchema extends ColumnSchema implements Column
   @Override
   public boolean autoIncrement() {
     return introspectedColumn.isAutoIncrement();
+  }
+
+  @Override
+  public int jdbcType() {
+    return introspectedColumn.getJdbcType();
+  }
+
+  @Nullable
+  @Override
+  public String jdbcTypeName() {
+    return introspectedColumn.getJdbcTypeName();
+  }
+
+  @Nullable
+  @Override
+  public Class<?> javaTypeClass() {
+    return Optional.ofNullable(introspectedColumn.getFullyQualifiedJavaType())
+        .map(type -> {
+          try {
+            return Class.forName(type.getFullyQualifiedName());
+          } catch (ClassNotFoundException ignored) {
+            return null;
+          }
+        }).orElse(null);
   }
 }
