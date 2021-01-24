@@ -35,9 +35,11 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
     compileOnly fileTree('lib')
     testCompile group: 'junit', name: 'junit', version: '4.13.1'
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/

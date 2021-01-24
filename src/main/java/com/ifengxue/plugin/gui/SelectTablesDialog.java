@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.gui;
 
+import static java.util.stream.Collectors.toList;
+
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.SelectTables;
@@ -17,6 +19,7 @@ import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
+import com.ifengxue.plugin.util.ColumnUtil;
 import com.ifengxue.plugin.util.FileUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
@@ -34,7 +37,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
@@ -43,22 +50,27 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
-import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import static java.util.stream.Collectors.toList;
+import javax.annotation.Nonnull;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SelectTablesDialog extends DialogWrapper {
 
@@ -179,10 +191,10 @@ public class SelectTablesDialog extends DialogWrapper {
     if (columnSchemas == null) {
       return Collections.emptyList();
     }
-    // 解析字段列表
+    // column schema to column
     List<Column> columns = new ArrayList<>(columnSchemas.size());
     for (ColumnSchema columnSchema : columnSchemas) {
-      Column column = Holder.getDatabaseDrivers().getDriverAdapter().parseToColumn(columnSchema,
+      Column column = ColumnUtil.columnSchemaToColumn(columnSchema,
           autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
           autoGeneratorSettingsState.isUseJava8DateType());
       if (column.isPrimary()) {

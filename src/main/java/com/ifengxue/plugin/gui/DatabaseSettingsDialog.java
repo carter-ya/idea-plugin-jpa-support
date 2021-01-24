@@ -1,11 +1,14 @@
 package com.ifengxue.plugin.gui;
 
+import static org.apache.commons.lang3.StringUtils.trim;
+
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.action.JpaSupport;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.adapter.DriverDelegate;
 import com.ifengxue.plugin.component.DatabaseSettings;
+import com.ifengxue.plugin.entity.MybatisGeneratorTableSchema;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
@@ -37,13 +40,6 @@ import com.intellij.util.lang.UrlClassLoader;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -54,10 +50,19 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.apache.commons.lang3.StringUtils.trim;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DatabaseSettingsDialog extends DialogWrapper {
 
@@ -194,19 +199,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         ApplicationManager.getApplication().invokeLater(() -> {
           dispose();
           // 显示自动生成器配置窗口
-          AutoGeneratorSettingsDialog.show(tableSchemaList, tableSchema -> {
-            try {
-              return Holder.getDatabaseDrivers().getDriverAdapter()
-                  .findTableSchemas(tableSchema.getTableSchema(), tableSchema.getTableName());
-            } catch (SQLException se) {
-              log.error("read table " + tableSchema.getTableName() + " schema failed", se);
-              ApplicationManager.getApplication()
-                  .invokeLater(() -> Bus.notify(new Notification(Constants.GROUP_ID, "Error",
-                      se.getErrorCode() + "," + se.getSQLState() + "," + se.getLocalizedMessage(),
-                      NotificationType.ERROR)));
-              return null;
-            }
-          });
+          AutoGeneratorSettingsDialog
+              .show(tableSchemaList, tableSchema -> ((MybatisGeneratorTableSchema) tableSchema).toColumnSchemas());
         });
       } catch (SQLException se) {
         String sb = "SQL error code: " + se.getErrorCode()

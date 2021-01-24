@@ -1,6 +1,5 @@
 package com.ifengxue.plugin.adapter;
 
-import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.TableSchema;
 import java.sql.SQLException;
@@ -24,13 +23,10 @@ public interface DriverAdapter {
    * @param database database name
    * @param table table name
    */
-  List<ColumnSchema> findTableSchemas(String database, String table) throws SQLException;
-
-  /**
-   * 解析为{@link Column}
-   */
-  Column parseToColumn(ColumnSchema columnSchema, String removeFieldPrefix, boolean useWrapper,
-      boolean useJava8DateType);
+  @Deprecated
+  default List<ColumnSchema> findTableSchemas(String database, String table) throws SQLException {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * 转换为 connection url

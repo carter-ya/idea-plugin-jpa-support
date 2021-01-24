@@ -26,16 +26,22 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
+import java.awt.event.ItemEvent;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
-
-import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Function;
 
 public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
@@ -170,7 +176,6 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         (String) generatorSettings.getCbxModule().getSelectedItem());
     // read attributes
     generatorSettings.getData(autoGeneratorSettingsState, moduleSettings);
-    //TODO 保留主键类型
     List<Table> tableList = new ArrayList<>(tableSchemaList.size());
     String entityDirectory = Paths.get(moduleSettings.getEntityParentDirectory(),
         StringHelper.packageNameToFolder(moduleSettings.getEntityPackageName()))
@@ -180,7 +185,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
       String tableName = autoGeneratorSettingsState.removeTablePrefix(tableSchema.getTableName());
       String entityName = StringHelper.parseEntityName(tableName);
       entityName = autoGeneratorSettingsState.concatPrefixAndSuffix(entityName);
-      // 是否默认选中文件
+      // If the path contains a file with the same name, it is not selected by default
       boolean selected = entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
       if (selected) {
         // support flyway
@@ -188,8 +193,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
           selected = false;
         }
       }
+      // Database Plugin, selected by default
       if (!selected) {
-        // 强制选择所有表
         selected = Holder.isSelectAllTables();
       }
       String repositoryName = entityName + autoGeneratorSettingsState.getRepositorySuffix();
