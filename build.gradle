@@ -20,7 +20,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'io.freefair.lombok'
 
 group 'com.ifengxue'
-version '2.0.4-EAP'
+version '2.0.5-EAP'
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -57,22 +57,13 @@ runIde {
 }
 
 patchPluginXml {
-    version '2.0.4-EAP'
+    version '2.0.5-EAP'
     changeNotes """
       <ol>
-          <li>Feature: Support generating source code directly from Database plugin (IDEA Ultimate only)</li>
-          <li>Feature: Support regex expressions when selecting tables</li>
-          <li>Feature: The window will be closed automatically after generating the source code</li>
-          <li>Feature: Automatic window centering is supported</li>
-          <li>Feature: Support record window size</li>
-          <li>Feature: Support not persist password, and support password security storage(eg: Mac in Keychain or keepass)</li>
-          <li>Feature: Support to select whether to generate method comments</li>
-          <li>Feature: Support Fluid Programming Style(use or not use Lombok)</li>
-          <li>Feature: Support custom template, this is beta feature</li>
-          <li>Feature: Auto reimport and format code after the build is complete</li>
-          <li>Feature: Support generation date time type default value, this is beta feature </li>
-          <li>Feature: Allow custome db type and java type mapping</li>
-          <li>Feature: Allow database with no password</li>
+          <li>Support all databases.</li>
+          <li>Support generate source code from Database plugin</li>
+          <li>Support custom generate code template</li>
+          <li>Support custom db type mapping</li>
       </ol>
       """
 }
