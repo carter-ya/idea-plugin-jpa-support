@@ -55,6 +55,16 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
   }
 
   @Override
+  public boolean sequenceColumn() {
+    return false;
+  }
+
+  @Override
+  public boolean generateColumn() {
+    return false;
+  }
+
+  @Override
   public int jdbcType() {
     return dasColumn.getDataType().jdbcType;
   }

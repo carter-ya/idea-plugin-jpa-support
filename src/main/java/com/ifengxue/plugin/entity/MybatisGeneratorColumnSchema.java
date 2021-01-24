@@ -45,6 +45,16 @@ public class MybatisGeneratorColumnSchema extends ColumnSchema implements Column
   }
 
   @Override
+  public boolean sequenceColumn() {
+    return introspectedColumn.isSequenceColumn();
+  }
+
+  @Override
+  public boolean generateColumn() {
+    return introspectedColumn.isGeneratedColumn();
+  }
+
+  @Override
   public int jdbcType() {
     return introspectedColumn.getJdbcType();
   }

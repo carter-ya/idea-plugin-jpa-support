@@ -12,6 +12,10 @@ public interface ColumnSchemaExtension<T> {
 
   boolean autoIncrement();
 
+  boolean sequenceColumn();
+
+  boolean generateColumn();
+
   /**
    * @see java.sql.Types
    */

@@ -61,6 +61,7 @@ public class Column {
    * 是否是自增字段
    */
   private boolean autoIncrement;
+  private boolean sequenceColumn;
   /**
    * 是否有默认值
    */

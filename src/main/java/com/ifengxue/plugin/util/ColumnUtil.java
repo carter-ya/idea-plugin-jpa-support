@@ -31,6 +31,7 @@ public class ColumnUtil {
     column.setJavaDataType(extension.javaTypeClass());
     column.setJdbcType(extension.jdbcType());
     column.setJdbcTypeName(extension.jdbcTypeName());
+    column.setSequenceColumn(extension.sequenceColumn());
     ColumnUtil.parseColumn(column, removePrefix, useWrapper, useJava8DateType);
     return column;
   }
