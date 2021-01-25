@@ -40,7 +40,7 @@ dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
     compileOnly fileTree('lib')
     testCompile group: 'junit', name: 'junit', version: '4.13.1'
-    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
