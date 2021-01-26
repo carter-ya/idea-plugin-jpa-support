@@ -9,4 +9,4 @@ open_collective: jpa-support
 # liberapay: # Replace with a single Liberapay username
 # issuehunt: # Replace with a single IssueHunt username
 # otechie: # Replace with a single Otechie username
-custom: [ 'https://www.paypal.com/paypalme/carterya', 'https://raw.githubusercontent.com/carter-ya/idea-plugin-jpa-support/master/src/main/resources/images/alipay.png#支付宝', 'https://raw.githubusercontent.com/carter-ya/idea-plugin-jpa-support/master/src/main/resources/images/wechat.png#微信支付' ]
+custom: [ 'https://www.paypal.com/paypalme/carterya', 'https://raw.githubusercontent.com/carter-ya/idea-plugin-jpa-support/master/src/main/resources/images/alipay.png#支付宝', 'https://raw.githubusercontent.com/carter-ya/idea-plugin-jpa-support/master/src/main/resources/images/wechat.jpeg#微信支付' ]
