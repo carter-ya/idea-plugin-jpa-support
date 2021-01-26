@@ -8,16 +8,16 @@ import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.openapi.components.ServiceManager;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 
-public class JpaRepositorySourceParser extends AbstractSourceParser {
+public class JpaServiceSourceParser extends AbstractSourceParser {
 
   @Override
   public String parse(GeneratorConfig config, Table table) {
     return parse(config, table,
-        () -> ServiceManager.getService(SettingsState.class).loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID));
+        () -> ServiceManager.getService(SettingsState.class).loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID));
   }
 
   @Override
@@ -37,17 +37,16 @@ public class JpaRepositorySourceParser extends AbstractSourceParser {
       context.put("package", "");
       context.put("importClassList", Collections.emptyList());
     } else {
-      context.put("package", tablesConfig.getRepositoryPackageName());
+      context.put("package", tablesConfig.getServiceSubPackageName());
       context.put("importClassList",
-          Collections.singletonList(tablesConfig.getEntityPackageName() + "." + table.getEntityName()));
+          Collections.singletonList(tablesConfig.getRepositoryPackageName() + "." + table.getRepositoryName()));
     }
-    context.put("simpleName", table.getRepositoryName());
-    context.put("entitySimpleName", table.getEntityName());
-    context.put("primaryKeyDataType",
-        Optional.ofNullable(table.getPrimaryKeyClassType())
-            .map(StringHelper::getWrapperClass)
-            .map(Class::getSimpleName)
-            .orElse("Void"));
+
+    context.put("simpleName", table.getServiceName());
+    if (StringUtils.isNotBlank(table.getRepositoryName())) {
+      context.put("repositorySimpleName", table.getRepositoryName());
+      context.put("repositoryVariableName", StringHelper.firstLetterLower(table.getRepositoryName()));
+    }
     return evaluate(context, templateProvider);
   }
 }

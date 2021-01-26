@@ -17,26 +17,28 @@
 ### ${stringHelper}: some string method, eg: parseSetMethodName, parseGetMethodName, type is com.ifengxue.plugin.util.StringHelper
 ### ${package}: package name, eg: org.example
 ### ${importClassList}: import class list, type is java.util.List
-### ${simpleName}: repository class simple name, eg: ExampleRepository
-### ${entitySimpleName}: entity class simple name, eg: Example
-### ${primaryKeyDataType}: entity class primary key field type simple name, eg: Long, String or Void
+### ${simpleName}: service class simple name, eg: ExampleService
+### ${repositorySimpleName}: repository class simple name, eg: ExampleRepository
+### ${repositoryVariableName}: repository field name, eg: exampleRepository
 ###
 ###
-### For more information: https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/src/main/java/com/ifengxue/plugin/generator/source/JpaRepositorySourceParser.java
+### For more information: https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/src/main/java/com/ifengxue/plugin/generator/source/JpaServiceSourceParser.java
 ########################################################################################################################
 #if(!$package.isEmpty())
 package $package;
 
 #end
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 #foreach($importClass in $importClassList)
 import $importClass;
 #end
-#if(!$importClassList.isEmpty())
-## add new empty line
 
+@Service
+public class $simpleName {
+
+#if(!$repositorySimpleName.isEmpty())
+@Autowired
+private $repositorySimpleName $repositoryVariableName;
 #end
-public interface $simpleName extends JpaRepository<$entitySimpleName, $primaryKeyDataType>, JpaSpecificationExecutor<$entitySimpleName> {
-
 }

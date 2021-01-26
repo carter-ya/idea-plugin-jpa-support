@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SimpleResultSetHandler<T> implements ResultSetHandler {
+public class SimpleResultSetHandler<T> implements ResultSetHandler<T> {
 
   private final RowHandler<T> rowHandler;
 

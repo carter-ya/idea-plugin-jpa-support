@@ -30,7 +30,7 @@ public enum TestTemplateHelper {
             .setPluginConfigs(Collections.emptyList())
             .setTablesConfig(
                 new TablesConfig()
-                    .setBasePackageName("")
+                    .setBasePackageName("org.example.jpa.support.test")
                     .setEntityPackageName("org.example.jpa.support.test.domain")
                     .setExtendsEntityName(settingsState.getInheritedParentClassName())
                     .setIndent(Indent.FOUR_SPACE.getIndent())
@@ -39,6 +39,7 @@ public enum TestTemplateHelper {
                     .setRemoveFieldPrefix(settingsState.getRemoveFieldPrefix())
                     .setRemoveTablePrefix(settingsState.getRemoveEntityPrefix())
                     .setRepositoryPackageName("org.example.jpa.support.test.repo")
+                    .setServiceSubPackageName("org.example.jpa.support.test.service")
                     .setSerializable(settingsState.isSerializable())
                     .setUseClassComment(settingsState.isGenerateClassComment())
                     .setUseFieldComment(settingsState.isGenerateFieldComment())
@@ -59,7 +60,8 @@ public enum TestTemplateHelper {
                 .setTableSchema("example_db")
                 .setEntityName(StringHelper.parseEntityName(settingsState.removeTablePrefix(table.getTableName())))
                 .setRepositoryName(table.getEntityName() + "Repository")
-                .setPackageName("org.example")
+                .setServiceName(table.getEntityName() + "Service")
+                .setPackageName("org.example.jpa.support.test")
                 .setPrimaryKeyClassType(Long.class)
                 .setPrimaryKeyCount(1)
                 .setColumns(Arrays.asList(

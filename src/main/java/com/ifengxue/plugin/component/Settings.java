@@ -9,6 +9,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TextFieldWithAutoCompletion;
+import com.intellij.ui.components.JBList;
 import java.util.Objects;
 import java.util.Optional;
 import javax.swing.JButton;
@@ -33,6 +34,10 @@ public class Settings {
     private JRadioButton radioBtnThrow;
     private JRadioButton radioBtnFallbackType;
     private JPanel typeMappingTablePane;
+    private JBList templateList;
+    private JComboBox cbxTemplateBindingEntity;
+    private JComboBox cbxTemplateBindingService;
+    private JComboBox cbxTemplateBindingRepository;
 
     private void createUIComponents() {
         sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);

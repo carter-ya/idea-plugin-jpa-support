@@ -64,6 +64,11 @@ public class Table {
   private String repositoryName;
 
   /**
+   * service name
+   */
+  private String serviceName;
+
+  /**
    * 包名称
    */
   private String packageName;
