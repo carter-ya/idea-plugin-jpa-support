@@ -119,15 +119,12 @@ public class SettingsConfigurable implements SearchableConfigurable {
         settings.getRadioBtnFallbackType().addItemListener(
             event -> settings.getTextFallbackType().setEnabled(event.getStateChange() == ItemEvent.SELECTED));
 
-        if (settingsState.getDbTypeToJavaType() == null) {
-            settingsState.resetTypeMapping();
-        }
         if (typeMappingTable == null) {
             typeMappingTable = new JBTable();
             typeMappingTable.setAutoCreateRowSorter(true);
 
             new TableFactory().decorateTable(typeMappingTable, TypeMapping.class,
-                TypeMapping.from(settingsState.getDbTypeToJavaType()));
+                TypeMapping.from(settingsState.getOrResetDbTypeToJavaType()));
             MyTableModel<TypeMapping> tableModel = (MyTableModel<TypeMapping>) typeMappingTable.getModel();
             JPanel tablePanel = ToolbarDecorator.createDecorator(typeMappingTable)
                 .setAddAction(anActionButton -> {
@@ -165,7 +162,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
             settings.getTypeMappingTablePane().add(tablePanel);
         } else {
             ((MyTableModel<TypeMapping>) typeMappingTable.getModel())
-                .resetRows(TypeMapping.from(settingsState.getDbTypeToJavaType()));
+                .resetRows(TypeMapping.from(settingsState.getOrResetDbTypeToJavaType()));
         }
 
         // bind data
@@ -197,11 +194,11 @@ public class SettingsConfigurable implements SearchableConfigurable {
             return true;
         }
         List<TypeMapping> rows = ((MyTableModel<TypeMapping>) typeMappingTable.getModel()).getRows();
-        if (rows.size() != settingsState.getDbTypeToJavaType().size()) {
+        if (rows.size() != settingsState.getOrResetDbTypeToJavaType().size()) {
             return true;
         }
         for (TypeMapping row : rows) {
-            ClassWrapper classWrapper = settingsState.getDbTypeToJavaType().get(row.getDbColumnType());
+            ClassWrapper classWrapper = settingsState.getOrResetDbTypeToJavaType().get(row.getDbColumnType());
             if (classWrapper == null || classWrapper.getClazz() != row.getJavaType()) {
                 return true;
             }

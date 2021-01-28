@@ -94,9 +94,9 @@ public class StringHelper {
   private static Class<?> parseJavaDataType(@Nullable Class<?> fallbackJavaDataType, String jdbcTypeName,
       String dbDataType, String columnName, boolean useWrapper) {
     SettingsState settingsState = ServiceManager.getService(SettingsState.class);
-    ClassWrapper classWrapper = settingsState.getDbTypeToJavaType().get(dbDataType);
+    ClassWrapper classWrapper = settingsState.getOrResetDbTypeToJavaType().get(dbDataType);
     if (classWrapper == null) {
-      classWrapper = settingsState.getDbTypeToJavaType().get(jdbcTypeName);
+      classWrapper = settingsState.getOrResetDbTypeToJavaType().get(jdbcTypeName);
     }
     if (classWrapper == null && fallbackJavaDataType == null) {
       if (settingsState.isThrowException()) {
