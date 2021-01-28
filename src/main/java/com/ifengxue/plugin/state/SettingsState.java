@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Time;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import lombok.Data;
@@ -65,8 +64,15 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
         dbTypeToJavaType = ListOrderedMap.listOrderedMap(new CaseInsensitiveMap<>(dbTypeToJavaType));
     }
 
+    public Map<String, ClassWrapper> getOrResetDbTypeToJavaType() {
+        if (dbTypeToJavaType == null) {
+            resetTypeMapping();
+        }
+        return dbTypeToJavaType;
+    }
+
     public void resetTypeMapping() {
-        dbTypeToJavaType = new LinkedHashMap<>();
+        dbTypeToJavaType = ListOrderedMap.listOrderedMap(new CaseInsensitiveMap<>());
         dbTypeToJavaType.put("CLOB", new ClassWrapper(String.class));
         dbTypeToJavaType.put("TEXT", new ClassWrapper(String.class));
         dbTypeToJavaType.put("VARCHAR", new ClassWrapper(String.class));

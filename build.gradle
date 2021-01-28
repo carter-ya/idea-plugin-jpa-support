@@ -20,7 +20,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'io.freefair.lombok'
 
 group 'com.ifengxue'
-version '2.0.5-EAP'
+version '2.0.6-EAP'
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -57,13 +57,10 @@ runIde {
 }
 
 patchPluginXml {
-    version '2.0.5-EAP'
+    version '2.0.6-EAP'
     changeNotes """
       <ol>
-          <li>Support all databases.</li>
-          <li>Support generate source code from Database plugin</li>
-          <li>Support custom generate code template</li>
-          <li>Support custom db type mapping</li>
+          <li>fix dbTypeToJavaType NPE bug</li>
       </ol>
       """
 }
