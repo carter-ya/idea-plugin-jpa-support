@@ -27,13 +27,14 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.lang.UrlClassLoader;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -154,10 +155,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     WriteCommandAction.runWriteCommandAction(project, () -> {
       try {
         try {
-          classLoaderRef.set(UrlClassLoader.build()
-              .urls(new File(driverPath).toURI().toURL())
-              .parent(getClass().getClassLoader())
-              .get());
+          classLoaderRef.set(new URLClassLoader(
+              new URL[]{new File(driverPath).toURI().toURL()}, getClass().getClassLoader()));
           Class.forName(driverClass, true, classLoaderRef.get());
         } catch (MalformedURLException | ClassNotFoundException ex) {
           ApplicationManager.getApplication().invokeLater(() -> Messages.showOkCancelDialog(project,
