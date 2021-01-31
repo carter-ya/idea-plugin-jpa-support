@@ -77,8 +77,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     }
 
     initTextField();
-    setPackagePath(selectedModule, true);
     moduleChange(selectedModule);
+    setPackagePath(selectedModule, true);
 
     generatorSettings.getCbxModule().addItemListener(itemEvent -> {
       if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
@@ -232,8 +232,21 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   }
 
   private void moduleChange(Module newModule) {
-    generatorSettings
-        .setData(autoGeneratorSettingsState, autoGeneratorSettingsState.getModuleSettings(newModule.getName()));
+    ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings(newModule.getName());
+    generatorSettings.setData(autoGeneratorSettingsState, moduleSettings);
+
+    if (moduleSettings != null) {
+      generatorSettings.getEntityPackageReferenceEditorCombo().setText(moduleSettings.getEntityPackageName());
+      if (StringUtils.isNotBlank(moduleSettings.getEntityPackageName())) {
+        generatorSettings.getEntityPackageReferenceEditorCombo().prependItem(moduleSettings.getEntityPackageName());
+      }
+      generatorSettings.getRepositoryPackageReferenceEditorCombo().setText(moduleSettings.getRepositoryPackageName());
+      if (StringUtils.isNotBlank(moduleSettings.getRepositoryPackageName())) {
+        generatorSettings.getRepositoryPackageReferenceEditorCombo().prependItem(moduleSettings.getRepositoryPackageName());
+      }
+      generatorSettings.getTextEntityPackageParentPath().setText(moduleSettings.getEntityParentDirectory());
+      generatorSettings.getTextRepositoryPackageParentPath().setText(moduleSettings.getRepositoryParentDirectory());
+    }
   }
 
   private Optional<Module> findModule(String moduleName) {
