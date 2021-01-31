@@ -338,7 +338,10 @@
           </grid>
           <forms defaultalign-horz="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <text value=""/>
+          <toolTipText resource-bundle="bundles/ui_i18n" key="should_not_modify_source_root_tip"/>
+        </properties>
       </component>
       <component id="7b1a5" class="javax.swing.JLabel">
         <constraints>
@@ -356,7 +359,10 @@
           </grid>
           <forms defaultalign-horz="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <text value=""/>
+          <toolTipText resource-bundle="bundles/ui_i18n" key="should_not_modify_source_root_tip"/>
+        </properties>
       </component>
       <grid id="529cd" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
         <constraints>
