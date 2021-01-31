@@ -37,7 +37,7 @@ public class Settings {
     private void createUIComponents() {
         sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);
         Language velocityLanguage = Optional.ofNullable(Language.findLanguageByID("VTL"))
-            .orElse(Language.ANY);
+            .orElse(Language.findLanguageByID("TEXT"));
         Project defaultProject = ProjectManager.getInstance().getDefaultProject();
         txtSourceCode = new LanguageTextField(velocityLanguage,
             defaultProject, "",

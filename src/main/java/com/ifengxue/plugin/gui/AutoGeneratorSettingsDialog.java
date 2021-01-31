@@ -18,6 +18,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -61,7 +62,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     init();
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 
-    // 选择模块
+    // select module
     Module[] modules = ModuleManager.getInstance(project).getModules();
     Module selectedModule = modules[0];
     for (Module module : modules) {
@@ -76,8 +77,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     }
 
     initTextField();
-    setPackagePath(selectedModule, true);
     moduleChange(selectedModule);
+    setPackagePath(selectedModule, true);
 
     generatorSettings.getCbxModule().addItemListener(itemEvent -> {
       if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
@@ -121,17 +122,24 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     autoGeneratorSettingsState.setModuleName(moduleName);
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
     List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(JavaSourceRootType.SOURCE);
+    String sourceRoot;
     if (sourceRoots.isEmpty()) {
-      BusUtil.notify(Holder.getProject(), "Module " + moduleName + " does not contain Source Root.",
-          NotificationType.WARNING);
-      return;
+      VirtualFile[] contentRoots = moduleRootManager.getContentRoots();
+      if (contentRoots.length == 0) {
+        BusUtil.notify(Holder.getProject(), "Module " + moduleName + " does not contain Source Root.",
+            NotificationType.WARNING);
+        return;
+      }
+      sourceRoot = contentRoots[0].getCanonicalPath() + "/src/main/java";
+    } else {
+      sourceRoot = sourceRoots.get(0).getCanonicalPath();
     }
-    VirtualFile firstSourceRoot = sourceRoots.get(0);
+
     if (!checkEmpty || generatorSettings.getTextEntityPackageParentPath().getText().isEmpty()) {
-      generatorSettings.getTextEntityPackageParentPath().setText(firstSourceRoot.getPath());
+      generatorSettings.getTextEntityPackageParentPath().setText(sourceRoot);
     }
     if (!checkEmpty || generatorSettings.getTextRepositoryPackageParentPath().getText().isEmpty()) {
-      generatorSettings.getTextRepositoryPackageParentPath().setText(firstSourceRoot.getPath());
+      generatorSettings.getTextRepositoryPackageParentPath().setText(sourceRoot);
     }
   }
 
@@ -224,8 +232,21 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   }
 
   private void moduleChange(Module newModule) {
-    generatorSettings
-        .setData(autoGeneratorSettingsState, autoGeneratorSettingsState.getModuleSettings(newModule.getName()));
+    ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings(newModule.getName());
+    generatorSettings.setData(autoGeneratorSettingsState, moduleSettings);
+
+    if (moduleSettings != null) {
+      generatorSettings.getEntityPackageReferenceEditorCombo().setText(moduleSettings.getEntityPackageName());
+      if (StringUtils.isNotBlank(moduleSettings.getEntityPackageName())) {
+        generatorSettings.getEntityPackageReferenceEditorCombo().prependItem(moduleSettings.getEntityPackageName());
+      }
+      generatorSettings.getRepositoryPackageReferenceEditorCombo().setText(moduleSettings.getRepositoryPackageName());
+      if (StringUtils.isNotBlank(moduleSettings.getRepositoryPackageName())) {
+        generatorSettings.getRepositoryPackageReferenceEditorCombo().prependItem(moduleSettings.getRepositoryPackageName());
+      }
+      generatorSettings.getTextEntityPackageParentPath().setText(moduleSettings.getEntityParentDirectory());
+      generatorSettings.getTextRepositoryPackageParentPath().setText(moduleSettings.getRepositoryParentDirectory());
+    }
   }
 
   private Optional<Module> findModule(String moduleName) {
