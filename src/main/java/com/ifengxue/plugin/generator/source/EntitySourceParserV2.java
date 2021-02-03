@@ -35,7 +35,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     context.put("table", table);
     context.put("empty", "");
     context.put("stringHelper", new StringHelper());
-    // 设置缩进
+    // set indent
     context.put("indent", Element.Indent.findByDTDDeclare(tablesConfig.getIndent()));
     context.put("package", tablesConfig.getEntityPackageName());
     Set<String> importClassList = new HashSet<>();
@@ -47,20 +47,20 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     Set<String> implementClassList = new HashSet<>();
     context.put("implementClassList", implementClassList);
 
-    // 增加序列化注解
+    // add serializable
     if (tablesConfig.isSerializable()) {
       importClassList.add(Serializable.class.getName());
       implementClassList.add(Serializable.class.getSimpleName());
       context.put("serialVersionUID", "1");
     }
 
-    // 设置是否使用Lombok
+    // use lombok
     context.put("useLombok", tablesConfig.isUseLombok());
     if (tablesConfig.isUseLombok()) {
       importClassList.add("lombok.Data");
       annotationList.add("Data");
 
-      // 使用Fluid Programming Style
+      // use Fluid Programming Style
       if (tablesConfig.isUseFluidProgrammingStyle()) {
         importClassList.add("lombok.experimental.Accessors");
         annotationList.add("Accessors(chain = true)");
@@ -72,13 +72,13 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       }
     }
 
-    // 设置JPA相关信息
+    // set jpa info
     importClassList.add("javax.persistence.Entity");
     annotationList.add("Entity");
     importClassList.add("javax.persistence.Table");
     annotationList.add("Table(name = \"" + table.getTableName() + "\")");
 
-    // 处理表字段
+    // add column annotation
     context.put("columns", table.getColumns());
     if (!table.getColumns().isEmpty()) {
       importClassList.add("javax.persistence.Column");

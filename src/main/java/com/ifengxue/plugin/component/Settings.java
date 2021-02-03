@@ -34,10 +34,10 @@ public class Settings {
     private JRadioButton radioBtnThrow;
     private JRadioButton radioBtnFallbackType;
     private JPanel typeMappingTablePane;
-    private JBList templateList;
-    private JComboBox cbxTemplateBindingEntity;
-    private JComboBox cbxTemplateBindingService;
-    private JComboBox cbxTemplateBindingRepository;
+    private JBList<TemplateItem> templateList;
+    private JComboBox<TemplateItem> cbxTemplateBindingEntity;
+    private JComboBox<TemplateItem> cbxTemplateBindingService;
+    private JComboBox<TemplateItem> cbxTemplateBindingRepository;
 
     private void createUIComponents() {
         sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);
