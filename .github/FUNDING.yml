@@ -2,11 +2,11 @@
 
 # github: [carter-ya]
 # patreon: # Replace with a single Patreon username
-# open_collective: # Replace with a single Open Collective username
+open_collective: jpa-support
 # ko_fi: # Replace with a single Ko-fi username
 # tidelift: # Replace with a single Tidelift platform-name/package-name e.g., npm/babel
 # community_bridge: # Replace with a single Community Bridge project-name e.g., cloud-foundry
 # liberapay: # Replace with a single Liberapay username
 # issuehunt: # Replace with a single IssueHunt username
 # otechie: # Replace with a single Otechie username
-custom: ['https://www.paypal.com/paypalme/carterya', 'https://imgchr.com/i/sWCosU#支付宝']
+custom: [ 'https://www.paypal.com/paypalme/carterya', 'https://raw.githubusercontent.com/carter-ya/idea-plugin-jpa-support/master/src/main/resources/images/alipay.png#支付宝', 'https://raw.githubusercontent.com/carter-ya/idea-plugin-jpa-support/master/src/main/resources/images/wechat.jpeg#微信支付' ]

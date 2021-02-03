@@ -20,7 +20,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'io.freefair.lombok'
 
 group 'com.ifengxue'
-version '2.0.5-EAP'
+version '2.0.6-EAP'
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -37,17 +37,17 @@ dependencies {
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
     compileOnly fileTree('lib')
     testCompile group: 'junit', name: 'junit', version: '4.13.1'
-    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.3.1'
+    version '2020.3.2'
     pluginName 'Jpa Support'
-    type 'IU'
+    type 'IC'
     updateSinceUntilBuild false
     plugins = ['java']
 }
@@ -57,13 +57,10 @@ runIde {
 }
 
 patchPluginXml {
-    version '2.0.5-EAP'
+    version '2.0.6-EAP'
     changeNotes """
       <ol>
-          <li>Support all databases.</li>
-          <li>Support generate source code from Database plugin</li>
-          <li>Support custom generate code template</li>
-          <li>Support custom db type mapping</li>
+          <li>fix dbTypeToJavaType NPE bug</li>
       </ol>
       """
 }

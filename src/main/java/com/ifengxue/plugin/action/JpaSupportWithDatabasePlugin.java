@@ -65,7 +65,12 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
       method.setAccessible(true);
       productName = (String) method.invoke(dataSource);
     } catch (Exception ignored) {
-      productName = dataSource.getDelegate().getDatabaseProductName();
+      try {
+        Method method = dataSource.getDelegate().getClass().getMethod("getDatabaseProductName");
+        method.setAccessible(true);
+        productName = (String) method.invoke(dataSource.getDelegate());
+      } catch (Exception ignored2) {
+      }
     }
     if (StringUtils.isBlank(productName)) {
       productName = dataSource.getName();
