@@ -4,10 +4,6 @@ import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.component.Settings;
 import com.ifengxue.plugin.component.TemplateItem;
 import com.ifengxue.plugin.entity.TypeMapping;
-import com.ifengxue.plugin.generator.source.AbstractSourceParser;
-import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
-import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
-import com.ifengxue.plugin.generator.source.JpaServiceSourceParser;
 import com.ifengxue.plugin.gui.SourceCodeViewerDialog;
 import com.ifengxue.plugin.gui.TypeEditorDialog;
 import com.ifengxue.plugin.gui.table.TableFactory;
@@ -15,6 +11,7 @@ import com.ifengxue.plugin.gui.table.TableFactory.MyTableModel;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.ifengxue.plugin.util.TestTemplateHelper;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -22,17 +19,18 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
 import java.awt.event.ItemEvent;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
 import lombok.Data;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
@@ -72,46 +70,55 @@ public class SettingsConfigurable implements SearchableConfigurable {
 
     // template config
 
-    Map<String, Class<? extends AbstractSourceParser>> templateIdToParserClass = new LinkedHashMap<>();
-    templateIdToParserClass.put(Constants.JPA_ENTITY_TEMPLATE_ID, EntitySourceParserV2.class);
-    templateIdToParserClass.put(Constants.JPA_REPOSITORY_TEMPLATE_ID, JpaRepositorySourceParser.class);
-    templateIdToParserClass.put(Constants.JPA_Service_TEMPLATE_ID, JpaServiceSourceParser.class);
-    settings.getCbxSelectCodeTemplate().removeAllItems();
-    templateIdToParserClass.forEach((templateId, parserClass) -> {
-      settings.getCbxSelectCodeTemplate().addItem(new TemplateItem()
-          .setId(templateId)
-          .setName(templateId.replace("template/", ""))
-          .setTemplate(settingsState.loadTemplate(templateId))
-          .setSourceParseClass(parserClass)
-      );
+    List<TemplateItem> templateItems = settingsState.getOrResetTemplateItems();
+    DefaultListModel<TemplateItem> listModel = JBList.createDefaultListModel(templateItems);
+    JBList<TemplateItem> templateList = settings.getTemplateList();
+    templateList.setModel(listModel);
+    templateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    templateList.addListSelectionListener(event -> {
+      log.info("first index: " + event.getFirstIndex() + ", last index: " + event.getLastIndex());
+      if (!event.getValueIsAdjusting()) {
+        TemplateItem item = listModel.getElementAt(event.getLastIndex());
+        if (item.getTemplate() == null) {
+          ApplicationManager.getApplication().runReadAction(() -> {
+            settingsState.forceLoadTemplate(item.getId());
+            ApplicationManager.getApplication().invokeLater(() -> {
+              settings.getTxtSourceCode().setText(item.getTemplate());
+            });
+          });
+        } else {
+          settings.getTxtSourceCode().setText(item.getTemplate());
+        }
+        // only builtin template can reset
+        settings.getBtnResetTemplate().setEnabled(item.isBuiltin());
+      }
     });
-    settings.getCbxSelectCodeTemplate().addItemListener(event -> {
-      if (event.getStateChange() == ItemEvent.SELECTED) {
-        TemplateItem item = (TemplateItem) event.getItem();
+    if (!templateItems.isEmpty()) {
+      templateList.setSelectedIndex(0);
+      settings.getTxtSourceCode().setText(templateList.getSelectedValue().getTemplate());
+    }
+    settings.getBtnResetTemplate().addActionListener(event -> {
+      TemplateItem item = templateList.getSelectedValue();
+      if (item != null) {
+        item.setTemplate(settingsState.forceLoadTemplate(item.getId()));
         settings.getTxtSourceCode().setText(item.getTemplate());
       }
     });
-    settings.getCbxSelectCodeTemplate().setSelectedIndex(0);
-    settings.getTxtSourceCode().setText(settings.getCbxSelectCodeTemplate().getItemAt(0).getTemplate());
-    settings.getBtnResetTemplate().addActionListener(event -> {
-      TemplateItem item = settings.getCbxSelectCodeTemplate()
-          .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex());
-      item.setTemplate(settingsState.forceLoadTemplate(item.getId()));
-      settings.getTxtSourceCode().setText(item.getTemplate());
-    });
     settings.getBtnTestTemplate().addActionListener(event -> {
+      TemplateItem item = templateList.getSelectedValue();
+      if (item == null) {
+        return;
+      }
       SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(ProjectManager.getInstance().getDefaultProject(),
           false);
-      dialog.setSourceCode(TestTemplateHelper.evaluateToString(settings.getCbxSelectCodeTemplate()
-              .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex()).getSourceParseClass(),
+      dialog.setSourceCode(TestTemplateHelper.evaluateToString(item.getSourceParseClass(),
           settings.getTxtSourceCode().getText()));
       dialog.show();
     });
     settings.getTxtSourceCode().addDocumentListener(new DocumentListener() {
       @Override
       public void documentChanged(@Nonnull DocumentEvent e) {
-        TemplateItem item = settings.getCbxSelectCodeTemplate()
-            .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex());
+        TemplateItem item = templateList.getSelectedValue();
         item.setTemplate(e.getDocument().getText());
       }
     });

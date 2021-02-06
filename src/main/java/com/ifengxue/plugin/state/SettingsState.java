@@ -1,5 +1,12 @@
 package com.ifengxue.plugin.state;
 
+import static java.util.stream.Collectors.toMap;
+
+import com.ifengxue.plugin.Constants;
+import com.ifengxue.plugin.component.TemplateItem;
+import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
+import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.generator.source.JpaServiceSourceParser;
 import com.ifengxue.plugin.state.converter.ClassConverter;
 import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -15,14 +22,16 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import lombok.Data;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 @Data
@@ -37,7 +46,14 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
     /**
      * template id to template
      */
-    private Map<String, String> templateIdToTemplate = new HashMap<>();
+    @Deprecated
+    private Map<String, String> templateIdToTemplate = new LinkedHashMap<>();
+    /**
+     * templates
+     */
+    private List<TemplateItem> templateItems = new ArrayList<>();
+    @Transient
+    private Map<String, TemplateItem> templateIdToTemplateItem;
 
     // type config
     private boolean fallbackType = true;
@@ -62,6 +78,50 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
             resetTypeMapping();
         }
         dbTypeToJavaType = ListOrderedMap.listOrderedMap(new CaseInsensitiveMap<>(dbTypeToJavaType));
+    }
+
+    private String formatTemplateName(String templateId) {
+        return templateId.replace(Constants.TEMPLATE_ID_PREFIX, "");
+    }
+
+    public List<TemplateItem> getOrResetTemplateItems() {
+        if (!templateItems.isEmpty()) {
+            return templateItems;
+        }
+        if (templateIdToTemplate != null) {
+            templateIdToTemplate.forEach((templateId, template) -> {
+                TemplateItem templateItem = new TemplateItem()
+                    .setId(templateId)
+                    .setBuiltin(true)
+                    .setName(formatTemplateName(templateId))
+                    .setTemplate(template);
+                if (templateId.equals(Constants.JPA_ENTITY_TEMPLATE_ID)) {
+                    templateItem.setSourceParseClass(EntitySourceParserV2.class);
+                } else if (templateId.equals(Constants.JPA_REPOSITORY_TEMPLATE_ID)) {
+                    templateItem.setSourceParseClass(JpaRepositorySourceParser.class);
+                } else {
+                    templateItem.setSourceParseClass(JpaServiceSourceParser.class);
+                }
+                templateItems.add(templateItem);
+            });
+            templateIdToTemplate = null;
+        }
+        templateIdToTemplateItem = templateItems.stream()
+            .collect(toMap(TemplateItem::getId, Function.identity()));
+
+        Constants.BUILTIN_TEMPLATE_IDS.forEach((id, clazz) -> {
+            if (!templateIdToTemplateItem.containsKey(id)) {
+                TemplateItem templateItem = new TemplateItem()
+                    .setId(id)
+                    .setBuiltin(true)
+                    .setName(formatTemplateName(id))
+                    .setTemplate(forceLoadTemplate(id))
+                    .setSourceParseClass(clazz);
+                templateItems.add(templateItem);
+                templateIdToTemplateItem.put(id, templateItem);
+            }
+        });
+        return templateItems;
     }
 
     public Map<String, ClassWrapper> getOrResetDbTypeToJavaType() {
@@ -124,17 +184,32 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
         dbTypeToJavaType.put("NUMERIC", new ClassWrapper(BigDecimal.class));
     }
 
-    public void putTemplate(String templateId, String template) {
-        templateIdToTemplate.put(templateId, template);
+    public void updateTemplate(String templateId, String template) {
+        TemplateItem templateItem = templateIdToTemplateItem.get(templateId);
+        if (templateItem == null) {
+            templateItem = new TemplateItem()
+                .setId(templateId)
+                .setName(formatTemplateName(templateId))
+                .setBuiltin(false)
+                .setTemplate(template)
+                .setSourceParseClass(EntitySourceParserV2.class);
+            templateItems.add(templateItem);
+            templateIdToTemplateItem.put(templateId, templateItem);
+        } else {
+            templateItem.setTemplate(template);
+        }
     }
 
     @Transient
     public String loadTemplate(String templateId) {
-        String template = templateIdToTemplate.get(templateId);
-        if (!StringUtils.isBlank(template)) {
-            return template;
+        TemplateItem templateItem = templateIdToTemplateItem.get(templateId);
+        if (templateItem == null) {
+            return null;
         }
-        return forceLoadTemplate(templateId);
+        if (templateItem.getTemplate() == null) {
+            templateItem.setTemplate(forceLoadTemplate(templateId));
+        }
+        return templateItem.getTemplate();
     }
 
     public String forceLoadTemplate(String templateId) {

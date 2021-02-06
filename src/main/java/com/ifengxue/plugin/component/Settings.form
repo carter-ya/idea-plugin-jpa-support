@@ -34,16 +34,6 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="50bbb" class="javax.swing.JLabel">
-                    <constraints/>
-                    <properties>
-                      <text resource-bundle="bundles/ui_i18n" key="select_source_code_template"/>
-                    </properties>
-                  </component>
-                  <component id="44532" class="javax.swing.JComboBox" binding="cbxSelectCodeTemplate">
-                    <constraints/>
-                    <properties/>
-                  </component>
                   <component id="d487" class="javax.swing.JButton" binding="btnTestTemplate">
                     <constraints/>
                     <properties>
@@ -73,7 +63,7 @@
               </scrollpane>
               <component id="d1e68" class="com.intellij.ui.components.JBList" binding="templateList">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>

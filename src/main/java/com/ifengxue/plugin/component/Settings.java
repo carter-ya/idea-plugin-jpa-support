@@ -10,7 +10,6 @@ import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TextFieldWithAutoCompletion;
 import com.intellij.ui.components.JBList;
-import java.util.Objects;
 import java.util.Optional;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -25,7 +24,6 @@ public class Settings {
 
     private JPanel rootComponent;
     private JTabbedPane tabbedPane;
-    private JComboBox<TemplateItem> cbxSelectCodeTemplate;
     private LanguageTextField txtSourceCode;
     private JButton btnTestTemplate;
     private JButton btnResetTemplate;
@@ -61,10 +59,10 @@ public class Settings {
 
     public void getData(SettingsState data) throws ClassNotFoundException {
         // template config
-
-        TemplateItem item = (TemplateItem) cbxSelectCodeTemplate.getSelectedItem();
-        Objects.requireNonNull(item);
-        data.putTemplate(item.getId(), item.getTemplate());
+        TemplateItem item = templateList.getSelectedValue();
+        if (item != null && item.getTemplate() != null) {
+            data.updateTemplate(item.getId(), item.getTemplate());
+        }
 
         // type config
         data.setFallbackType(radioBtnFallbackType.isSelected());
@@ -74,9 +72,8 @@ public class Settings {
 
     public boolean isModified(SettingsState data) {
         // template config
-        TemplateItem item = (TemplateItem) cbxSelectCodeTemplate.getSelectedItem();
-        Objects.requireNonNull(item);
-        if (!item.getTemplate().equals(data.loadTemplate(item.getId()))) {
+        TemplateItem item = templateList.getSelectedValue();
+        if (item != null && !item.getTemplate().equals(data.loadTemplate(item.getId()))) {
             return true;
         }
 
