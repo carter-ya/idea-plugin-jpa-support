@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 
 public class EntitySourceParserV2 extends AbstractSourceParser {
@@ -69,6 +70,16 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       if (!tablesConfig.getExtendsEntityName().isEmpty()) {
         importClassList.add("lombok.EqualsAndHashCode");
         annotationList.add("EqualsAndHashCode(callSuper = true)");
+      }
+    }
+
+    // use Swagger UI 
+    context.put("useSwaggerUIComment", tablesConfig.isUseSwaggerUIComment());
+    if (tablesConfig.isUseSwaggerUIComment()) {
+      importClassList.add("io.swagger.annotations.ApiModelProperty");
+      if (StringUtils.isNotBlank(table.getTableComment())) {
+        importClassList.add("io.swagger.annotations.ApiModel");
+        annotationList.add("ApiModel(\"" + table.getTableComment() + "\")");
       }
     }
 

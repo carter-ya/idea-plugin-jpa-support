@@ -66,6 +66,9 @@ private static final long serialVersionUID = ${serialVersionUID}L;
 #if($column.isAutoIncrement())@GeneratedValue(strategy = ${primaryKeyGeneratorStrategy}#if($primaryKeyGenerator), generator="$primaryKeyGenerator"#end)#end
 #if($primaryKeyGenerator)@SequenceGenerator(name = "$primaryKeyGenerator", sequenceName = "$primaryKeyGenerator")#end
 #end
+#if($useSwaggerUIComment && !$column.getColumnComment().isEmpty())
+@ApiModelProperty(value = "$column.getColumnComment()")
+#end
 @Column(name = "$column.getColumnName()"#if(!$column.isNullable()), nullable = false#end)
 private $column.getJavaDataType().getSimpleName() $column.getFieldName()#if($tablesConfig.requireWriteDefaultValue($column)) = $column.getDefaultValue()#end;
 
