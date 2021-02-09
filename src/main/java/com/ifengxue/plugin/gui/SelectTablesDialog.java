@@ -489,7 +489,7 @@ public class SelectTablesDialog extends DialogWrapper {
           .collect(toMap(PsiField::getName, Function.identity()));
       for (PsiField field : psiTopClass.getFields()) {
         if (!nameToField.containsKey(field.getName())) {
-          mergeField(field, psiTopClass, originalTopClass);
+          mergeFieldAndTryKeepOrder(field, psiTopClass, originalTopClass);
         }
       }
 
@@ -503,7 +503,10 @@ public class SelectTablesDialog extends DialogWrapper {
       }
     }
 
-    private void mergeField(PsiField field, PsiClass originalClass, PsiClass targetClass) {
+    /**
+     * merge field to target class, and try keep order
+     */
+    private void mergeFieldAndTryKeepOrder(PsiField field, PsiClass originalClass, PsiClass targetClass) {
       PsiField precursorField = null;
       boolean precursorIsFound = false;
       for (PsiField originalClassField : originalClass.getFields()) {
