@@ -53,6 +53,7 @@ import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.PsiReferenceList;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
@@ -488,7 +489,7 @@ public class SelectTablesDialog extends DialogWrapper {
           .collect(toMap(PsiField::getName, Function.identity()));
       for (PsiField field : psiTopClass.getFields()) {
         if (!nameToField.containsKey(field.getName())) {
-          originalTopClass.add(field);
+          mergeField(field, psiTopClass, originalTopClass);
         }
       }
 
@@ -499,6 +500,54 @@ public class SelectTablesDialog extends DialogWrapper {
         if (!nameToMethod.containsKey(method.getName())) {
           originalTopClass.add(method);
         }
+      }
+    }
+
+    private void mergeField(PsiField field, PsiClass originalClass, PsiClass targetClass) {
+      PsiField precursorField = null;
+      boolean precursorIsFound = false;
+      for (PsiField originalClassField : originalClass.getFields()) {
+        if (originalClassField.getName().equals(field.getName())) {
+          precursorIsFound = true;
+          break;
+        } else {
+          precursorField = originalClassField;
+        }
+      }
+      PsiField[] targetClassFields = targetClass.getFields();
+      if (precursorIsFound && precursorField != null) {
+        for (PsiField targetClassField : targetClassFields) {
+          if (targetClassField.getName().equals(precursorField.getName())) {
+            precursorField = targetClassField;
+            break;
+          }
+        }
+      }
+
+      if (!precursorIsFound) {
+        if (targetClassFields.length == 0) {
+          PsiMethod[] methods = targetClass.getMethods();
+          if (methods.length == 0) {
+            targetClass.add(field);
+          } else {
+            targetClass.addBefore(field, methods[0]);
+          }
+        } else {
+          PsiField firstNotStaticField = null;
+          for (PsiField targetClassField : targetClassFields) {
+            if (targetClassField.getModifierList() == null
+                || !targetClassField.getModifierList().hasModifierProperty(PsiModifier.STATIC)) {
+              firstNotStaticField = targetClassField;
+              break;
+            }
+          }
+          if (firstNotStaticField == null) {
+            firstNotStaticField = targetClassFields[targetClassFields.length - 1];
+          }
+          targetClass.addBefore(field, firstNotStaticField);
+        }
+      } else {
+        targetClass.addAfter(field, precursorField);
       }
     }
   }
