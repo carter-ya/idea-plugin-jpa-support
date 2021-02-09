@@ -324,6 +324,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseLombok(autoGeneratorSettingsState.isUseLombok())
             .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType())
             .setUseFluidProgrammingStyle(autoGeneratorSettingsState.isUseFluidProgrammingStyle())
+            .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
         String sourceCode = sourceParser.parse(generatorConfig, table);

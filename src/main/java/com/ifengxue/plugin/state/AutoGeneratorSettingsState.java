@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -97,6 +98,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 是否使用流式编程风格
    */
   private boolean useFluidProgrammingStyle = false;
+  /**
+   * 是否生成Swagger UI注释
+   */
+  private boolean generateSwaggerUIComment = false;
 
   @Nullable
   @Override
@@ -105,7 +110,7 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
   }
 
   @Override
-  public void loadState(AutoGeneratorSettingsState state) {
+  public void loadState(@Nonnull AutoGeneratorSettingsState state) {
     XmlSerializerUtil.copyBean(state, this);
   }
 
