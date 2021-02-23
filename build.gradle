@@ -11,7 +11,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.6.5'
+    id 'org.jetbrains.intellij' version '0.7.1'
     id 'io.freefair.lombok' version '5.3.0'
 }
 
@@ -38,7 +38,7 @@ dependencies {
     compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
     compileOnly fileTree('lib')
-    testCompile group: 'junit', name: 'junit', version: '4.13.1'
+    testCompile group: 'junit', name: 'junit', version: '4.13.2'
     testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
 }
 
