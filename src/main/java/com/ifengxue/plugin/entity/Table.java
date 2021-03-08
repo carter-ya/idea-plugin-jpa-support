@@ -47,6 +47,11 @@ public class Table {
   private String tableComment;
 
   /**
+   * catalog
+   */
+  private String tableCatalog;
+
+  /**
    * 数据库名称
    */
   private String tableSchema;
@@ -89,6 +94,7 @@ public class Table {
     table.setRawTableSchema(tableSchema);
     table.setTableName(tableSchema.getTableName());
     table.setTableComment(tableSchema.getTableComment());
+    table.setTableCatalog(tableSchema.getTableCatalog());
     table.setTableSchema(tableSchema.getTableSchema());
     table.setEntityName(entityName);
     table.setRepositoryName(repositoryName);

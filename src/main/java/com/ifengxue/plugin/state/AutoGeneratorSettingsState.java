@@ -102,6 +102,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 是否生成Swagger UI注释
    */
   private boolean generateSwaggerUIComment = false;
+  /**
+   * 添加schema name到表名
+   */
+  private boolean addSchemaNameToTableName = false;
 
   @Nullable
   @Override

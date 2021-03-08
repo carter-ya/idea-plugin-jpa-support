@@ -54,6 +54,7 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
     TableSchema tableSchema = new DatabasePluginTableSchema(dbTable);
     tableSchema.setTableName(dbTable.getName());
     tableSchema.setTableComment(StringUtils.trimToEmpty(dbTable.getComment()));
+    tableSchema.setTableCatalog(DasUtil.getSchema(dbTable));
     tableSchema.setTableSchema(DasUtil.getSchema(dbTable));
     return tableSchema;
   }

@@ -87,7 +87,15 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     importClassList.add("javax.persistence.Entity");
     annotationList.add("Entity");
     importClassList.add("javax.persistence.Table");
-    annotationList.add("Table(name = \"" + table.getTableName() + "\")");
+    String tableName = table.getTableName();
+    if (tablesConfig.isAddSchemeNameToTableName()) {
+      if (StringUtils.isNotBlank(table.getTableSchema())) {
+        tableName = table.getTableSchema() + "." + tableName;
+      } else if (StringUtils.isNotBlank(table.getTableCatalog())) {
+        tableName = table.getTableCatalog() + "." + tableName;
+      }
+    }
+    annotationList.add("Table(name = \"" + tableName + "\")");
 
     // 处理表字段
     context.put("columns", table.getColumns());

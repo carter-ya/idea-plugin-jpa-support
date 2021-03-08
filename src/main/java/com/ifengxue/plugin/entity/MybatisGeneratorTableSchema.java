@@ -18,7 +18,8 @@ public class MybatisGeneratorTableSchema extends TableSchema {
 
   public MybatisGeneratorTableSchema(IntrospectedTable introspectedTable) {
     this.introspectedTable = introspectedTable;
-    setTableSchema(introspectedTable.getFullyQualifiedTable().getIntrospectedCatalog());
+    setTableCatalog(introspectedTable.getFullyQualifiedTable().getIntrospectedCatalog());
+    setTableSchema(introspectedTable.getFullyQualifiedTable().getIntrospectedSchema());
     setTableName(introspectedTable.getFullyQualifiedTable().getIntrospectedTableName());
     setTableComment(introspectedTable.getRemarks());
   }

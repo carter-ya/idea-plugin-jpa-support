@@ -45,6 +45,7 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxUseFluidProgrammingStyle;
   private JTextField textRepositorySuffix;
   private JCheckBox chkBoxGenerateSwaggerUIComment;
+  private JCheckBox chkBoxTableNameAddSchemaName;
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
@@ -77,6 +78,7 @@ public class AutoGeneratorSettings {
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
     chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
     chkBoxGenerateSwaggerUIComment.setSelected(data.isGenerateSwaggerUIComment());
+    chkBoxTableNameAddSchemaName.setSelected(data.isAddSchemaNameToTableName());
     textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
@@ -103,6 +105,7 @@ public class AutoGeneratorSettings {
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
     data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());
     data.setGenerateSwaggerUIComment(chkBoxGenerateSwaggerUIComment.isSelected());
+    data.setAddSchemaNameToTableName(chkBoxTableNameAddSchemaName.isSelected());
     data.setRepositorySuffix(textRepositorySuffix.getText());
   }
 }

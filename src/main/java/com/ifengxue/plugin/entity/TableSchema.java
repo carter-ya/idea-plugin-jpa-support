@@ -16,6 +16,9 @@ public class TableSchema implements Serializable {
   @javax.persistence.Column(name = "TABLE_COMMENT")
   private String tableComment;
 
+  @javax.persistence.Column(name = "TABLE_CATALOG")
+  private String tableCatalog;
+
   @javax.persistence.Column(name = "TABLE_SCHEMA")
   private String tableSchema;
 }

@@ -325,6 +325,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType())
             .setUseFluidProgrammingStyle(autoGeneratorSettingsState.isUseFluidProgrammingStyle())
             .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
+            .setAddSchemeNameToTableName(autoGeneratorSettingsState.isAddSchemaNameToTableName())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
         String sourceCode = sourceParser.parse(generatorConfig, table);
