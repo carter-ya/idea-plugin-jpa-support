@@ -4,6 +4,7 @@ import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
 import com.ifengxue.plugin.entity.ColumnSchema;
+import com.ifengxue.plugin.entity.Selectable;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
@@ -18,7 +19,6 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -195,15 +195,14 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
       entityName = autoGeneratorSettingsState.concatPrefixAndSuffix(entityName);
       // If the path contains a file with the same name, it is not selected by default
       boolean selected = entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
+      if (tableSchema instanceof Selectable) {
+        selected = ((Selectable) tableSchema).isSelected();
+      }
       if (selected) {
         // support flyway
         if (tableName.equals("flyway_schema_history")) {
           selected = false;
         }
-      }
-      // Database Plugin, selected by default
-      if (!selected) {
-        selected = Holder.isSelectAllTables();
       }
       String repositoryName = entityName + autoGeneratorSettingsState.getRepositorySuffix();
       tableList.add(Table.from(tableSchema, entityName, repositoryName, selected));
