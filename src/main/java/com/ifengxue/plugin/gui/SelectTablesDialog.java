@@ -413,7 +413,7 @@ public class SelectTablesDialog extends DialogWrapper {
           merge(originalFile, psiFile);
           log.info("Try merge exists file " + filename);
         } else {
-          Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
+          Document document = PsiDocumentManager.getInstance(project).getDocument(originalFile);
           assert document != null;
           document.replaceString(0, document.getTextLength(), psiFile.getText());
           log.info("Try rewrite exits file " + filename);
