@@ -6,6 +6,7 @@ import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.annotation.TableWidth;
 import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
 import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
+import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -76,5 +77,8 @@ public class Column {
   @TableProperty(bundleName = "table_column_comment_title", index = 300)
   @TableEditable
   private String columnComment;
-
+  /**
+   * 字段注解
+   */
+  private List<String> annotations;
 }
