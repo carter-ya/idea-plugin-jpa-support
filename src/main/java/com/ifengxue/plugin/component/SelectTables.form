@@ -8,7 +8,7 @@
     <properties/>
     <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="select_table"/>
     <children>
-      <grid id="c33f4" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+      <grid id="c33f4" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <maximum-size width="-1" height="100"/>
@@ -91,13 +91,14 @@
               <component id="f638e" class="javax.swing.JRadioButton" binding="duplicateActionRewriteButton">
                 <constraints/>
                 <properties>
-                  <selected value="true"/>
+                  <selected value="false"/>
                   <text resource-bundle="bundles/ui_i18n" key="duplicate_action_rewrite_button"/>
                 </properties>
               </component>
               <component id="c8f16" class="javax.swing.JRadioButton" binding="duplicateActionMergeButton">
                 <constraints/>
                 <properties>
+                  <selected value="true"/>
                   <text resource-bundle="bundles/ui_i18n" key="duplicate_action_merge_button"/>
                 </properties>
               </component>
