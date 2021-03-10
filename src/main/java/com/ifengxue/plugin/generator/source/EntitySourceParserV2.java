@@ -9,7 +9,10 @@ import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.openapi.components.ServiceManager;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -41,8 +44,6 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     context.put("package", tablesConfig.getEntityPackageName());
     Set<String> importClassList = new HashSet<>();
     context.put("importClassList", importClassList);
-    Set<String> annotationList = new HashSet<>();
-    context.put("annotationList", annotationList);
     context.put("simpleName", table.getEntityName());
     context.put("parentClass", tablesConfig.getExtendsEntityName());
     Set<String> implementClassList = new HashSet<>();
@@ -55,21 +56,22 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       context.put("serialVersionUID", "1");
     }
 
+    Set<String> classAnnotations = new HashSet<>();
     // 设置是否使用Lombok
     context.put("useLombok", tablesConfig.isUseLombok());
     if (tablesConfig.isUseLombok()) {
       importClassList.add("lombok.Data");
-      annotationList.add("Data");
+      classAnnotations.add("Data");
 
       // 使用Fluid Programming Style
       if (tablesConfig.isUseFluidProgrammingStyle()) {
         importClassList.add("lombok.experimental.Accessors");
-        annotationList.add("Accessors(chain = true)");
+        classAnnotations.add("Accessors(chain = true)");
       }
 
       if (!tablesConfig.getExtendsEntityName().isEmpty()) {
         importClassList.add("lombok.EqualsAndHashCode");
-        annotationList.add("EqualsAndHashCode(callSuper = true)");
+        classAnnotations.add("EqualsAndHashCode(callSuper = true)");
       }
     }
 
@@ -79,13 +81,13 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       importClassList.add("io.swagger.annotations.ApiModelProperty");
       if (StringUtils.isNotBlank(table.getTableComment())) {
         importClassList.add("io.swagger.annotations.ApiModel");
-        annotationList.add("ApiModel(\"" + table.getTableComment() + "\")");
+        classAnnotations.add("ApiModel(\"" + table.getTableComment() + "\")");
       }
     }
 
     // 设置JPA相关信息
     importClassList.add("javax.persistence.Entity");
-    annotationList.add("Entity");
+    classAnnotations.add("Entity");
     importClassList.add("javax.persistence.Table");
     String tableName = table.getTableName();
     if (tablesConfig.isAddSchemeNameToTableName()) {
@@ -95,7 +97,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
         tableName = table.getTableCatalog() + "." + tableName;
       }
     }
-    annotationList.add("Table(name = \"" + tableName + "\")");
+    classAnnotations.add("Table(name = \"" + tableName + "\")");
 
     // 处理表字段
     context.put("columns", table.getColumns());
@@ -122,6 +124,10 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
         importClassList.add(column.getJavaDataType().getName());
       }
     });
+
+    List<String> annotationList = new ArrayList<>(classAnnotations);
+    annotationList.sort(Comparator.comparingInt(String::length));
+    context.put("annotationList", annotationList);
     return evaluate(context, templateProvider);
   }
 }
