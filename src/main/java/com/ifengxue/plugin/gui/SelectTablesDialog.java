@@ -472,8 +472,8 @@ public class SelectTablesDialog extends DialogWrapper {
         for (PsiClassType implementsListType : psiTopClass.getImplementsListTypes()) {
           PsiClass resolvePsiClass = implementsListType.resolve();
           if (resolvePsiClass != null && !nameToClassType.containsKey(resolvePsiClass.getQualifiedName())) {
-            PsiJavaCodeReferenceElement implementsReference = PsiElementFactory
-                .getInstance(Holder.getOrDefaultProject())
+            PsiJavaCodeReferenceElement implementsReference = ServiceManager
+                .getService(Holder.getOrDefaultProject(), PsiElementFactory.class)
                 .createReferenceFromText(Objects.requireNonNull(resolvePsiClass.getQualifiedName()),
                     originalTopClass);
             PsiReferenceList implementsList = originalTopClass.getImplementsList();
