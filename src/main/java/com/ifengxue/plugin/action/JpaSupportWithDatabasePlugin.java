@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.action;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
@@ -11,15 +12,22 @@ import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.DatabasePluginUtil;
+import com.intellij.database.model.DasNamespace;
+import com.intellij.database.model.DasObject;
+import com.intellij.database.model.DasTable;
+import com.intellij.database.model.ObjectKind;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbTable;
 import com.intellij.database.util.DasUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.psi.PsiElement;
+import com.intellij.util.containers.JBIterable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -36,25 +44,43 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
       Messages.showWarningDialog(LocaleContextHolder.format("not_select_valid_tables"), "JpaSupport");
       return;
     }
+    PsiElement parent = tables.get(0).getParent();
+    List<DasObject> allTables = new ArrayList<>();
+    if (parent instanceof DasNamespace) {
+      JBIterable<DasTable> iterable = ((DasNamespace) parent).getDbChildren(DasTable.class, ObjectKind.TABLE);
+      for (DasTable dasTable : iterable) {
+        allTables.add(dasTable);
+      }
+    }
+    if (allTables.isEmpty()) {
+      allTables.addAll(tables);
+    }
+
     resolveDatabaseVendor(tables.get(0).getDataSource());
 
-    Holder.setSelectAllTables(true);
-
-    List<TableSchema> tableSchemas = tables.stream().map(this::toTableSchema).collect(toList());
+    Set<String> selectedTableNames = tables.stream().map(DasObject::getName).collect(toSet());
+    List<TableSchema> tableSchemas = allTables
+        .stream()
+        .map(t -> toTableSchema(t, selectedTableNames.contains(t.getName())))
+        .collect(toList());
     AutoGeneratorSettingsDialog.show(tableSchemas, tableSchema -> {
-      DbTable dbTable = ((DatabasePluginTableSchema) tableSchema).getDbTable();
+      DasObject dasObject = ((DatabasePluginTableSchema) tableSchema).getDasObject();
       List<ColumnSchema> columnSchemas = new ArrayList<>();
-      DasUtil.getColumns(dbTable)
-          .consumeEach(dasColumn -> columnSchemas.add(new DatabasePluginColumnSchema(dasColumn)));
+      DasUtil.getColumns(dasObject).consumeEach(dasColumn -> {
+        DatabasePluginColumnSchema columnSchema = new DatabasePluginColumnSchema(dasColumn);
+        columnSchemas.add(columnSchema);
+      });
       return columnSchemas;
     });
   }
 
-  private TableSchema toTableSchema(DbTable dbTable) {
-    TableSchema tableSchema = new DatabasePluginTableSchema(dbTable);
-    tableSchema.setTableName(dbTable.getName());
-    tableSchema.setTableComment(StringUtils.trimToEmpty(dbTable.getComment()));
-    tableSchema.setTableSchema(DasUtil.getSchema(dbTable));
+  private TableSchema toTableSchema(DasObject dasObject, boolean isSelected) {
+    DatabasePluginTableSchema tableSchema = new DatabasePluginTableSchema(dasObject);
+    tableSchema.setTableName(dasObject.getName());
+    tableSchema.setTableComment(StringUtils.trimToEmpty(dasObject.getComment()));
+    tableSchema.setTableCatalog(DasUtil.getSchema(dasObject));
+    tableSchema.setTableSchema(DasUtil.getSchema(dasObject));
+    tableSchema.setSelected(isSelected);
     return tableSchema;
   }
 

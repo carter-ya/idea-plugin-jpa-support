@@ -47,6 +47,8 @@ public enum TestTemplateHelper {
                     .setUseDefaultDatetimeValue(settingsState.isGenerateDatetimeDefaultValue())
                     .setUseJava8DateType(settingsState.isUseJava8DateType())
                     .setUseLombok(settingsState.isUseLombok())
+                    .setUseFluidProgrammingStyle(settingsState.isUseFluidProgrammingStyle())
+                    .setUseSwaggerUIComment(settingsState.isGenerateSwaggerUIComment())
                     .setUseWrapper(true)
             );
         AbstractSourceParser sourceParser = newInstance(clazz);

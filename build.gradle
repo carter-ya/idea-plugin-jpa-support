@@ -20,7 +20,6 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'io.freefair.lombok'
 
 group 'com.ifengxue'
-version '2.0.6-EAP'
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -45,9 +44,21 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.3.2'
     pluginName 'Jpa Support'
     type 'IC'
+    def localPropertyFile = project.rootProject.file('local.properties')
+    Properties properties = new Properties()
+    if (localPropertyFile.exists()) {
+        properties.load(localPropertyFile.newDataInputStream())
+    }
+    def localIdePath = properties.get('local_ide_path');
+    if (localIdePath != null && !localIdePath.isEmpty()) {
+        localPath = localIdePath
+        printf('use local path: %s', localIdePath)
+    } else {
+        version '2020.3.2'
+        printf('use remote version: %s', version)
+    }
     updateSinceUntilBuild false
     plugins = ['java']
 }
@@ -57,10 +68,13 @@ runIde {
 }
 
 patchPluginXml {
-    version '2.0.6-EAP'
+    version '2.0.7-RC1'
     changeNotes """
       <ol>
-          <li>fix dbTypeToJavaType NPE bug</li>
+          <li>Allow add Swagger UI annotation</li>
+          <li>Allow add schema/catalog to Entity</li>
+          <li>Enhance the Database Plugin, support loading unselected tables</li>
+          <li>Enhanced the ignore field feature, allowing fields to be dynamically ignored when editing the table structure</li>
       </ol>
       """
 }

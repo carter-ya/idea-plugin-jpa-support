@@ -151,6 +151,38 @@ public interface Element {
       return new KeyValuePair(key, "\"" + value + "\"");
     }
 
+    public static KeyValuePair from(String key, String value) {
+      return new KeyValuePair(key, "\"" + value + "\"");
+    }
+
+    public static KeyValuePair fromPlain(String key, String value) {
+      return new KeyValuePair(key, value);
+    }
+
+    public static KeyValuePair from(String key, int value) {
+      return new KeyValuePair(key, value + "");
+    }
+
+    public static KeyValuePair from(String key, long value) {
+      return new KeyValuePair(key, value + "L");
+    }
+
+    public static KeyValuePair from(String key, float value) {
+      return new KeyValuePair(key, value + "F");
+    }
+
+    public static KeyValuePair from(String key, double value) {
+      return new KeyValuePair(key, value + "D");
+    }
+
+    public static KeyValuePair from(String key, boolean value) {
+      return new KeyValuePair(key, value + "");
+    }
+
+    public static KeyValuePair from(String key, java.lang.Class<?> value) {
+      return new KeyValuePair(key, value.getName() + ".class");
+    }
+
     public String getKey() {
       return key;
     }

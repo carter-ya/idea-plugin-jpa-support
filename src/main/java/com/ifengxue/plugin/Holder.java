@@ -18,7 +18,6 @@ public class Holder {
   private static volatile PropertiesComponent projectProperties;
   private static volatile DatabaseDrivers databaseDrivers;
   private static volatile FastJdbc fastJdbc;
-  private static volatile boolean selectAllTables = false;
 
   public static synchronized void registerProject(Project project) {
     Holder.project = project;
@@ -79,13 +78,5 @@ public class Holder {
 
   public static synchronized FastJdbc getFastJdbc() {
     return fastJdbc;
-  }
-
-  public static synchronized void setSelectAllTables(boolean selectAllTables) {
-    Holder.selectAllTables = selectAllTables;
-  }
-
-  public static synchronized boolean isSelectAllTables() {
-    return selectAllTables;
   }
 }

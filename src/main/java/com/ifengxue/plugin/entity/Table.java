@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @TableHeight(height = 20)
-public class Table {
+public class Table implements Selectable {
 
   /**
    * table schema
@@ -45,6 +45,11 @@ public class Table {
    */
   @TableProperty(bundleName = "table_class_comment", index = 5000)
   private String tableComment;
+
+  /**
+   * catalog
+   */
+  private String tableCatalog;
 
   /**
    * 数据库名称
@@ -89,6 +94,7 @@ public class Table {
     table.setRawTableSchema(tableSchema);
     table.setTableName(tableSchema.getTableName());
     table.setTableComment(tableSchema.getTableComment());
+    table.setTableCatalog(tableSchema.getTableCatalog());
     table.setTableSchema(tableSchema.getTableSchema());
     table.setEntityName(entityName);
     table.setRepositoryName(repositoryName);

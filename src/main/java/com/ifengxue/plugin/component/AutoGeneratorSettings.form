@@ -32,7 +32,7 @@
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="fill:d:grow"/>
     <constraints>
-      <xy x="20" y="20" width="800" height="505"/>
+      <xy x="20" y="20" width="950" height="505"/>
     </constraints>
     <properties/>
     <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="auto_generation_settings"/>
@@ -227,6 +227,12 @@
         <properties/>
         <border type="none"/>
         <children>
+          <component id="df391" class="javax.swing.JCheckBox" binding="chkBoxGenerateSwaggerUIComment">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="generate_swagger_ui_comment"/>
+            </properties>
+          </component>
           <component id="26e3f" class="javax.swing.JCheckBox" binding="chkBoxUseJava8DateType">
             <constraints/>
             <properties>
@@ -385,6 +391,12 @@
             <properties>
               <text resource-bundle="bundles/ui_i18n" key="generate_datetime_default_value"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="generate_default_value_tip"/>
+            </properties>
+          </component>
+          <component id="75b1e" class="javax.swing.JCheckBox" binding="chkBoxTableNameAddSchemaName">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="table_name_add_schema_name"/>
             </properties>
           </component>
         </children>

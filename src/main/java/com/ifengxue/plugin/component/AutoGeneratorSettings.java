@@ -3,13 +3,17 @@ package com.ifengxue.plugin.component;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
-import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class AutoGeneratorSettings {
@@ -40,6 +44,8 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxGenerateDatetimeDefaultValue;
   private JCheckBox chkBoxUseFluidProgrammingStyle;
   private JTextField textRepositorySuffix;
+  private JCheckBox chkBoxGenerateSwaggerUIComment;
+  private JCheckBox chkBoxTableNameAddSchemaName;
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
@@ -71,6 +77,8 @@ public class AutoGeneratorSettings {
     chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
     chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
+    chkBoxGenerateSwaggerUIComment.setSelected(data.isGenerateSwaggerUIComment());
+    chkBoxTableNameAddSchemaName.setSelected(data.isAddSchemaNameToTableName());
     textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
@@ -96,6 +104,8 @@ public class AutoGeneratorSettings {
     data.setGenerateDefaultValue(chkBoxGenerateDefaultValue.isSelected());
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
     data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());
+    data.setGenerateSwaggerUIComment(chkBoxGenerateSwaggerUIComment.isSelected());
+    data.setAddSchemaNameToTableName(chkBoxTableNameAddSchemaName.isSelected());
     data.setRepositorySuffix(textRepositorySuffix.getText());
   }
 }
