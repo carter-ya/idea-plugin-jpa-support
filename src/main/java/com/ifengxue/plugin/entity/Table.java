@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @TableHeight(height = 20)
-public class Table {
+public class Table implements Selectable {
 
   /**
    * table schema

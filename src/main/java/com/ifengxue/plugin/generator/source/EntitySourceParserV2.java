@@ -153,7 +153,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       // add swagger annotation
       if (tablesConfig.isUseSwaggerUIComment() && StringUtils.isNotBlank(column.getColumnComment())) {
         importClassList.add("io.swagger.annotations.ApiModelProperty");
-        columnAnnotation = new Annotation("io.swagger.annotations.ApiModelProperty");
+        columnAnnotation = new Annotation("io.swagger.annotations.ApiModelProperty", false);
         columnAnnotation.addKeyValuePair(KeyValuePair.from("value", column.getColumnComment()));
         column.getAnnotations().add(columnAnnotation.toString());
       }

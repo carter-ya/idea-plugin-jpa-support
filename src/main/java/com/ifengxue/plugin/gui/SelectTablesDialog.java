@@ -206,17 +206,18 @@ public class SelectTablesDialog extends DialogWrapper {
     }
     // column schema to column
     List<Column> columns = new ArrayList<>(columnSchemas.size());
+    int sequence = 1;
     for (ColumnSchema columnSchema : columnSchemas) {
       Column column = ColumnUtil.columnSchemaToColumn(columnSchema,
           autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
           autoGeneratorSettingsState.isUseJava8DateType());
+      column.setSequence(sequence++);
+      column.setSelected(!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName()));
       if (column.isPrimary()) {
         table.setPrimaryKeyClassType(column.getJavaDataType());
         table.incPrimaryKeyCount();
       }
-      if (!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName())) {
-        columns.add(column);
-      }
+      columns.add(column);
     }
     return columns;
   }
@@ -310,6 +311,11 @@ public class SelectTablesDialog extends DialogWrapper {
         if (table.getColumns() == null) {
           table.setColumns(findColumns(table));
         }
+        List<Column> columns = table.getColumns()
+            .stream()
+            .filter(Column::isSelected)
+            .collect(toList());
+        table.setColumns(columns);
 
         // configure source code generator config
         GeneratorConfig generatorConfig = new GeneratorConfig();

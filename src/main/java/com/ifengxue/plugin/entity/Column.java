@@ -4,6 +4,7 @@ import com.ifengxue.plugin.gui.annotation.TableEditable;
 import com.ifengxue.plugin.gui.annotation.TableHeight;
 import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.annotation.TableWidth;
+import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
 import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
 import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
 import java.util.List;
@@ -13,12 +14,25 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @TableHeight(height = 20)
-public class Column {
+public class Column implements Selectable {
 
+  /**
+   * 是否被选择，选择后才可生成类
+   */
+  @TableProperty(bundleName = "table_selected", columnClass = Boolean.class, index = 0)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
+  private boolean selected;
+  /**
+   * 序号
+   */
+  @TableProperty(bundleName = "table_sequence", index = 25)
+  @TableWidth(maxWidth = 40)
+  private int sequence;
   /**
    * 数据库字段名
    */
-  @TableProperty(bundleName = "table_column_name_title", index = 0)
+  @TableProperty(bundleName = "table_column_name_title", index = 50)
   @TableEditable
   private String columnName;
   /**
@@ -81,4 +95,13 @@ public class Column {
    * 字段注解
    */
   private List<String> annotations;
+
+  public void setSelected(boolean selected) {
+    this.selected = selected;
+  }
+
+  @Override
+  public boolean isSelected() {
+    return selected;
+  }
 }
