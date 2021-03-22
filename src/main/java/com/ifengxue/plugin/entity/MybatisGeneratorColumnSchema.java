@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.entity;
 
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
@@ -20,7 +21,7 @@ public class MybatisGeneratorColumnSchema extends ColumnSchema implements Column
     setOrdinalPosition(index);
     setDataType(introspectedColumn.getActualTypeName());
     setColumnType(getDataType());
-    setColumnComment(introspectedColumn.getRemarks());
+    setColumnComment(StringUtils.trimToEmpty(introspectedColumn.getRemarks()));
     setColumnDefault(introspectedColumn.getDefaultValue());
   }
 

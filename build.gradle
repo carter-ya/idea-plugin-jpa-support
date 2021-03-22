@@ -68,13 +68,14 @@ runIde {
 }
 
 patchPluginXml {
-    version '2.0.7-RC1'
+    version '2.0.7-RC2'
     changeNotes """
       <ol>
           <li>Allow add Swagger UI annotation</li>
           <li>Allow add schema/catalog to Entity</li>
           <li>Enhance the Database Plugin, support loading unselected tables</li>
           <li>Enhanced the ignore field feature, allowing fields to be dynamically ignored when editing the table structure</li>
+          <li>fix some problems</li>
       </ol>
       """
 }
