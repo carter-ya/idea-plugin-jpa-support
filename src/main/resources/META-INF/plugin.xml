@@ -45,7 +45,7 @@
   <!--  <idea-version since-build="171" until-build="191.*"/>-->
   <extensions defaultExtensionNs="com.intellij">
     <applicationConfigurable parentId="tools" instance="com.ifengxue.plugin.state.SettingsConfigurable"
-        id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="Jpa Support"/>
+        id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="JPA Support"/>
 
     <applicationService serviceImplementation="com.ifengxue.plugin.state.SettingsState"/>
 
