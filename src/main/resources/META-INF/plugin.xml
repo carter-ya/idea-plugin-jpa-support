@@ -58,7 +58,7 @@
 
   <id>com.ifengxue.plugin.jpa-support</id>
   <idea-version since-build="183.3795.13"/>
-  <name>Jpa Support</name>
+  <name>JPA Support</name>
 
   <vendor email="liukefeng2008@hotmail.com" url="https://github.com/carter-ya/idea-plugin-jpa-support">
     https://github.com/carter-ya/idea-plugin-jpa-support
