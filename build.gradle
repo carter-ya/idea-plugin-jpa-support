@@ -5,14 +5,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'io.freefair.gradle:lombok-plugin:5.3.0'
+        classpath 'io.freefair.gradle:lombok-plugin:5.3.3.3'
     }
 }
 
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.7.2'
-    id 'io.freefair.lombok' version '5.3.0'
+    id 'io.freefair.lombok' version '5.3.3.3'
 }
 
 apply plugin: 'java'
@@ -36,7 +36,7 @@ dependencies {
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
     compileOnly fileTree('lib')
     testCompile group: 'junit', name: 'junit', version: '4.13.2'
     testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
