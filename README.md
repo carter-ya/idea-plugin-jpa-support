@@ -42,3 +42,7 @@
 2. 自定义数据类型映射(Custom type mapping)<br>
 
 ![Custom type mapping](doc/type_mapping.png)
+
+
+## 感谢赞助(Sponsor)
+<a href="https://jb.gg/OpenSource" alt="JetBrains" target="_blank"><img src="doc/jetbrains.png" width="100" alt="JetBrains" /></a>
