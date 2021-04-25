@@ -12,11 +12,12 @@ import java.time.format.DateTimeFormatter;
 
 public class ColumnUtil {
 
-  public static Column columnSchemaToColumn(ColumnSchema columnSchema, String removePrefix, boolean useWrapper,
-      boolean useJava8DateType) {
+  public static Column columnSchemaToColumn(ColumnSchema columnSchema, String removePrefixes,
+      boolean useWrapper, boolean useJava8DateType) {
     if (!(columnSchema instanceof ColumnSchemaExtension)) {
       throw new IllegalStateException(
-          columnSchema.getClass().getName() + " is not instance of " + ColumnSchemaExtension.class.getName());
+          columnSchema.getClass().getName() + " is not instance of " + ColumnSchemaExtension.class
+              .getName());
     }
     ColumnSchemaExtension<?> extension = (ColumnSchemaExtension<?>) columnSchema;
     Column column = new Column();
@@ -32,17 +33,19 @@ public class ColumnUtil {
     column.setJdbcType(extension.jdbcType());
     column.setJdbcTypeName(extension.jdbcTypeName());
     column.setSequenceColumn(extension.sequenceColumn());
-    ColumnUtil.parseColumn(column, removePrefix, useWrapper, useJava8DateType);
+    ColumnUtil.parseColumn(column, removePrefixes, useWrapper, useJava8DateType);
     return column;
   }
 
-  public static void parseColumn(Column column, String removePrefix, boolean useWrapper,
+  public static void parseColumn(Column column, String removePrefixes, boolean useWrapper,
       boolean useJava8DateType) {
-    column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefix));
+    column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefixes));
     Class<?> javaDataType = StringHelper.parseJavaDataType(column.getJavaDataType(),
-        column.getJdbcTypeName(), column.getDbDataType(), column.getColumnName(), useWrapper, useJava8DateType);
+        column.getJdbcTypeName(), column.getDbDataType(), column.getColumnName(), useWrapper,
+        useJava8DateType);
     if ((javaDataType == Integer.class || javaDataType == int.class)
-        && (column.getColumnComment().contains("true") || column.getColumnComment().contains("false"))) {
+        && (column.getColumnComment().contains("true") || column.getColumnComment()
+        .contains("false"))) {
       if (useWrapper) {
         javaDataType = Boolean.class;
       } else {

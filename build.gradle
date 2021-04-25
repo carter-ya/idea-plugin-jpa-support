@@ -68,7 +68,7 @@ runIde {
 }
 
 patchPluginXml {
-    version '2.0.7-RC2'
+    version '2.0.8-RC3'
     changeNotes """
       <ol>
           <li>Rename plugin name (Jpa Support) to JPA Support</li>
