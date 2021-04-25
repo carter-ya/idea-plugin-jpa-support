@@ -153,6 +153,7 @@ public class StringHelper {
    * ColumnName -> columnName <br>
    */
   public static String parseFieldName(String columnName) {
+    columnName = columnName.replaceAll("\\s+", "_");
     if (!columnName.contains("_")) {
       return Introspector.decapitalize(columnName);
     }
@@ -182,20 +183,22 @@ public class StringHelper {
   }
 
   /**
-   * 解析列名<br>
-   * prefix_column_name -> columnName <br>
-   * prefix_column_name_ -> columnName <br>
-   * prefix__column_name_ -> columnName <br>
-   * ColumnName -> columnName <br>
+   * 解析列名<br> prefix_column_name -> columnName <br> prefix_column_name_ -> columnName <br>
+   * prefix__column_name_ -> columnName <br> ColumnName -> columnName <br>
    *
    * @param columnName 字段名称
-   * @param removePrefix 要移除的前缀
+   * @param removePrefixes 要移除的前缀，多个前缀用,分割
    */
-  public static String parseFieldName(String columnName, String removePrefix) {
-    if (removePrefix == null || removePrefix.isEmpty() || !columnName.startsWith(removePrefix)) {
+  public static String parseFieldName(String columnName, String removePrefixes) {
+    if (removePrefixes == null || removePrefixes.isEmpty()) {
       return parseFieldName(columnName);
     }
-    return parseFieldName(columnName.substring(removePrefix.length()));
+    for (String removePrefix : removePrefixes.split(",")) {
+      if (columnName.startsWith(removePrefix)) {
+        return parseFieldName(columnName.substring(removePrefix.length()));
+      }
+    }
+    return parseFieldName(columnName);
   }
 
   /**
