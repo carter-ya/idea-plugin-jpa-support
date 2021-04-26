@@ -44,7 +44,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     context.put("table", table);
     context.put("empty", "");
     context.put("stringHelper", new StringHelper());
-    // 设置缩进
+    // set indent
     context.put("indent", Element.Indent.findByDTDDeclare(tablesConfig.getIndent()));
     context.put("package", tablesConfig.getEntityPackageName());
     Set<String> importClassList = new HashSet<>();
@@ -54,21 +54,25 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     Set<String> implementClassList = new HashSet<>();
     context.put("implementClassList", implementClassList);
 
-    // 增加序列化注解
+    // implement Serializable
     if (tablesConfig.isSerializable()) {
       importClassList.add(Serializable.class.getName());
       implementClassList.add(Serializable.class.getSimpleName());
       context.put("serialVersionUID", "1");
     }
 
+    // is use JPA annotations
+    boolean isUseJpaAnnotation = tablesConfig.isUseJpaAnnotation();
+    context.put("useJpaAnnotation", isUseJpaAnnotation);
+
     Set<String> classAnnotations = new HashSet<>();
-    // 设置是否使用Lombok
+    // is use lombok
     context.put("useLombok", tablesConfig.isUseLombok());
     if (tablesConfig.isUseLombok()) {
       importClassList.add("lombok.Data");
       classAnnotations.add("Data");
 
-      // 使用Fluid Programming Style
+      // use Fluid Programming Style
       if (tablesConfig.isUseFluidProgrammingStyle()) {
         importClassList.add("lombok.experimental.Accessors");
         classAnnotations.add("Accessors(chain = true)");
@@ -89,10 +93,12 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       }
     }
 
-    // 设置JPA相关信息
-    importClassList.add(javax.persistence.Entity.class.getName());
-    classAnnotations.add("Entity");
-    importClassList.add(javax.persistence.Table.class.getName());
+    // configure JPA settings
+    if (isUseJpaAnnotation) {
+      importClassList.add(javax.persistence.Entity.class.getName());
+      classAnnotations.add("Entity");
+      importClassList.add(javax.persistence.Table.class.getName());
+    }
     String tableName = table.getTableName();
     if (tablesConfig.isAddSchemeNameToTableName()) {
       if (StringUtils.isNotBlank(table.getTableSchema())) {
@@ -101,11 +107,13 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
         tableName = table.getTableCatalog() + "." + tableName;
       }
     }
-    classAnnotations.add("Table(name = \"" + tableName + "\")");
+    if (isUseJpaAnnotation) {
+      classAnnotations.add("Table(name = \"" + tableName + "\")");
+    }
 
-    // 处理表字段
+    // process table columns
     context.put("columns", table.getColumns());
-    if (!table.getColumns().isEmpty()) {
+    if (isUseJpaAnnotation && !table.getColumns().isEmpty()) {
       importClassList.add(javax.persistence.Column.class.getName());
     }
     table.getColumns().forEach(column -> {
@@ -113,24 +121,28 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
         column.setAnnotations(new ArrayList<>());
       }
 
-      if (column.isPrimary()) {
+      if (isUseJpaAnnotation && column.isPrimary()) {
         importClassList.add(javax.persistence.Id.class.getName());
         Annotation columnAnnotation = new Annotation(javax.persistence.Id.class.getName(), false);
         column.getAnnotations().add(columnAnnotation.toString());
       }
-      if (column.isAutoIncrement() || column.isSequenceColumn()) {
+      if (isUseJpaAnnotation && (column.isAutoIncrement() || column.isSequenceColumn())) {
         Annotation columnAnnotation = new Annotation(GeneratedValue.class.getName(), false);
         importClassList.add(GeneratedValue.class.getName());
         importClassList.add(javax.persistence.GenerationType.class.getName());
         if (column.isSequenceColumn()) {
-          columnAnnotation.addKeyValuePair(KeyValuePair.fromPlain("strategy", "GenerationType.SEQUENCE"));
-          columnAnnotation.addKeyValuePair(KeyValuePair.from("generator", "//FIXME Please input your generator name"));
+          columnAnnotation
+              .addKeyValuePair(KeyValuePair.fromPlain("strategy", "GenerationType.SEQUENCE"));
+          columnAnnotation.addKeyValuePair(
+              KeyValuePair.from("generator", "//FIXME Please input your generator name"));
           importClassList.add(javax.persistence.SequenceGenerator.class.getName());
 
           Annotation generateAnnotation = new Annotation(SequenceGenerator.class.getName(), false);
-          generateAnnotation.addKeyValuePair(KeyValuePair.from("name", "//FIXME Please input your generator name"));
+          generateAnnotation.addKeyValuePair(
+              KeyValuePair.from("name", "//FIXME Please input your generator name"));
           generateAnnotation
-              .addKeyValuePair(KeyValuePair.from("sequenceName", "//FIXME Please input your generator name"));
+              .addKeyValuePair(
+                  KeyValuePair.from("sequenceName", "//FIXME Please input your generator name"));
           column.getAnnotations().add(generateAnnotation.toString());
         } else {
           columnAnnotation.addKeyValuePair(KeyValuePair.fromPlain("strategy", "GenerationType.IDENTITY"));
@@ -148,10 +160,13 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       if (!column.isNullable()) {
         columnAnnotation.addKeyValuePair(KeyValuePair.from("nullable", false));
       }
-      column.getAnnotations().add(columnAnnotation.toString());
+      if (isUseJpaAnnotation) {
+        column.getAnnotations().add(columnAnnotation.toString());
+      }
 
       // add swagger annotation
-      if (tablesConfig.isUseSwaggerUIComment() && StringUtils.isNotBlank(column.getColumnComment())) {
+      if (tablesConfig.isUseSwaggerUIComment() && StringUtils
+          .isNotBlank(column.getColumnComment())) {
         importClassList.add("io.swagger.annotations.ApiModelProperty");
         columnAnnotation = new Annotation("io.swagger.annotations.ApiModelProperty", false);
         columnAnnotation.addKeyValuePair(KeyValuePair.from("value", column.getColumnComment()));

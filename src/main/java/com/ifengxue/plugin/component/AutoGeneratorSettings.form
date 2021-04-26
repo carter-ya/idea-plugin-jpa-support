@@ -164,6 +164,12 @@
               <text resource-bundle="bundles/ui_i18n" key="generate_method_comment"/>
             </properties>
           </component>
+          <component id="c5580" class="javax.swing.JCheckBox" binding="chkBoxGenerateJpaAnnotation">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="generate_jpa_annotation"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <component id="cda69" class="javax.swing.JLabel">
