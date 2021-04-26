@@ -106,6 +106,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 添加schema name到表名
    */
   private boolean addSchemaNameToTableName = false;
+  /**
+   * 是否生成JPA注解
+   */
+  private boolean generateJpaAnnotation = true;
 
   @Nullable
   @Override

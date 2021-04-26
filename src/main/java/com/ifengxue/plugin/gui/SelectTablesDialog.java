@@ -98,7 +98,6 @@ public class SelectTablesDialog extends DialogWrapper {
     this.mapping = mapping;
     selectTables = new SelectTables();
     init();
-    setSize(600, 600);
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
     // sequence
@@ -347,6 +346,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType())
             .setUseFluidProgrammingStyle(autoGeneratorSettingsState.isUseFluidProgrammingStyle())
             .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
+            .setUseJpaAnnotation(autoGeneratorSettingsState.isGenerateJpaAnnotation())
             .setAddSchemeNameToTableName(autoGeneratorSettingsState.isAddSchemaNameToTableName())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
