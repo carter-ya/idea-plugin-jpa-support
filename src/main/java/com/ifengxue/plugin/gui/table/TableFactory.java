@@ -189,6 +189,7 @@ public class TableFactory {
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             propertyHolders.get(columnIndex).setValue(rows.get(rowIndex), aValue);
+            fireTableCellUpdated(rowIndex, columnIndex);
         }
 
         public T getRow(int rowIndex) {
