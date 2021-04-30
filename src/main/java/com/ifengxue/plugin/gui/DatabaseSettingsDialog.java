@@ -10,6 +10,8 @@ import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.state.DatabaseSettingsState;
+import com.ifengxue.plugin.util.JdbcConfigUtil;
+import com.ifengxue.plugin.util.JdbcConfigUtil.JdbcConfig;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
@@ -30,6 +32,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -49,6 +52,9 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mybatis.generator.config.Context;
@@ -73,6 +79,18 @@ public class DatabaseSettingsDialog extends DialogWrapper {
 
     // init text field
     initTextField(databaseSettings);
+
+    // bind text listener
+    MyDocumentListener listener = new MyDocumentListener();
+    databaseSettings.getTextDriverClass().getDocument().addDocumentListener(listener);
+    databaseSettings.getTextDriverClass().getDocument()
+        .addDocumentListener(new DriverChangeDocumentListener());
+    databaseSettings.getTextConnectionUrl().getDocument().addDocumentListener(listener);
+    databaseSettings.getTextHost().getDocument().addDocumentListener(listener);
+    databaseSettings.getTextPort().getDocument().addDocumentListener(listener);
+    databaseSettings.getTextUsername().getDocument().addDocumentListener(listener);
+    databaseSettings.getTextPassword().getDocument().addDocumentListener(listener);
+    databaseSettings.getTextDatabase().getDocument().addDocumentListener(listener);
 
     // register language change listener
     databaseSettings.getCbxSelectLanguage().addItemListener(itemEvent -> {
@@ -104,7 +122,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createActions() {
-    return new Action[]{getOKAction(), getCancelAction()};
+    return new Action[]{getOKAction(), getCancelAction(), new ResetAction()};
   }
 
   @Nullable
@@ -150,6 +168,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String driverPath = databaseSettings.getTextDriverPath().getText().trim();
     String driverClass = databaseSettings.getTextDriverClass().getText().trim();
     saveTextField(host, port, username, password);
+    String connectionUrlRef = Holder.getJdbcConfigUtil()
+        .tryParseUrl(driverClass, host, port, username, password, database, connectionUrl);
 
     unloadDrivers();
     WriteCommandAction.runWriteCommandAction(project, () -> {
@@ -174,19 +194,22 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       } catch (ReflectiveOperationException | SQLException e1) {
         ApplicationManager.getApplication().invokeLater(() -> Bus
             .notify(new Notification(Constants.GROUP_ID, "Error",
-                LocaleContextHolder.format("database_not_exists", Holder.getDatabaseDrivers().getDriverClass()),
+                LocaleContextHolder
+                    .format("database_not_exists", Holder.getDatabaseDrivers().getDriverClass()),
                 NotificationType.ERROR)));
         return;
       }
       // 尝试获取连接
-      try (Connection ignored = DriverManager.getConnection(connectionUrl, username, password)) {
-        FastJdbc fastJdbc = new SimpleFastJdbc(new NoPoolDataSource(connectionUrl, username, password));
+      try (Connection ignored = DriverManager.getConnection(connectionUrlRef, username, password)) {
+        FastJdbc fastJdbc = new SimpleFastJdbc(
+            new NoPoolDataSource(connectionUrlRef, username, password));
         Holder.registerFastJdbc(fastJdbc);
       } catch (SQLException se) {
         ApplicationManager.getApplication().invokeLater(() -> {
           Bus.notify(new Notification(Constants.GROUP_ID, "Error",
               LocaleContextHolder.format("connect_to_database_failed",
-                  se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), NotificationType.ERROR));
+                  se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()),
+              NotificationType.ERROR));
           Messages.showErrorDialog(LocaleContextHolder.format("connect_to_database_failed",
               se.getErrorCode(), se.getSQLState(), se.getLocalizedMessage()), Constants.NAME);
         });
@@ -283,7 +306,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
 
     if (databaseSettingsState.isRequireSavePassword()) {
       // load password
-      CredentialAttributes credentialAttributes = createCredentialAttributes(databaseSettings.getTextHost().getText(),
+      CredentialAttributes credentialAttributes = createCredentialAttributes(
+          databaseSettings.getTextHost().getText(),
           databaseSettings.getTextPort().getText(), databaseSettings.getTextUsername().getText());
       Credentials credentials = PasswordSafe.getInstance().get(credentialAttributes);
       String password = "";
@@ -291,6 +315,104 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         password = credentials.getPasswordAsString();
       }
       databaseSettings.getTextPassword().setText(password);
+    }
+  }
+
+  private final class DriverChangeDocumentListener implements DocumentListener {
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    private void onChange() {
+      JdbcConfigUtil jdbcConfigUtil = Holder.getJdbcConfigUtil();
+      String driverClass = StringUtils.trimToEmpty(databaseSettings.getTextDriverClass().getText());
+      JdbcConfig jdbcConfig = jdbcConfigUtil.findJdbcConfig(driverClass);
+      if (jdbcConfig == null) {
+        return;
+      }
+      if (StringUtils.isBlank(databaseSettings.getTextConnectionUrl().getText())) {
+        databaseSettings.getTextConnectionUrl().setText(jdbcConfig.getUrl());
+      }
+      if (StringUtils.isBlank(databaseSettings.getTextHost().getText())) {
+        databaseSettings.getTextHost().setText(jdbcConfig.getHost());
+      }
+      if (StringUtils.isBlank(databaseSettings.getTextPort().getText())) {
+        databaseSettings.getTextPort().setText(jdbcConfig.getPort() + "");
+      }
+      if (StringUtils.isBlank(databaseSettings.getTextUsername().getText())) {
+        databaseSettings.getTextUsername().setText(jdbcConfig.getUsername());
+      }
+      if (StringUtils.isBlank(databaseSettings.getTextDatabase().getText())) {
+        databaseSettings.getTextDatabase().setText(jdbcConfig.getDatabase());
+      }
+    }
+  }
+
+  private final class MyDocumentListener implements DocumentListener {
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    private void onChange() {
+      JdbcConfigUtil jdbcConfigUtil = Holder.getJdbcConfigUtil();
+      String previewUrl = jdbcConfigUtil
+          .tryParseUrl(StringUtils.trimToEmpty(databaseSettings.getTextDriverClass().getText()),
+              StringUtils.trimToEmpty(databaseSettings.getTextHost().getText()),
+              StringUtils.trimToEmpty(databaseSettings.getTextPort().getText()),
+              StringUtils.trimToEmpty(databaseSettings.getTextUsername().getText()),
+              StringUtils.trimToEmpty(databaseSettings.getTextPassword().getText()),
+              StringUtils.trimToEmpty(databaseSettings.getTextDatabase().getText()),
+              StringUtils.trimToEmpty(databaseSettings.getTextConnectionUrl().getText()));
+      if (!StringUtils.equals(previewUrl,
+          StringUtils.trimToEmpty(databaseSettings.getTextPreviewConnectionUrl().getText()))) {
+        databaseSettings.getTextPreviewConnectionUrl().setText(previewUrl);
+      }
+    }
+  }
+
+  protected class ResetAction extends DialogWrapper.DialogWrapperAction {
+
+    private static final long serialVersionUID = -1910185124105407527L;
+
+    public ResetAction() {
+      super(LocaleContextHolder.format("reset"));
+    }
+
+    @Override
+    protected void doAction(ActionEvent actionEvent) {
+      databaseSettings.getTextDriverClass().setText("");
+      databaseSettings.getTextDriverPath().setText("");
+      databaseSettings.getTextHost().setText("");
+      databaseSettings.getTextPort().setText("");
+      databaseSettings.getTextUsername().setText("");
+      databaseSettings.getTextPassword().setText("");
+      databaseSettings.getTextDatabase().setText("");
+      databaseSettings.getTextConnectionUrl().setText("");
+      databaseSettings.getTextPreviewConnectionUrl().setText("");
     }
   }
 }

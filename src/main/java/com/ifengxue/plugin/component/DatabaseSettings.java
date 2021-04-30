@@ -1,9 +1,11 @@
 package com.ifengxue.plugin.component;
 
+import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.state.DatabaseSettingsState;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.components.fields.ExpandableTextField;
 import java.util.Locale;
 import java.util.Objects;
 import javax.swing.JCheckBox;
@@ -30,6 +32,7 @@ public class DatabaseSettings {
   private JCheckBox chkBoxRequireSavePassword;
   private TextFieldWithBrowseButton textDriverPath;
   private JTextField textDriverClass;
+  private ExpandableTextField textPreviewConnectionUrl;
 
   public void setData(DatabaseSettingsState data) {
     textHost.setText(data.getHost());
@@ -40,6 +43,12 @@ public class DatabaseSettings {
     chkBoxRequireSavePassword.setSelected(data.isRequireSavePassword());
     textDriverPath.setText(data.getDriverPath());
     textDriverClass.setText(data.getDriverClass());
+    // preview url
+    String previewUrl = Holder.getJdbcConfigUtil()
+        .tryParseUrl(data.getDriverClass(), data.getHost(),
+            data.getPort() + "", data.getUrl(), "",
+            data.getDatabase(), data.getUrl());
+    textPreviewConnectionUrl.setText(previewUrl);
     // select language
     Locale locale = LocaleContextHolder.getCurrentLocale();
     cbxSelectLanguage.removeAllItems();

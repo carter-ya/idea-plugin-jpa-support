@@ -43,6 +43,7 @@ public class JdbcConfigUtil {
     }
     JdbcConfig refDriver = findJdbcConfig(jdbcConfig.getRef());
     jdbcConfig.setVendor(refDriver.getVendor());
+    jdbcConfig.setHost(refDriver.getHost());
     jdbcConfig.setPort(refDriver.getPort());
     jdbcConfig.setUsername(refDriver.getUsername());
     jdbcConfig.setDatabase(refDriver.getDatabase());
@@ -69,6 +70,7 @@ public class JdbcConfigUtil {
 
     private String vendor;
     private String driver;
+    private String host;
     private int port;
     private String username;
     private String database;
