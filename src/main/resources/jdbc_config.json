@@ -1,0 +1,36 @@
+[
+  {
+    "vendor": "Mysql",
+    "driver": "com.mysql.jdbc.Driver",
+    "port": 3306,
+    "username": "root",
+    "database": "",
+    "url": "jdbc:mysql://{host}:{port}/{database}?useSSL=false&useUnicode=true&characterEncoding=UTF-8"
+  },
+  {
+    "ref": "com.mysql.jdbc.Driver",
+    "driver": "com.mysql.cj.jdbc.Driver"
+  },
+  {
+    "vendor": "PostgreSQL",
+    "driver": "org.postgresql.Driver",
+    "port": 5432,
+    "username": "postgres",
+    "database": "postgres",
+    "url": "jdbc:postgresql://{host}:{port}/{database}"
+  },
+  {
+    "vendor": "Microsoft SQL Server",
+    "driver": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+    "port": 1433,
+    "username": "sa",
+    "url": "jdbc:sqlserver://{host}\\{instance}:{port};database={database}"
+  },
+  {
+    "vendor": "MariaDB",
+    "driver": "org.mariadb.jdbc.Driver",
+    "port": 3306,
+    "username": "root",
+    "url": "jdbc:mariadb://{host}:{port}/{database}?useSSL=false&useUnicode=true&characterEncoding=UTF-8"
+  }
+]
