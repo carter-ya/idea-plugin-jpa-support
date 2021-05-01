@@ -48,6 +48,17 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
     JPanel tablePanel = ToolbarDecorator.createDecorator(jbTable).createPanel();
     columnFieldMappingEditor.getTablePanel().add(tablePanel);
     columnFieldMappingEditor.setData(table);
+
+    // 已选择行数
+    Runnable updateSelected = () -> {
+      long selected = table.getColumns()
+          .stream()
+          .filter(Column::isSelected)
+          .count();
+      columnFieldMappingEditor.getLblSelectCount().setText(selected + " of " + table.getColumns().size());
+    };
+    updateSelected.run();
+    jbTable.getModel().addTableModelListener(e -> updateSelected.run());
   }
 
   @Override
