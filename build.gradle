@@ -36,9 +36,11 @@ dependencies {
     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.3'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
     compileOnly fileTree('lib')
-    testCompile group: 'junit', name: 'junit', version: '4.13.2'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.2'
     testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.24'
 }
 
@@ -67,16 +69,16 @@ runIde {
     systemProperty('idea.auto.reload.plugins', true)
 }
 
+test {
+    useJUnitPlatform()
+}
+
 patchPluginXml {
-    version '2.0.8-RC3'
+    version '2.0.7-RC3'
     changeNotes """
       <ol>
-          <li>Rename plugin name (Jpa Support) to JPA Support</li>
-          <li>Allow add Swagger UI annotation</li>
-          <li>Allow add schema/catalog to Entity</li>
-          <li>Enhance the Database Plugin, support loading unselected tables</li>
-          <li>Enhanced the ignore field feature, allowing fields to be dynamically ignored when editing the table structure</li>
-          <li>fix some problems</li>
+          <li>Optimize the way to input database connection information</li>
+          <li>Support to preview the generated beans and repository</li>
       </ol>
       """
 }

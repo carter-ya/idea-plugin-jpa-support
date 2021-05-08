@@ -6,6 +6,7 @@ import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.annotation.TableWidth;
 import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
 import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
+import com.ifengxue.plugin.gui.property.ExpandableTextTableCellEditor;
 import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
 import java.util.List;
 import lombok.Data;
@@ -89,7 +90,7 @@ public class Column implements Selectable {
    * 字段注释
    */
   @TableProperty(bundleName = "table_column_comment_title", index = 300)
-  @TableEditable
+  @TableEditable(editorProvider = ExpandableTextTableCellEditor.class)
   private String columnComment;
   /**
    * 字段注解

@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.component;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import lombok.Data;
@@ -19,4 +20,5 @@ public class SelectTables {
   private JRadioButton duplicateActionIgnoreButton;
   private JRadioButton duplicateActionRewriteButton;
   private JRadioButton duplicateActionMergeButton;
+  private JLabel lblSelectCount;
 }

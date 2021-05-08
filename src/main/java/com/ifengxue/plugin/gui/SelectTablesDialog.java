@@ -124,6 +124,17 @@ public class SelectTablesDialog extends DialogWrapper {
       }
     }.installOn(table);
 
+    // 已选择行数
+    Runnable updateSelected = () -> {
+      long selected = tables.stream()
+          .filter(Table::isSelected)
+          .count();
+      selectTables.getLblSelectCount().setText(selected + " of " + tables.size());
+    };
+    updateSelected.run();
+
+    table.getModel().addTableModelListener((e) -> updateSelected.run());
+
     selectTables.getBtnCancel().addActionListener(event -> dispose());
     // 选中所有行
     selectTables.getBtnSelectAll().addActionListener(event -> {

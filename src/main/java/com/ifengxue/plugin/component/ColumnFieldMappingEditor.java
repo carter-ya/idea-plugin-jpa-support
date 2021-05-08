@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.component;
 
 import com.ifengxue.plugin.entity.Table;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import lombok.Data;
@@ -13,6 +14,7 @@ public class ColumnFieldMappingEditor {
   private JPanel rootComponent;
   private JTextField textComment;
   private JPanel tablePanel;
+  private JLabel lblSelectCount;
 
   public void setData(Table table) {
     textClassname.setText(table.getEntityName());

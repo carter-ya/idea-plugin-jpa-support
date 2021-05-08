@@ -1,6 +1,7 @@
 package com.ifengxue.plugin;
 
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
+import com.ifengxue.plugin.util.JdbcConfigUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -18,6 +19,7 @@ public class Holder {
   private static volatile PropertiesComponent projectProperties;
   private static volatile DatabaseDrivers databaseDrivers;
   private static volatile FastJdbc fastJdbc;
+  private static volatile JdbcConfigUtil jdbcConfigUtil;
 
   public static synchronized void registerProject(Project project) {
     Holder.project = project;
@@ -78,5 +80,13 @@ public class Holder {
 
   public static synchronized FastJdbc getFastJdbc() {
     return fastJdbc;
+  }
+
+  public static synchronized void registerJdbcConfigUtil(JdbcConfigUtil jdbcConfigUtil) {
+    Holder.jdbcConfigUtil = jdbcConfigUtil;
+  }
+
+  public static synchronized JdbcConfigUtil getJdbcConfigUtil() {
+    return Holder.jdbcConfigUtil;
   }
 }
