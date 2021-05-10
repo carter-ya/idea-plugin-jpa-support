@@ -40,7 +40,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
     compileOnly fileTree('lib')
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.2'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.7.1'
     testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.24'
 }
 
