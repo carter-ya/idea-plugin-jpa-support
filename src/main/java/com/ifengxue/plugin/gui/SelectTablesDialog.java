@@ -142,6 +142,7 @@ public class SelectTablesDialog extends DialogWrapper {
         t.setSelected(true);
       }
       table.updateUI();
+      updateSelected.run();
     });
     // 全不选
     selectTables.getBtnSelectNone().addActionListener(event -> {
@@ -149,6 +150,7 @@ public class SelectTablesDialog extends DialogWrapper {
         t.setSelected(false);
       }
       table.updateUI();
+      updateSelected.run();
     });
     // 反选
     selectTables.getBtnSelectOther().addActionListener(event -> {
@@ -156,6 +158,7 @@ public class SelectTablesDialog extends DialogWrapper {
         t.setSelected(!t.isSelected());
       }
       table.updateUI();
+      updateSelected.run();
     });
     // 正则选择
     AtomicReference<String> initialValueRef = new AtomicReference<>(null);
@@ -191,6 +194,7 @@ public class SelectTablesDialog extends DialogWrapper {
         t.setSelected(pattern.matcher(t.getTableName()).matches());
       }
       table.updateUI();
+      updateSelected.run();
     });
     // 开始生成
     selectTables.getBtnGenerate().addActionListener(event -> {
