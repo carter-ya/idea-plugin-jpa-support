@@ -47,7 +47,7 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     pluginName 'JPA Support'
-    type 'IC'
+    type 'IU'
     def localPropertyFile = project.rootProject.file('local.properties')
     Properties properties = new Properties()
     if (localPropertyFile.exists()) {
@@ -58,7 +58,7 @@ intellij {
         localPath = localIdePath
         printf('use local path: %s', localIdePath)
     } else {
-        version '2020.3.2'
+        version '2021.1.2'
         printf('use remote version: %s', version)
     }
     updateSinceUntilBuild false
@@ -74,7 +74,7 @@ test {
 }
 
 patchPluginXml {
-    version '2.0.7-RC3'
+    version '2.0.7'
     changeNotes """
       <ol>
           <li>Optimize the way to input database connection information</li>
