@@ -26,6 +26,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.JBIterable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -47,9 +48,17 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
     PsiElement parent = tables.get(0).getParent();
     List<DasObject> allTables = new ArrayList<>();
     if (parent instanceof DasNamespace) {
-      JBIterable<DasTable> iterable = ((DasNamespace) parent).getDbChildren(DasTable.class, ObjectKind.TABLE);
-      for (DasTable dasTable : iterable) {
-        allTables.add(dasTable);
+      List<ObjectKind> kinds = Arrays.asList(
+          ObjectKind.TABLE,
+          ObjectKind.VIEW,
+          ObjectKind.MAT_VIEW
+      );
+      for (ObjectKind kind : kinds) {
+        JBIterable<DasTable> iterable = ((DasNamespace) parent)
+            .getDbChildren(DasTable.class, kind);
+        for (DasTable dasTable : iterable) {
+          allTables.add(dasTable);
+        }
       }
     }
     if (allTables.isEmpty()) {
