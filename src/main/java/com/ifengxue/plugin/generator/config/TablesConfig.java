@@ -34,6 +34,7 @@ public class TablesConfig {
   private String repositoryPackageName;
   private String basePackageName;
   private String extendsEntityName;
+  private String controllerPackageName;
 
   /**
    * 是否需要输出默认值

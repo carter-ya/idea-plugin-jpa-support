@@ -85,6 +85,15 @@ public class Table implements Selectable {
 
   private List<Column> columns;
 
+  /**
+   * Service 名称
+   */
+  private String serviceName;
+  /**
+   * Controller 名称
+   */
+  private String controllerName;
+
   public static Table from(
       TableSchema tableSchema,
       String entityName,

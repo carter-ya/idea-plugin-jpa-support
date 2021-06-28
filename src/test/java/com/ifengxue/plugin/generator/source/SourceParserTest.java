@@ -1,5 +1,9 @@
 package com.ifengxue.plugin.generator.source;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
@@ -8,22 +12,25 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.util.MyLogChute;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
+import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.junit.Before;
 import org.junit.Test;
 
-public class EntitySourceParserV2Test {
+public class SourceParserTest {
 
-  private VelocityEngine velocityEngine = new VelocityEngine();
-  private EntitySourceParserV2 sourceParser = new EntitySourceParserV2();
+  private final VelocityEngine velocityEngine = new VelocityEngine();
+  private AbstractIDEASourceParser sourceParser;
 
-  @Before
-  public void setUp() throws Exception {
+  public void initParser() {
     velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new MyLogChute());
     String encoding = StandardCharsets.UTF_8.name();
     velocityEngine.addProperty("input.encoding", encoding);
@@ -32,7 +39,28 @@ public class EntitySourceParserV2Test {
   }
 
   @Test
-  public void parse() {
+  public void entitySourceTest() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    String sourceCode = parse(Constants.JPA_ENTITY_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void controllerSourceTest() throws IOException {
+    sourceParser = new ControllerSourceParser();
+    initParser();
+
+    String sourceCode = parse(Constants.CONTROLLER_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  private String parse(String templateId) throws IOException {
     GeneratorConfig config = new GeneratorConfig();
     config.setDriverConfig(
         new DriverConfig()
@@ -43,6 +71,7 @@ public class EntitySourceParserV2Test {
             new TablesConfig()
                 .setBasePackageName("org.example")
                 .setEntityPackageName("org.example.domain")
+                .setControllerPackageName("org.example.controller")
                 .setExtendsEntityName("org.example.domain.AbstractEntity")
                 .setIndent("  ")
                 .setLineSeparator("\n")
@@ -60,12 +89,14 @@ public class EntitySourceParserV2Test {
                 .setUseLombok(true)
                 .setUseWrapper(true)
         );
-    String sourceCode = sourceParser.parse(config, new Table()
+    return sourceParser.parse(config, new Table()
         .setTableComment("表注释")
         .setTableName("t_table_name")
         .setTableSchema("test_db")
         .setEntityName("TableName")
         .setPackageName("org.example")
+        .setControllerName("TableNameController")
+        .setServiceName("TableNameService")
         .setPrimaryKeyClassType(Long.class)
         .setPrimaryKeyCount(1)
         .setColumns(Arrays.asList(
@@ -109,7 +140,15 @@ public class EntitySourceParserV2Test {
                 .setNullable(false)
                 .setPrimary(false)
         ))
-        .setSelected(true));
-    System.out.println(sourceCode);
+        .setSelected(true), loadTemplate(templateId));
+  }
+
+  private String loadTemplate(String templateId) throws IOException {
+    try (BufferedReader reader = new BufferedReader(
+        new InputStreamReader(
+            Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(templateId)),
+            StandardCharsets.UTF_8))) {
+      return IOUtils.toString(reader);
+    }
   }
 }
