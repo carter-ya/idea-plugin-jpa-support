@@ -87,7 +87,7 @@ public class Column implements Selectable {
   /**
    * 是否允许为null或空串
    */
-  @TableProperty(bundleName = "NotBlank", columnClass = Boolean.class, index = 420)
+  @TableProperty(bundleName = "NotEmpty", columnClass = Boolean.class, index = 420)
   @TableWidth(maxWidth = 60)
   @TableEditable(editorProvider = BooleanTableCellEditor.class)
   private boolean notEmpty;

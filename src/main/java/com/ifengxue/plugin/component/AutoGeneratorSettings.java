@@ -11,6 +11,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +31,6 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxGenerateMethodComment;
   private JTextField textExcludeFields;
   private JButton btnChooseSuperClass;
-  private JCheckBox chkBoxGenerateService;
   private JCheckBox chkBoxUseJava8DateType;
   private JTextField textRemoveTablePrefix;
   private JLabel addTableNamePrefix;
@@ -47,12 +48,41 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxGenerateSwaggerUIComment;
   private JCheckBox chkBoxTableNameAddSchemaName;
   private JCheckBox chkBoxGenerateJpaAnnotation;
+  private JTabbedPane extensionPane;
+  private JPanel controllerPane;
+  private JPanel servicePane;
+  private JPanel voPane;
+  private JTextField textControllerPackageParentPath;
+  private JCheckBox chkBoxGenerateController;
+  private MyPackageNameReferenceEditorCombo controllerPackageReferenceEditorCombo;
+  private JCheckBox chkBoxGenerateService;
+  private JTextField textServicePackageParentPath;
+  private JRadioButton radioJPA;
+  private JRadioButton radioMybatisPlus;
+  private JRadioButton radioTkMybatis;
+  private MyPackageNameReferenceEditorCombo servicePackageReferenceEditorCombo;
+  private JPanel dtoPane;
+  private MyPackageNameReferenceEditorCombo voPackageReferenceEditorCombo;
+  private JTextField textVOPackageParentPath;
+  private JCheckBox chkBoxGenerateVO;
+  private MyPackageNameReferenceEditorCombo dtoPackageReferenceEditorCombo;
+  private JTextField textDTOPackageParentPath;
+  private JCheckBox chkBoxGenerateDTO;
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
         Holder.getProject(), "", "Entity");
-    repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(), "",
+    repositoryPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
+        Holder.getProject(), "",
         "Repository");
+    controllerPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
+        Holder.getProject(), "", "Controller");
+    servicePackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
+        Holder.getProject(), "", "Service");
+    voPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(),
+        "", "VO");
+    dtoPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(),
+        "", "DTO");
   }
 
   public void setData(AutoGeneratorSettingsState data, @Nullable ModuleSettings moduleSettings) {
@@ -71,9 +101,29 @@ public class AutoGeneratorSettings {
     textAddTableNameSuffix.setText(data.getAddEntitySuffix());
     if (moduleSettings != null) {
       entityPackageReferenceEditorCombo.setText(moduleSettings.getEntityPackageName());
-      repositoryPackageReferenceEditorCombo.setText(moduleSettings.getRepositoryPackageName());
       textEntityPackageParentPath.setText(moduleSettings.getEntityParentDirectory());
+
+      repositoryPackageReferenceEditorCombo.setText(moduleSettings.getRepositoryPackageName());
       textRepositoryPackageParentPath.setText(moduleSettings.getRepositoryParentDirectory());
+
+      chkBoxGenerateController.setSelected(moduleSettings.isGenerateController());
+      controllerPackageReferenceEditorCombo.setText(moduleSettings.getControllerPackageName());
+      textControllerPackageParentPath.setText(moduleSettings.getControllerParentDirectory());
+
+      chkBoxGenerateService.setSelected(moduleSettings.isGenerateService());
+      servicePackageReferenceEditorCombo.setText(moduleSettings.getServicePackageName());
+      textServicePackageParentPath.setText(moduleSettings.getServiceParentDirectory());
+      radioJPA.setSelected(moduleSettings.isRepositoryTypeJPA());
+      radioMybatisPlus.setSelected(moduleSettings.isRepositoryTypeMybatisPlus());
+      radioTkMybatis.setSelected(moduleSettings.isRepositoryTypeTkMybatis());
+
+      chkBoxGenerateVO.setSelected(moduleSettings.isGenerateVO());
+      voPackageReferenceEditorCombo.setText(moduleSettings.getVoPackageName());
+      textVOPackageParentPath.setText(moduleSettings.getVoParentDirectory());
+
+      chkBoxGenerateDTO.setSelected(moduleSettings.isGenerateDTO());
+      dtoPackageReferenceEditorCombo.setText(moduleSettings.getDtoPackageName());
+      textDTOPackageParentPath.setText(moduleSettings.getDtoParentDirectory());
     }
     chkBoxGenerateDefaultValue.setSelected(data.isGenerateDefaultValue());
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
@@ -92,17 +142,41 @@ public class AutoGeneratorSettings {
     data.setGenerateClassComment(chkBoxGenerateClassComment.isSelected());
     data.setGenerateFieldComment(chkBoxGenerateFieldComment.isSelected());
     data.setGenerateMethodComment(chkBoxGenerateMethodComment.isSelected());
-    data.setIgnoredFields(Arrays.stream(textExcludeFields.getText().split(",")).collect(Collectors.toSet()));
+    data.setIgnoredFields(
+        Arrays.stream(textExcludeFields.getText().split(",")).collect(Collectors.toSet()));
     data.setInheritedParentClassName(textExtendBaseClass.getText());
     data.setUseJava8DateType(chkBoxUseJava8DateType.isSelected());
     data.setRemoveEntityPrefix(textRemoveTablePrefix.getText());
     data.setAddEntityPrefix(textAddTableNamePrefix.getText());
     data.setAddEntitySuffix(textAddTableNameSuffix.getText());
+
     moduleData.setEntityPackageName(entityPackageReferenceEditorCombo.getText());
-    moduleData.setRepositoryPackageName(repositoryPackageReferenceEditorCombo.getText());
-    data.setModuleName(Optional.ofNullable(cbxModule.getSelectedItem()).map(Object::toString).orElse(""));
-    moduleData.setEntityParentDirectory(textEntityPackageParentPath.getText());
     moduleData.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
+
+    moduleData.setRepositoryPackageName(repositoryPackageReferenceEditorCombo.getText());
+    moduleData.setEntityParentDirectory(textEntityPackageParentPath.getText());
+
+    moduleData.setGenerateController(chkBoxGenerateController.isSelected());
+    moduleData.setControllerPackageName(controllerPackageReferenceEditorCombo.getText());
+    moduleData.setControllerParentDirectory(textControllerPackageParentPath.getText());
+
+    moduleData.setGenerateService(chkBoxGenerateService.isSelected());
+    moduleData.setServicePackageName(servicePackageReferenceEditorCombo.getText());
+    moduleData.setServiceParentDirectory(textServicePackageParentPath.getText());
+    moduleData.setRepositoryTypeJPA(radioJPA.isSelected());
+    moduleData.setRepositoryTypeMybatisPlus(radioMybatisPlus.isSelected());
+    moduleData.setRepositoryTypeTkMybatis(radioTkMybatis.isSelected());
+
+    moduleData.setGenerateVO(chkBoxGenerateVO.isSelected());
+    moduleData.setVoPackageName(voPackageReferenceEditorCombo.getText());
+    moduleData.setVoParentDirectory(textVOPackageParentPath.getText());
+
+    moduleData.setGenerateDTO(chkBoxGenerateDTO.isSelected());
+    moduleData.setDtoPackageName(dtoPackageReferenceEditorCombo.getText());
+    moduleData.setDtoParentDirectory(textDTOPackageParentPath.getText());
+
+    data.setModuleName(
+        Optional.ofNullable(cbxModule.getSelectedItem()).map(Object::toString).orElse(""));
     data.setGenerateDefaultValue(chkBoxGenerateDefaultValue.isSelected());
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
     data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());

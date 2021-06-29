@@ -3,6 +3,7 @@ package com.ifengxue.plugin.gui;
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
+import com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.Selectable;
 import com.ifengxue.plugin.entity.Table;
@@ -39,6 +40,7 @@ import java.util.Set;
 import java.util.function.Function;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -141,6 +143,18 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     if (!checkEmpty || generatorSettings.getTextRepositoryPackageParentPath().getText().isEmpty()) {
       generatorSettings.getTextRepositoryPackageParentPath().setText(sourceRoot);
     }
+    if (!checkEmpty || generatorSettings.getTextControllerPackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextControllerPackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextServicePackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextServicePackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextVOPackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextVOPackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextDTOPackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextDTOPackageParentPath().setText(sourceRoot);
+    }
   }
 
   @Nullable
@@ -235,16 +249,52 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     generatorSettings.setData(autoGeneratorSettingsState, moduleSettings);
 
     if (moduleSettings != null) {
-      generatorSettings.getEntityPackageReferenceEditorCombo().setText(moduleSettings.getEntityPackageName());
-      if (StringUtils.isNotBlank(moduleSettings.getEntityPackageName())) {
-        generatorSettings.getEntityPackageReferenceEditorCombo().prependItem(moduleSettings.getEntityPackageName());
+      Object[][] combos = {
+          {
+              generatorSettings.getEntityPackageReferenceEditorCombo(),
+              moduleSettings.getEntityPackageName(),
+              generatorSettings.getTextEntityPackageParentPath(),
+              moduleSettings.getEntityParentDirectory()
+          },
+          {
+              generatorSettings.getRepositoryPackageReferenceEditorCombo(),
+              moduleSettings.getRepositoryPackageName(),
+              generatorSettings.getTextRepositoryPackageParentPath(),
+              moduleSettings.getRepositoryParentDirectory()
+          },
+          {
+              generatorSettings.getControllerPackageReferenceEditorCombo(),
+              moduleSettings.getControllerPackageName(),
+              generatorSettings.getTextControllerPackageParentPath(),
+              moduleSettings.getControllerParentDirectory()
+          },
+          {
+              generatorSettings.getServicePackageReferenceEditorCombo(),
+              moduleSettings.getServicePackageName(),
+              generatorSettings.getTextServicePackageParentPath(),
+              moduleSettings.getServiceParentDirectory()
+          },
+          {
+              generatorSettings.getVoPackageReferenceEditorCombo(),
+              moduleSettings.getVoPackageName(),
+              generatorSettings.getTextVOPackageParentPath(),
+              moduleSettings.getVoParentDirectory()
+          },
+          {
+              generatorSettings.getDtoPackageReferenceEditorCombo(),
+              moduleSettings.getDtoPackageName(),
+              generatorSettings.getTextDTOPackageParentPath(),
+              moduleSettings.getDtoParentDirectory()
+          }
+      };
+      for (Object[] combo : combos) {
+        String packageName = (String) combo[1];
+        ((MyPackageNameReferenceEditorCombo) combo[0]).setText(packageName);
+        if (StringUtils.isNotBlank(packageName)) {
+          ((MyPackageNameReferenceEditorCombo) combo[0]).appendItem(packageName);
+        }
+        ((JTextField) combo[2]).setText((String) combo[3]);
       }
-      generatorSettings.getRepositoryPackageReferenceEditorCombo().setText(moduleSettings.getRepositoryPackageName());
-      if (StringUtils.isNotBlank(moduleSettings.getRepositoryPackageName())) {
-        generatorSettings.getRepositoryPackageReferenceEditorCombo().prependItem(moduleSettings.getRepositoryPackageName());
-      }
-      generatorSettings.getTextEntityPackageParentPath().setText(moduleSettings.getEntityParentDirectory());
-      generatorSettings.getTextRepositoryPackageParentPath().setText(moduleSettings.getRepositoryParentDirectory());
     }
   }
 

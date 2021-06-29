@@ -24,7 +24,6 @@ public class ${table.entityName}VO #if($serializable) implements java.io.Seriali
     private static final long serialVersionUID = 1L;
     #end
     #foreach($column in $table.columns)
-    #if(!$column.isPrimary())
         #if($tablesConfig.isUseFieldComment() && !$column.columnComment.isEmpty())
 
         /**
@@ -44,7 +43,6 @@ public class ${table.entityName}VO #if($serializable) implements java.io.Seriali
         @ApiModelProperty("$column.columnComment")
         #end
         private $column.javaDataType.name $column.fieldName;
-    #end
 
     #end
 }

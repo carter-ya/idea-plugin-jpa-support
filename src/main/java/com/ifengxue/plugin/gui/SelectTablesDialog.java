@@ -14,8 +14,13 @@ import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
+import com.ifengxue.plugin.generator.source.ControllerSourceParser;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.generator.source.ServiceSourceParser;
+import com.ifengxue.plugin.generator.source.SimpleBeanSourceParser;
+import com.ifengxue.plugin.generator.source.SourceParser;
+import com.ifengxue.plugin.generator.source.VelocityEngineAware;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
@@ -63,7 +68,6 @@ import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import java.awt.event.MouseEvent;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,6 +86,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -294,28 +299,54 @@ public class SelectTablesDialog extends DialogWrapper {
       Project project = event.getProject();
       assert project != null;
 
-      String encoding = StandardCharsets.UTF_8.name();
-      JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
-      repositorySourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
-
-      EntitySourceParserV2 sourceParser = new EntitySourceParserV2();
-      sourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
-
       AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
           .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
       ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings();
 
+      List<GeneratorTask> tasks = buildTask(autoGeneratorSettingsState, moduleSettings);
+
       CountDownLatch isReadForWrite = new CountDownLatch(1);
       ApplicationManager.getApplication().runWriteAction(() -> {
-        // create entity directory
-        FileUtil.mkdirs(PsiManager.getInstance(project), Paths.get(moduleSettings.getEntityParentDirectory(),
-            StringHelper.packageNameToFolder(moduleSettings.getEntityPackageName())));
-        // create repository dir
-        if (autoGeneratorSettingsState.isGenerateRepository()) {
-          FileUtil.mkdirs(PsiManager.getInstance(project), Paths.get(moduleSettings.getRepositoryParentDirectory(),
-              StringHelper.packageNameToFolder(moduleSettings.getRepositoryPackageName())));
+        Object[][] directoryAndPackageNames = {
+            {
+                true,
+                moduleSettings.getEntityParentDirectory(),
+                moduleSettings.getEntityPackageName()
+            },
+            {
+                autoGeneratorSettingsState.isGenerateRepository(),
+                moduleSettings.getRepositoryParentDirectory(),
+                moduleSettings.getRepositoryPackageName()
+            },
+            {
+                moduleSettings.isGenerateController(),
+                moduleSettings.getControllerParentDirectory(),
+                moduleSettings.getControllerPackageName()
+            },
+            {
+                moduleSettings.isGenerateService(),
+                moduleSettings.getServiceParentDirectory(),
+                moduleSettings.getServicePackageName()
+            },
+            {
+                moduleSettings.isGenerateVO(),
+                moduleSettings.getVoParentDirectory(),
+                moduleSettings.getVoPackageName()
+            },
+            {
+                moduleSettings.isGenerateDTO(),
+                moduleSettings.getDtoParentDirectory(),
+                moduleSettings.getDtoPackageName()
+            },
+        };
+        for (Object[] directoryAndPackageName : directoryAndPackageNames) {
+          if (!(boolean) directoryAndPackageName[0]) {
+            continue;
+          }
+          FileUtil.mkdirs(PsiManager.getInstance(project),
+              Paths.get((String) directoryAndPackageName[1],
+                  StringHelper.packageNameToFolder((String) directoryAndPackageName[2])));
         }
-
         isReadForWrite.countDown();
       });
 
@@ -343,6 +374,10 @@ public class SelectTablesDialog extends DialogWrapper {
             .setBasePackageName(basePackageName)
             .setEntityPackageName(moduleSettings.getEntityPackageName())
             .setEnumSubPackageName(basePackageName + ".enums")
+            .setControllerPackageName(moduleSettings.getControllerPackageName())
+            .setServicePackageName(moduleSettings.getServicePackageName())
+            .setVoPackageName(moduleSettings.getVoPackageName())
+            .setDtoPackageName(moduleSettings.getDtoPackageName())
             .setIndent(getIndent())
             .setLineSeparator(getLineSeparator())
             .setOrm(ORM.JPA)
@@ -363,36 +398,121 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
             .setUseJpaAnnotation(autoGeneratorSettingsState.isGenerateJpaAnnotation())
             .setAddSchemeNameToTableName(autoGeneratorSettingsState.isAddSchemaNameToTableName())
+            .setUseJpa(moduleSettings.isRepositoryTypeJPA())
+            .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())
+            .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
-        String sourceCode = sourceParser.parse(generatorConfig, table);
         WriteCommandAction.runWriteCommandAction(project, () -> {
           try {
             isReadForWrite.await();
 
-            String fileExtension = ".java";
-            String filename = table.getEntityName() + fileExtension;
-            writeContent(project, filename, moduleSettings.getEntityParentDirectory(),
-                moduleSettings.getEntityPackageName(), sourceCode);
-            if (autoGeneratorSettingsState.isGenerateRepository()) {
-              filename = table.getRepositoryName() + fileExtension;
-              String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-              writeContent(project, filename, moduleSettings.getRepositoryParentDirectory(),
-                  moduleSettings.getRepositoryPackageName(),
-                  repositorySourceCode);
+            if (StringUtils.isBlank(table.getServiceName())) {
+              table.setServiceName(table.getEntityName() + "Service");
+            }
+            if (StringUtils.isBlank(table.getControllerName())) {
+              table.setControllerName(table.getEntityName() + "Controller");
+            }
+            for (GeneratorTask task : tasks) {
+              if (!task.shouldRun) {
+                continue;
+              }
+              String sourceCode = task.sourceParser.parse(generatorConfig, table);
+              writeContent(project, task.filenameMapping.apply(table), task.directory,
+                  task.packageName, sourceCode);
             }
           } catch (Exception e) {
-            Bus.notify(new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e,
-                NotificationType.ERROR), project);
+            Bus.notify(
+                new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e,
+                    NotificationType.ERROR), project);
+            Logger.getInstance(getClass()).warn("Generate source code error", e);
           } finally {
             if (leftGenerateCount.decrementAndGet() == 0) {
               ApplicationManager.getApplication().invokeLater(
-                  () -> Messages.showInfoMessage(LocaleContextHolder.format("generate_source_code_success"),
-                      Constants.NAME));
+                  () -> Messages
+                      .showInfoMessage(LocaleContextHolder.format("generate_source_code_success"),
+                          Constants.NAME));
             }
           }
         });
       }
+    }
+
+    private List<GeneratorTask> buildTask(AutoGeneratorSettingsState state,
+        ModuleSettings moduleSettings) {
+      Function<String, SourceParser> templateIdToSourceParserMapping = templateId -> {
+        SimpleBeanSourceParser parser = new SimpleBeanSourceParser();
+        parser.setTemplateId(templateId);
+        return parser;
+      };
+      String fileExtension = ".java";
+      List<GeneratorTask> tasks = Arrays.asList(
+          GeneratorTask.builder()
+              .shouldRun(true)
+              .sourceParser(new EntitySourceParserV2())
+              .directory(moduleSettings.getEntityParentDirectory())
+              .packageName(moduleSettings.getEntityPackageName())
+              .filenameMapping(t -> t.getEntityName() + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(state.isGenerateRepository())
+              .sourceParser(new JpaRepositorySourceParser())
+              .directory(moduleSettings.getRepositoryParentDirectory())
+              .packageName(moduleSettings.getRepositoryPackageName())
+              .filenameMapping(t -> t.getRepositoryName() + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateController())
+              .sourceParser(new ControllerSourceParser())
+              .directory(moduleSettings.getControllerParentDirectory())
+              .packageName(moduleSettings.getControllerPackageName())
+              .filenameMapping(t -> StringUtils.firstNonBlank(t.getControllerName() + fileExtension,
+                  t.getEntityName() + "Controller" + fileExtension))
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateService())
+              .sourceParser(new ServiceSourceParser())
+              .directory(moduleSettings.getServiceParentDirectory())
+              .packageName(moduleSettings.getServicePackageName())
+              .filenameMapping(t -> StringUtils.firstNonBlank(t.getServiceName() + fileExtension,
+                  t.getEntityName() + "Service" + fileExtension))
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.SAVE_VO_TEMPLATE_ID))
+              .directory(moduleSettings.getVoParentDirectory())
+              .packageName(moduleSettings.getVoPackageName())
+              .filenameMapping(t -> t.getEntityName() + "VO" + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.UPDATE_VO_TEMPLATE_ID))
+              .directory(moduleSettings.getVoParentDirectory())
+              .packageName(moduleSettings.getVoPackageName())
+              .filenameMapping(t -> t.getEntityName() + "UpdateVO" + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.QUERY_VO_TEMPLATE_ID))
+              .directory(moduleSettings.getVoParentDirectory())
+              .packageName(moduleSettings.getVoPackageName())
+              .filenameMapping(t -> t.getEntityName() + "QueryVO" + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.DTO_TEMPLATE_ID))
+              .directory(moduleSettings.getDtoParentDirectory())
+              .packageName(moduleSettings.getDtoPackageName())
+              .filenameMapping(t -> t.getEntityName() + "DTO" + fileExtension)
+              .build()
+      );
+      for (GeneratorTask task : tasks) {
+        if (task.sourceParser instanceof VelocityEngineAware) {
+          ((VelocityEngineAware) task.sourceParser)
+              .setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");
+        }
+      }
+      return tasks;
     }
 
     private String getIndent() {
@@ -570,5 +690,16 @@ public class SelectTablesDialog extends DialogWrapper {
         targetClass.addAfter(field, precursorField);
       }
     }
+  }
+
+  @Builder
+  private static class GeneratorTask {
+
+    private final boolean shouldRun;
+    private final SourceParser sourceParser;
+    private final String directory;
+    private final String packageName;
+    private final Function<Table, String> filenameMapping;
+
   }
 }

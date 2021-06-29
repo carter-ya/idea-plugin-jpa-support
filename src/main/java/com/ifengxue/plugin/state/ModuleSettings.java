@@ -10,17 +10,61 @@ public class ModuleSettings {
      */
     private String entityPackageName = "";
     /**
-     * 实体包parent路径<br>
-     * 如: /path/to/maven/module/src/main/java
+     * 实体包parent路径
+     * <br> 如: /path/to/maven/module/src/main/java
      */
     private String entityParentDirectory = "";
     /**
      * repository包名
      */
     private String repositoryPackageName = "";
+    private boolean generateController;
     /**
-     * repository包名<br>
-     * 如:/path/to/maven/module/src/main/java
+     * repository parent 路径
+     * <br> 如:/path/to/maven/module/src/main/java
      */
     private String repositoryParentDirectory = "";
+    /**
+     * controller包名
+     */
+    private String controllerPackageName = "";
+    /**
+     * controller parent 路径
+     * <br> 如:/path/to/maven/module/src/main/java
+     */
+    private String controllerParentDirectory = "";
+    private boolean generateService;
+    private boolean repositoryTypeJPA = true;
+    private boolean repositoryTypeMybatisPlus = false;
+    private boolean repositoryTypeTkMybatis = false;
+    /**
+     * service包名
+     */
+    private String servicePackageName = "";
+    /**
+     * service parent 路径
+     * <br> 如:/path/to/maven/module/src/main/java
+     */
+    private String serviceParentDirectory = "";
+    private boolean generateVO;
+    /**
+     * vo包名
+     */
+    private String voPackageName = "";
+    /**
+     * vo parent 路径
+     * <br> 如:/path/to/maven/module/src/main/java
+     */
+    private String voParentDirectory = "";
+    private boolean generateDTO;
+    /**
+     * DTO包名
+     */
+    private String dtoPackageName = "";
+    /**
+     * DTO parent 路径
+     * <br> 如:/path/to/maven/module/src/main/java
+     */
+    private String dtoParentDirectory = "";
+
 }
