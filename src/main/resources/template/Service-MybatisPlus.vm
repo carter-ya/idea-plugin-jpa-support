@@ -65,7 +65,9 @@ public class ${simpleName} {
         IPage<${entitySimpleName}> page = ${repositoryVariableName}.selectPage(
             new Page<>(vo.getPageNum(), vo.getPageSize()),
             Wrappers.lambdaQuery(${entitySimpleName}.class)
-            // TODO append query params
+            #foreach($column in $table.columns)
+                .eq(vo.${column.getterMethodName}() != null#if($column.javaDataType.name == 'java.lang.String') && !vo.${column.getterMethodName}().isEmpty()#end, ${entitySimpleName}::${column.getterMethodName}, vo.${column.getterMethodName}())
+            #end
         );
 
         Page<${entitySimpleName}DTO> targetPage = new Page<>(

@@ -65,7 +65,9 @@ public class ${simpleName} {
         PageHelper.startPage(vo.getPageNum(), vo.getPageSize());
         Weekend<${entitySimpleName}> example = Weekend.of(${entitySimpleName}.class);
         example.weekendCriteria()
-            // TODO
+        #foreach($column in $table.columns)
+            .andEqualTo(${entitySimpleName}::${column.getterMethodName}, vo.${column.getterMethodName}())
+        #end
                 ;
         Page<${entitySimpleName}> page = (Page<${entitySimpleName}>) ${repositoryVariableName}.selectByExample(example);
 
