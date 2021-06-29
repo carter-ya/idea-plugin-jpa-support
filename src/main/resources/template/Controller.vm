@@ -9,7 +9,9 @@ import io.swagger.annotations.ApiParam;
 #end
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+#if($useJPA)
 import org.springframework.data.domain.Page;
+#end
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+#if($useMybatisPlus)
+import com.baomidou.mybatisplus.core.metadata.IPage;
+#end
+#if($useTkMybatis)
+import import com.github.pagehelper.Page;
+#end
 
 #if($useLombok)
 @Api(tags = "$comment")
@@ -68,7 +76,15 @@ public class ${simpleName} {
     #if($useLombok)
     @ApiOperation("$query $comment")
     #end
+    #if($useJPA)
     public Page<${entitySimpleName}DTO> query(@Valid ${entitySimpleName}QueryVO vo) {
+    #end
+    #if($useMybatisPlus)
+    public IPage<${entitySimpleName}DTO> query(@Valid ${entitySimpleName}QueryVO vo) {
+    #end
+    #if($useTkMybatis)
+    public Page<${entitySimpleName}DTO> query(@Valid ${entitySimpleName}QueryVO vo) {
+    #end
         return ${serviceVariableName}.query(vo);
     }
 }

@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import org.apache.velocity.VelocityContext;
 
 public class JpaRepositorySourceParser extends AbstractIDEASourceParser {
-  
+
   @Override
   protected String parse(GeneratorConfig config, Table table, Supplier<String> templateProvider) {
     VelocityContext context = new VelocityContext();

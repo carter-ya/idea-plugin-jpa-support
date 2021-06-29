@@ -8,6 +8,7 @@ import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
 import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
 import com.ifengxue.plugin.gui.property.ExpandableTextTableCellEditor;
 import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
+import com.ifengxue.plugin.util.StringHelper;
 import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -104,5 +105,16 @@ public class Column implements Selectable {
   @Override
   public boolean isSelected() {
     return selected;
+  }
+
+  public String getGetterMethodName() {
+    if (javaDataType == boolean.class) {
+      return StringHelper.parseIsMethodName(fieldName);
+    }
+    return StringHelper.parseGetMethodName(fieldName);
+  }
+
+  public String getSetterMethodName() {
+    return StringHelper.parseSetMethodName(fieldName);
   }
 }

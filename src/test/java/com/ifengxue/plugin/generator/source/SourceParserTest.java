@@ -60,6 +60,39 @@ public class SourceParserTest {
     System.out.println(sourceCode);
   }
 
+  @Test
+  public void serviceSourceTest() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    String sourceCode = parse(Constants.JPA_SERVICE_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void serviceMybatisPlusSourceTest() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    String sourceCode = parse(Constants.MYBATIS_PLUS_SERVICE_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void serviceTkMybatisSourceTest() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    String sourceCode = parse(Constants.TK_MYBATIS_SERVICE_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
   private String parse(String templateId) throws IOException {
     GeneratorConfig config = new GeneratorConfig();
     config.setDriverConfig(
@@ -72,6 +105,7 @@ public class SourceParserTest {
                 .setBasePackageName("org.example")
                 .setEntityPackageName("org.example.domain")
                 .setControllerPackageName("org.example.controller")
+                .setServicePackageName("org.example.service")
                 .setExtendsEntityName("org.example.domain.AbstractEntity")
                 .setIndent("  ")
                 .setLineSeparator("\n")
@@ -97,6 +131,7 @@ public class SourceParserTest {
         .setPackageName("org.example")
         .setControllerName("TableNameController")
         .setServiceName("TableNameService")
+        .setRepositoryName("TableNameRepository")
         .setPrimaryKeyClassType(Long.class)
         .setPrimaryKeyCount(1)
         .setColumns(Arrays.asList(

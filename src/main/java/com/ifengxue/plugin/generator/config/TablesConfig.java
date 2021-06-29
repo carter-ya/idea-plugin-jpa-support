@@ -30,11 +30,20 @@ public class TablesConfig {
   private String removeFieldPrefix;
   private String entityPackageName;
   private String enumSubPackageName;
-  private String serviceSubPackageName;
   private String repositoryPackageName;
   private String basePackageName;
   private String extendsEntityName;
+
+  // controller
+
   private String controllerPackageName;
+
+  // service
+
+  private boolean useJpa;
+  private boolean useMybatisPlus;
+  private boolean useTkMybatis;
+  private String servicePackageName;
 
   /**
    * 是否需要输出默认值

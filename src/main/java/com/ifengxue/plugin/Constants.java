@@ -8,4 +8,7 @@ public interface Constants {
   String JPA_ENTITY_TEMPLATE_ID = "template/JpaEntity.vm";
   String JPA_REPOSITORY_TEMPLATE_ID = "template/JpaRepository.vm";
   String CONTROLLER_TEMPLATE_ID = "template/Controller.vm";
+  String JPA_SERVICE_TEMPLATE_ID = "template/Service.vm";
+  String MYBATIS_PLUS_SERVICE_TEMPLATE_ID = "template/Service-MybatisPlus.vm";
+  String TK_MYBATIS_SERVICE_TEMPLATE_ID = "template/Service-TkMybatis.vm";
 }

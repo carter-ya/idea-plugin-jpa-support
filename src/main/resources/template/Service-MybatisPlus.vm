@@ -1,0 +1,81 @@
+#if(!$package.isEmpty())
+package $package;
+
+#end
+import static java.util.stream.Collectors.toList;
+
+import java.util.Optional;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import javax.persistence.OptimisticLockException;
+
+@Service
+public class ${simpleName} {
+
+    @Autowired
+    private $repositoryName $repositoryVariableName;
+
+    public $primaryKeyDataType save(${entitySimpleName}VO vo) {
+        ${entitySimpleName} bean = new ${entitySimpleName}();
+        BeanUtils.copyProperties(vo, bean);
+        ${repositoryVariableName}.insert(bean);
+        return bean.${primaryKeyGetMethod}();
+    }
+
+    public void delete($primaryKeyDataType id) {
+        int affectRows = ${repositoryVariableName}.deleteById(id);
+        if (affectRows == 0) {
+            throw new OptimisticLockException("Can't delete entity:" + id);
+        }
+    }
+
+    public void update($primaryKeyDataType id, ${entitySimpleName}UpdateVO vo) {
+        $entitySimpleName bean = requireOne(id);
+        BeanUtils.copyProperties(vo, bean);
+        int affectRows = ${repositoryVariableName}.updateById(bean);
+        if (affectRows == 0) {
+            throw new OptimisticLockException("Can't update entity:" + id);
+        }
+    }
+
+    public ${entitySimpleName}DTO getById($primaryKeyDataType id) {
+        ${entitySimpleName} original = requireOne(id);
+        return toDTO(original);
+    }
+
+    public IPage<${entitySimpleName}DTO> query(${entitySimpleName}QueryVO vo) {
+        IPage<${entitySimpleName}> page = ${repositoryVariableName}.selectPage(
+            new Page<>(vo.getPageNum(), vo.getPageSize()),
+            Wrappers.lambdaQuery(${entitySimpleName}.class)
+            // TODO append query params
+        );
+
+        Page<${entitySimpleName}DTO> targetPage = new Page<>(
+            page.getCurrent(), page.getSize(), page.getTotal()
+        );
+        targetPage.setPages(page.getPages());
+        targetPage.hitCount(page.hitCount());
+        targetPage.setRecords(
+            page.getRecords()
+                .stream()
+                .map(this::toDTO)
+                .collect(toList());
+        );
+        return targetPage;
+    }
+
+    private ${entitySimpleName}DTO toDTO(${entitySimpleName} original) {
+        ${entitySimpleName}DTO bean = new ${entitySimpleName}DTO();
+        BeanUtils.copyProperties(original, bean);
+        return bean;
+    }
+
+    private ${entitySimpleName} requireOne($primaryKeyDataType id) {
+        return Optional.ofNullable(${repositoryVariableName}.selectById(id))
+            .orElseThrow(() -> new NoSuchElementException("Resource not found: " + id));
+    }
+}

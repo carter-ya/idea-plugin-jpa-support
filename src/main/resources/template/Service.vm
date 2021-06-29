@@ -1,0 +1,52 @@
+#if(!$package.isEmpty())
+package $package;
+
+#end
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ${simpleName} {
+
+    @Autowired
+    private $repositoryName $repositoryVariableName;
+
+    public $primaryKeyDataType save(${entitySimpleName}VO vo) {
+        ${entitySimpleName} bean = new ${entitySimpleName}();
+        BeanUtils.copyProperties(vo, bean);
+        bean = ${repositoryVariableName}.save(bean);
+        return bean.${table.primaryColumn.getterMethodName}();
+    }
+
+    public void delete($primaryKeyDataType id) {
+        ${repositoryVariableName}.deleteById(id);
+    }
+
+    public void update($primaryKeyDataType id, ${entitySimpleName}UpdateVO vo) {
+        $entitySimpleName bean = requireOne(id);
+        BeanUtils.copyProperties(vo, bean);
+        ${repositoryVariableName}.save(bean);
+    }
+
+    public ${entitySimpleName}DTO getById($primaryKeyDataType id) {
+        ${entitySimpleName} original = requireOne(id);
+        return toDTO(original);
+    }
+
+    public Page<${entitySimpleName}DTO> query(${entitySimpleName}QueryVO vo) {
+        throw new UnsupportedOperationException();
+    }
+
+    private ${entitySimpleName}DTO toDTO(${entitySimpleName} original) {
+        ${entitySimpleName}DTO bean = new ${entitySimpleName}DTO();
+        BeanUtils.copyProperties(original, bean);
+        return bean;
+    }
+
+    private ${entitySimpleName} requireOne($primaryKeyDataType id) {
+        return ${repositoryVariableName}.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Resource not found: " + id));
+    }
+}

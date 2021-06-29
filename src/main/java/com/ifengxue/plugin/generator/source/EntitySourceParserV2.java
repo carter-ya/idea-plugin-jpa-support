@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 
 public class EntitySourceParserV2 extends AbstractIDEASourceParser {
-  
+
   @Override
   protected String parse(GeneratorConfig config, Table table, Supplier<String> templateProvider) {
     VelocityContext context = new VelocityContext();

@@ -6,6 +6,7 @@ import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.annotation.TableWidth;
 import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
 import java.util.List;
+import java.util.NoSuchElementException;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -113,5 +114,12 @@ public class Table implements Selectable {
 
   public void incPrimaryKeyCount() {
     primaryKeyCount++;
+  }
+
+  public Column getPrimaryColumn() {
+    return columns.stream()
+        .filter(Column::isPrimary)
+        .findFirst()
+        .orElseThrow(NoSuchElementException::new);
   }
 }
