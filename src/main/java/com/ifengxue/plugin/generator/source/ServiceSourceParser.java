@@ -33,6 +33,7 @@ public class ServiceSourceParser extends AbstractIDEASourceParser {
         VelocityContext context = new VelocityContext();
         TablesConfig tablesConfig = config.getTablesConfig();
         context.put("table", table);
+        context.put("tablesConfig", tablesConfig);
         context.put("package", StringUtils.trimToEmpty(tablesConfig.getServicePackageName()));
         context.put("simpleName", table.getServiceName());
         context.put("repositoryName", table.getRepositoryName());

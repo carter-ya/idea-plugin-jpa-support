@@ -16,6 +16,8 @@ public class ControllerSourceParser extends AbstractIDEASourceParser {
     protected String parse(GeneratorConfig config, Table table, Supplier<String> templateProvider) {
         VelocityContext context = new VelocityContext();
         TablesConfig tablesConfig = config.getTablesConfig();
+        context.put("table", table);
+        context.put("tablesConfig", tablesConfig);
         context.put("package", StringUtils.trimToEmpty(tablesConfig.getControllerPackageName()));
         context.put("useLombok", tablesConfig.isUseLombok());
         context.put("comment", StringUtils.trimToEmpty(table.getTableComment()));

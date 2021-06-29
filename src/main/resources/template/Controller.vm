@@ -8,6 +8,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 #end
 import javax.validation.Valid;
+#if(!$tablesConfig.servicePackageName.isEmpty())
+import ${tablesConfig.servicePackageName}.${table.serviceName};
+#end
 import org.springframework.beans.factory.annotation.Autowired;
 #if($useJPA)
 import org.springframework.data.domain.Page;
