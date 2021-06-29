@@ -75,6 +75,14 @@ public class Column implements Selectable {
    */
   private boolean nullable;
   /**
+   * 是否允许为null或空串或仅包含空白字符的字符串
+   */
+  private boolean notBlank;
+  /**
+   * 是否允许为null或空串
+   */
+  private boolean notEmpty;
+  /**
    * 是否是自增字段
    */
   private boolean autoIncrement;

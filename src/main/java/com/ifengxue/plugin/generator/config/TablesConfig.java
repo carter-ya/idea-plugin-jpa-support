@@ -45,6 +45,12 @@ public class TablesConfig {
   private boolean useTkMybatis;
   private String servicePackageName;
 
+  // vo
+  private String voPackageName;
+
+  // dto
+  private String dtoPackageName;
+
   /**
    * 是否需要输出默认值
    */

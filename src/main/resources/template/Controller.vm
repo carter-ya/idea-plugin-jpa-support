@@ -11,6 +11,14 @@ import javax.validation.Valid;
 #if(!$tablesConfig.servicePackageName.isEmpty())
 import ${tablesConfig.servicePackageName}.${table.serviceName};
 #end
+#if(!$tablesConfig.voPackageName.isEmpty())
+import ${tablesConfig.voPackageName}.${entitySimpleName}VO;
+import ${tablesConfig.voPackageName}.${entitySimpleName}UpdateVO;
+import ${tablesConfig.voPackageName}.${entitySimpleName}QueryVO;
+#end
+#if(!$tablesConfig.dtoPackageName.isEmpty())
+import ${tablesConfig.dtoPackageName}.${entitySimpleName}DTO;
+#end
 import org.springframework.beans.factory.annotation.Autowired;
 #if($useJPA)
 import org.springframework.data.domain.Page;

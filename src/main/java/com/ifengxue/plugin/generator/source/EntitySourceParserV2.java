@@ -31,7 +31,6 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
     context.put("tablesConfig", config.getTablesConfig());
     context.put("table", table);
     context.put("empty", "");
-    context.put("stringHelper", new StringHelper());
     // set indent
     context.put("indent", Element.Indent.findByDTDDeclare(tablesConfig.getIndent()));
     context.put("package", tablesConfig.getEntityPackageName());

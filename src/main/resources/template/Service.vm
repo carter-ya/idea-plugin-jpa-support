@@ -8,6 +8,14 @@ import ${tablesConfig.repositoryPackageName}.${table.repositoryName};
 #if(!$tablesConfig.entityPackageName.isEmpty())
 import ${tablesConfig.entityPackageName}.${table.entityName};
 #end
+#if(!$tablesConfig.voPackageName.isEmpty())
+import ${tablesConfig.voPackageName}.${entitySimpleName}VO;
+import ${tablesConfig.voPackageName}.${entitySimpleName}UpdateVO;
+import ${tablesConfig.voPackageName}.${entitySimpleName}QueryVO;
+#end
+#if(!$tablesConfig.dtoPackageName.isEmpty())
+import ${tablesConfig.dtoPackageName}.${entitySimpleName}DTO;
+#end
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

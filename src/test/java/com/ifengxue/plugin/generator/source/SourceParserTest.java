@@ -93,6 +93,50 @@ public class SourceParserTest {
     System.out.println(sourceCode);
   }
 
+  @Test
+  public void saveVOSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser(Constants.SAVE_VO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parse(Constants.SAVE_VO_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void updateVOSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser(Constants.UPDATE_VO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parse(Constants.UPDATE_VO_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void queryVOSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser(Constants.QUERY_VO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parse(Constants.QUERY_VO_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void dtoSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser(Constants.DTO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parse(Constants.DTO_TEMPLATE_ID);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
   private String parse(String templateId) throws IOException {
     GeneratorConfig config = new GeneratorConfig();
     config.setDriverConfig(
@@ -106,6 +150,8 @@ public class SourceParserTest {
                 .setEntityPackageName("org.example.domain")
                 .setControllerPackageName("org.example.controller")
                 .setServicePackageName("org.example.service")
+                .setVoPackageName("org.example.vo")
+                .setDtoPackageName("org.example.dto")
                 .setExtendsEntityName("org.example.domain.AbstractEntity")
                 .setIndent("  ")
                 .setLineSeparator("\n")
@@ -122,6 +168,7 @@ public class SourceParserTest {
                 .setUseJava8DateType(true)
                 .setUseLombok(true)
                 .setUseWrapper(true)
+                .setUseSwaggerUIComment(true)
         );
     return sourceParser.parse(config, new Table()
         .setTableComment("表注释")
@@ -154,7 +201,17 @@ public class SourceParserTest {
                 .setDefaultValue("0L")
                 .setNullable(false)
                 .setPrimary(false),
-            new Column().setAutoIncrement(true)
+            new Column().setAutoIncrement(false)
+                .setColumnComment("名称")
+                .setColumnName("f_name")
+                .setDbDataType("VARCHAR")
+                .setFieldName("name")
+                .setHasDefaultValue(false)
+                .setJavaDataType(String.class)
+                .setNullable(false)
+                .setNotBlank(true)
+            ,
+            new Column().setAutoIncrement(false)
                 .setColumnComment("创建时间")
                 .setColumnName("f_created_at")
                 .setDbDataType("DATETIME")
@@ -164,7 +221,7 @@ public class SourceParserTest {
                 .setDefaultValue("new Timestamp(System.currentTimeMillis())")
                 .setNullable(false)
                 .setPrimary(false),
-            new Column().setAutoIncrement(true)
+            new Column().setAutoIncrement(false)
                 .setColumnComment("更新时间")
                 .setColumnName("f_updated_at")
                 .setDbDataType("DATETIME")
