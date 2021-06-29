@@ -73,14 +73,23 @@ public class Column implements Selectable {
   /**
    * 是否允许为null
    */
-  private boolean nullable;
+  @TableProperty(bundleName = "Nullable", columnClass = Boolean.class, index = 400)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
+  private boolean nullable = true;
   /**
    * 是否允许为null或空串或仅包含空白字符的字符串
    */
+  @TableProperty(bundleName = "NotBlank", columnClass = Boolean.class, index = 410)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
   private boolean notBlank;
   /**
    * 是否允许为null或空串
    */
+  @TableProperty(bundleName = "NotBlank", columnClass = Boolean.class, index = 420)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
   private boolean notEmpty;
   /**
    * 是否是自增字段

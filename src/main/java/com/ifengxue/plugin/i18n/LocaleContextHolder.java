@@ -2,6 +2,7 @@ package com.ifengxue.plugin.i18n;
 
 import com.intellij.openapi.diagnostic.Logger;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public final class LocaleContextHolder {
@@ -49,6 +50,11 @@ public final class LocaleContextHolder {
     if (resourceBundle == null) {
       return key;
     }
-    return String.format(resourceBundle.getString(key), args);
+    try {
+      return String.format(resourceBundle.getString(key), args);
+    } catch (MissingResourceException e) {
+      LOGGER.trace(e);
+      return key;
+    }
   }
 }

@@ -6,13 +6,9 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import java.util.function.Supplier;
 import org.apache.velocity.VelocityContext;
 
-public class SimpleBeanSourceParser extends AbstractIDEASourceParser {
+public class SimpleBeanSourceParser extends AbstractIDEASourceParser implements TemplateIdSetter {
 
-    private final String templateId;
-
-    public SimpleBeanSourceParser(String templateId) {
-        this.templateId = templateId;
-    }
+    private String templateId;
 
     @Override
     protected String parse(GeneratorConfig config, Table table, Supplier<String> templateProvider) {
@@ -26,5 +22,10 @@ public class SimpleBeanSourceParser extends AbstractIDEASourceParser {
     @Override
     protected String getTemplateId() {
         return templateId;
+    }
+
+    @Override
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
     }
 }

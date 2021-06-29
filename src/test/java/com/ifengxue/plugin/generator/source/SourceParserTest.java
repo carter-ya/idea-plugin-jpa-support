@@ -95,7 +95,8 @@ public class SourceParserTest {
 
   @Test
   public void saveVOSourceTest() throws IOException {
-    sourceParser = new SimpleBeanSourceParser(Constants.SAVE_VO_TEMPLATE_ID);
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.SAVE_VO_TEMPLATE_ID);
     initParser();
 
     String sourceCode = parse(Constants.SAVE_VO_TEMPLATE_ID);
@@ -106,7 +107,8 @@ public class SourceParserTest {
 
   @Test
   public void updateVOSourceTest() throws IOException {
-    sourceParser = new SimpleBeanSourceParser(Constants.UPDATE_VO_TEMPLATE_ID);
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.UPDATE_VO_TEMPLATE_ID);
     initParser();
 
     String sourceCode = parse(Constants.UPDATE_VO_TEMPLATE_ID);
@@ -117,7 +119,8 @@ public class SourceParserTest {
 
   @Test
   public void queryVOSourceTest() throws IOException {
-    sourceParser = new SimpleBeanSourceParser(Constants.QUERY_VO_TEMPLATE_ID);
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.QUERY_VO_TEMPLATE_ID);
     initParser();
 
     String sourceCode = parse(Constants.QUERY_VO_TEMPLATE_ID);
@@ -128,7 +131,8 @@ public class SourceParserTest {
 
   @Test
   public void dtoSourceTest() throws IOException {
-    sourceParser = new SimpleBeanSourceParser(Constants.DTO_TEMPLATE_ID);
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.DTO_TEMPLATE_ID);
     initParser();
 
     String sourceCode = parse(Constants.DTO_TEMPLATE_ID);
