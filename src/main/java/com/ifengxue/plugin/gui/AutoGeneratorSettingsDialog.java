@@ -171,23 +171,68 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected ValidationInfo doValidate() {
-    String entityPackage = generatorSettings.getEntityPackageReferenceEditorCombo().getText().trim();
+    Module module = ModuleManager.getInstance(Holder.getProject())
+        .findModuleByName(
+            (String) Objects.requireNonNull(generatorSettings.getCbxModule().getSelectedItem()));
+    if (module == null) {
+      return new ValidationInfo("Must select valid module", generatorSettings.getCbxModule());
+    }
+    String entityPackage = generatorSettings.getEntityPackageReferenceEditorCombo().getText()
+        .trim();
     if (entityPackage.isEmpty()) {
       generatorSettings.getEntityPackageReferenceEditorCombo().requestFocus();
       return new ValidationInfo("Must set entity package",
           generatorSettings.getEntityPackageReferenceEditorCombo());
     }
     if (generatorSettings.getChkBoxGenerateRepository().isSelected()) {
-      if (generatorSettings.getChkBoxSerializable().isSelected() && generatorSettings
-          .getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+      if (generatorSettings.getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
         return new ValidationInfo("Must set repository package",
             generatorSettings.getRepositoryPackageReferenceEditorCombo());
       }
+      if (generatorSettings.getTextRepositoryPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set repository path",
+            generatorSettings.getTextRepositoryPackageParentPath());
+      }
     }
-    Module module = ModuleManager.getInstance(Holder.getProject())
-        .findModuleByName((String) Objects.requireNonNull(generatorSettings.getCbxModule().getSelectedItem()));
-    if (module == null) {
-      return new ValidationInfo("Must select valid module", generatorSettings.getCbxModule());
+    if (generatorSettings.getChkBoxGenerateController().isSelected()) {
+      if (generatorSettings.getControllerPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set controller package",
+            generatorSettings.getControllerPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextControllerPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set controller path",
+            generatorSettings.getTextControllerPackageParentPath());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateService().isSelected()) {
+      if (generatorSettings.getServicePackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set service package",
+            generatorSettings.getServicePackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextServicePackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set service path",
+            generatorSettings.getTextServicePackageParentPath());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateVO().isSelected()) {
+      if (generatorSettings.getVoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set VO package",
+            generatorSettings.getVoPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextVOPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set VO path",
+            generatorSettings.getTextVOPackageParentPath());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateDTO().isSelected()) {
+      if (generatorSettings.getDtoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set DTO package",
+            generatorSettings.getDtoPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextDTOPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set DTO path",
+            generatorSettings.getTextDTOPackageParentPath());
+      }
     }
     return null;
   }
