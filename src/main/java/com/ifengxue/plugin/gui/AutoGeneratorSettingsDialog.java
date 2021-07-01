@@ -347,6 +347,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         String packageName = (String) combo[1];
         ((MyPackageNameReferenceEditorCombo) combo[0]).setText(packageName);
         if (StringUtils.isNotBlank(packageName)) {
+          ((MyPackageNameReferenceEditorCombo) combo[0]).prependItem(packageName);
           ((MyPackageNameReferenceEditorCombo) combo[0]).appendItem(packageName);
         }
         ((JTextField) combo[2]).setText((String) combo[3]);
