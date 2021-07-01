@@ -74,12 +74,10 @@ test {
 }
 
 patchPluginXml {
-    version '2.0.7'
+    version '2.0.8-RC1'
     changeNotes """
       <ol>
-          <li>Support generate entity from Database Tools: View, Materialized View</li>
-          <li>Optimize the way to input database connection information</li>
-          <li>Support to preview the generated beans and repository</li>
+          <li>Support generate Controller、Service、VO、DTO</li>
       </ol>
       """
 }
