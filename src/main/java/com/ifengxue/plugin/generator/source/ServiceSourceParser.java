@@ -1,12 +1,11 @@
 package com.ifengxue.plugin.generator.source;
 
 import com.ifengxue.plugin.Constants;
+import com.ifengxue.plugin.TemplateManager;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
-import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
-import com.intellij.openapi.components.ServiceManager;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
@@ -25,7 +24,7 @@ public class ServiceSourceParser extends AbstractIDEASourceParser {
             templateId = getTemplateId();
         }
         return parse(config, table,
-            () -> ServiceManager.getService(SettingsState.class).loadTemplate(templateId));
+            () -> TemplateManager.getInstance().loadTemplate(templateId));
     }
 
     @Override

@@ -122,4 +122,18 @@ public class Table implements Selectable {
         .findFirst()
         .orElseThrow(NoSuchElementException::new);
   }
+
+  public String getServiceName() {
+    if (serviceName == null) {
+      return entityName + "Service";
+    }
+    return serviceName;
+  }
+
+  public String getControllerName() {
+    if (controllerName == null) {
+      return entityName + "Controller";
+    }
+    return controllerName;
+  }
 }

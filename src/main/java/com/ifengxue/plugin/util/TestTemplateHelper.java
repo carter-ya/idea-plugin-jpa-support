@@ -12,6 +12,7 @@ import com.ifengxue.plugin.generator.source.AbstractSourceParser;
 import com.ifengxue.plugin.generator.source.EvaluateSourceCodeException;
 import com.ifengxue.plugin.generator.tree.Element.Indent;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.state.ModuleSettings;
 import com.intellij.openapi.components.ServiceManager;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,15 +26,22 @@ public enum TestTemplateHelper {
         String template) {
         AutoGeneratorSettingsState settingsState = ServiceManager.getService(
             Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+        ModuleSettings moduleSettings = settingsState
+            .getModuleSettings(settingsState.getModuleName());
         GeneratorConfig config = new GeneratorConfig();
         config.setDriverConfig(new DriverConfig()
             .setVendor(Vendor.MYSQL))
             .setPluginConfigs(Collections.emptyList())
             .setTablesConfig(
                 new TablesConfig()
-                    .setBasePackageName("")
+                    .setBasePackageName("org.example.jpa.support.test")
                     .setEntityPackageName("org.example.jpa.support.test.domain")
                     .setExtendsEntityName(settingsState.getInheritedParentClassName())
+                    .setRepositoryPackageName("org.example.jpa.support.test.repository")
+                    .setControllerPackageName("org.example.jpa.support.test.controller")
+                    .setServicePackageName("org.example.jpa.support.test.service")
+                    .setVoPackageName("org.example.jpa.support.test.vo")
+                    .setDtoPackageName("org.example.jpa.support.test.dto")
                     .setIndent(Indent.FOUR_SPACE.getIndent())
                     .setLineSeparator("\n")
                     .setOrm(ORM.JPA)
@@ -51,6 +59,9 @@ public enum TestTemplateHelper {
                     .setUseFluidProgrammingStyle(settingsState.isUseFluidProgrammingStyle())
                     .setUseSwaggerUIComment(settingsState.isGenerateSwaggerUIComment())
                     .setUseWrapper(true)
+                    .setUseJpa(moduleSettings.isRepositoryTypeJPA())
+                    .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())
+                    .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())
             );
         AbstractSourceParser sourceParser = newInstance(clazz);
         sourceParser.setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");

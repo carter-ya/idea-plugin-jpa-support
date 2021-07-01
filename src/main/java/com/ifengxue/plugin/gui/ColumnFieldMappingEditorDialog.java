@@ -1,14 +1,18 @@
 package com.ifengxue.plugin.gui;
 
 import com.ifengxue.plugin.Constants;
+import com.ifengxue.plugin.TemplateManager;
 import com.ifengxue.plugin.component.ColumnFieldMappingEditor;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
+import com.ifengxue.plugin.generator.source.ControllerSourceParser;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.generator.source.ServiceSourceParser;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
-import com.ifengxue.plugin.state.SettingsState;
+import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.state.ModuleSettings;
 import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -80,10 +84,11 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createLeftSideActions() {
-    SettingsState state = ServiceManager.getService(SettingsState.class);
+
     return new Action[]{
         new PreviewAction(LocaleContextHolder.format("preview_bean"), () -> {
-          String template = state.loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID);
+          String template = TemplateManager.getInstance()
+              .loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID);
           String sourceCode = TestTemplateHelper
               .evaluateToString(EntitySourceParserV2.class, table, template);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
@@ -91,13 +96,40 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
           dialog.show();
         }),
         new PreviewAction(LocaleContextHolder.format("preview_repository"), () -> {
-          String template = state.loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID);
+          String template = TemplateManager.getInstance()
+              .loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID);
           String sourceCode = TestTemplateHelper
               .evaluateToString(JpaRepositorySourceParser.class, table, template);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
           dialog.setSourceCode(sourceCode);
           dialog.show();
-        })
+        }),
+        new PreviewAction(LocaleContextHolder.format("preview_controller"), () -> {
+          String template = TemplateManager.getInstance()
+              .loadTemplate(Constants.CONTROLLER_TEMPLATE_ID);
+          String sourceCode = TestTemplateHelper
+              .evaluateToString(ControllerSourceParser.class, table, template);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
+          dialog.setSourceCode(sourceCode);
+          dialog.show();
+        }),
+        new PreviewAction(LocaleContextHolder.format("preview_service"), () -> {
+          AutoGeneratorSettingsState state = ServiceManager
+              .getService(project, AutoGeneratorSettingsState.class);
+          ModuleSettings moduleSettings = state.getModuleSettings(state.getModuleName());
+          String templateId = Constants.JPA_SERVICE_TEMPLATE_ID;
+          if (moduleSettings.isRepositoryTypeMybatisPlus()) {
+            templateId = Constants.MYBATIS_PLUS_SERVICE_TEMPLATE_ID;
+          } else if (moduleSettings.isRepositoryTypeTkMybatis()) {
+            templateId = Constants.TK_MYBATIS_SERVICE_TEMPLATE_ID;
+          }
+          String template = TemplateManager.getInstance().loadTemplate(templateId);
+          String sourceCode = TestTemplateHelper
+              .evaluateToString(ServiceSourceParser.class, table, template);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
+          dialog.setSourceCode(sourceCode);
+          dialog.show();
+        }),
     };
   }
 

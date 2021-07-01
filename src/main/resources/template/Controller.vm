@@ -2,7 +2,11 @@
 package $package;
 
 #end
-#if($useLombok)
+#set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useJPA = $tablesConfig.isUseJpa())
+#set($useMybatisPlus = $tablesConfig.isUseMybatisPlus())
+#set($useTkMybatis = $tablesConfig.isUseTkMybatis())
+#if($useSwaggerUI)
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -39,7 +43,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import import com.github.pagehelper.Page;
 #end
 
-#if($useLombok)
+#if($useSwaggerUI)
 @Api(tags = "$comment")
 #end
 @Validated
@@ -51,7 +55,7 @@ public class ${simpleName} {
     private $serviceName $serviceVariableName;
 
     @PostMapping
-    #if($useLombok)
+    #if($useSwaggerUI)
     @ApiOperation("$save $comment")
     #end
     public String save(@Valid @RequestBody ${entitySimpleName}VO vo) {
@@ -59,7 +63,7 @@ public class ${simpleName} {
     }
 
     @DeleteMapping("/{id}")
-    #if($useLombok)
+    #if($useSwaggerUI)
     @ApiOperation("$delete $comment")
     #end
     public void delete(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
@@ -67,7 +71,7 @@ public class ${simpleName} {
     }
 
     @PutMapping("/{id}")
-    #if($useLombok)
+    #if($useSwaggerUI)
     @ApiOperation("$update $comment")
     #end
     public void update(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id,
@@ -76,7 +80,7 @@ public class ${simpleName} {
     }
 
     @GetMapping("/{id}")
-    #if($useLombok)
+    #if($useSwaggerUI)
     @ApiOperation("$getById $comment")
     #end
     public ${entitySimpleName}DTO getById(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
@@ -84,7 +88,7 @@ public class ${simpleName} {
     }
 
     @GetMapping
-    #if($useLombok)
+    #if($useSwaggerUI)
     @ApiOperation("$query $comment")
     #end
     #if($useJPA)

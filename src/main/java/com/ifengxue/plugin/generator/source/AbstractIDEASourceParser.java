@@ -1,9 +1,8 @@
 package com.ifengxue.plugin.generator.source;
 
+import com.ifengxue.plugin.TemplateManager;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
-import com.ifengxue.plugin.state.SettingsState;
-import com.intellij.openapi.components.ServiceManager;
 import java.util.function.Supplier;
 
 public abstract class AbstractIDEASourceParser extends AbstractSourceParser {
@@ -11,7 +10,7 @@ public abstract class AbstractIDEASourceParser extends AbstractSourceParser {
     @Override
     public String parse(GeneratorConfig config, Table table) {
         return parse(config, table,
-            () -> ServiceManager.getService(SettingsState.class).loadTemplate(getTemplateId()));
+            () -> TemplateManager.getInstance().loadTemplate(getTemplateId()));
     }
 
     @Override

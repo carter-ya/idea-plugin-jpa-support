@@ -19,7 +19,6 @@ public class ControllerSourceParser extends AbstractIDEASourceParser {
         context.put("table", table);
         context.put("tablesConfig", tablesConfig);
         context.put("package", StringUtils.trimToEmpty(tablesConfig.getControllerPackageName()));
-        context.put("useLombok", tablesConfig.isUseLombok());
         context.put("comment", StringUtils.trimToEmpty(table.getTableComment()));
         context.put("basePath", StringHelper.firstLetterLower(table.getEntityName()));
         context.put("simpleName", StringUtils.trimToEmpty(table.getControllerName()));
