@@ -37,7 +37,7 @@ public class ${simpleName} {
         ${entitySimpleName} bean = new ${entitySimpleName}();
         BeanUtils.copyProperties(vo, bean);
         ${repositoryVariableName}.insert(bean);
-        return bean.${primaryKeyGetMethod}();
+        return bean.${table.primaryColumn.getterMethodName}();
     }
 
     public void delete($primaryKeyDataType id) {
