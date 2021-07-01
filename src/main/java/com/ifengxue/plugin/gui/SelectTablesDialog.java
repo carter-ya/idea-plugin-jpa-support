@@ -309,12 +309,12 @@ public class SelectTablesDialog extends DialogWrapper {
       ApplicationManager.getApplication().runWriteAction(() -> {
         Object[][] directoryAndPackageNames = {
             {
-                true,
+                moduleSettings.isGenerateEntity(),
                 moduleSettings.getEntityParentDirectory(),
                 moduleSettings.getEntityPackageName()
             },
             {
-                autoGeneratorSettingsState.isGenerateRepository(),
+                moduleSettings.isGenerateRepository(),
                 moduleSettings.getRepositoryParentDirectory(),
                 moduleSettings.getRepositoryPackageName()
             },
@@ -448,14 +448,14 @@ public class SelectTablesDialog extends DialogWrapper {
       String fileExtension = ".java";
       List<GeneratorTask> tasks = Arrays.asList(
           GeneratorTask.builder()
-              .shouldRun(true)
+              .shouldRun(moduleSettings.isGenerateEntity())
               .sourceParser(new EntitySourceParserV2())
               .directory(moduleSettings.getEntityParentDirectory())
               .packageName(moduleSettings.getEntityPackageName())
               .filenameMapping(t -> t.getEntityName() + fileExtension)
               .build(),
           GeneratorTask.builder()
-              .shouldRun(state.isGenerateRepository())
+              .shouldRun(moduleSettings.isGenerateRepository())
               .sourceParser(new JpaRepositorySourceParser())
               .directory(moduleSettings.getRepositoryParentDirectory())
               .packageName(moduleSettings.getRepositoryPackageName())

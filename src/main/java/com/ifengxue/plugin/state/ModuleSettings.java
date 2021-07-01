@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ModuleSettings {
 
+    private boolean generateEntity = true;
     /**
      * 实体包名
      */
@@ -14,16 +15,17 @@ public class ModuleSettings {
      * <br> 如: /path/to/maven/module/src/main/java
      */
     private String entityParentDirectory = "";
+    private boolean generateRepository = true;
     /**
      * repository包名
      */
     private String repositoryPackageName = "";
-    private boolean generateController;
     /**
      * repository parent 路径
      * <br> 如:/path/to/maven/module/src/main/java
      */
     private String repositoryParentDirectory = "";
+    private boolean generateController;
     /**
      * controller包名
      */

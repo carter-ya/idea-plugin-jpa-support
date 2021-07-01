@@ -177,12 +177,15 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     if (module == null) {
       return new ValidationInfo("Must select valid module", generatorSettings.getCbxModule());
     }
-    String entityPackage = generatorSettings.getEntityPackageReferenceEditorCombo().getText()
-        .trim();
-    if (entityPackage.isEmpty()) {
-      generatorSettings.getEntityPackageReferenceEditorCombo().requestFocus();
-      return new ValidationInfo("Must set entity package",
-          generatorSettings.getEntityPackageReferenceEditorCombo());
+    if (generatorSettings.getChkBoxGenerateEntity().isSelected()) {
+      if (generatorSettings.getEntityPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set entity package",
+            generatorSettings.getEntityPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextEntityPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set entity path",
+            generatorSettings.getTextEntityPackageParentPath());
+      }
     }
     if (generatorSettings.getChkBoxGenerateRepository().isSelected()) {
       if (generatorSettings.getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
@@ -196,40 +199,48 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     }
     if (generatorSettings.getChkBoxGenerateController().isSelected()) {
       if (generatorSettings.getControllerPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(0);
         return new ValidationInfo("Must set controller package",
             generatorSettings.getControllerPackageReferenceEditorCombo());
       }
       if (generatorSettings.getTextControllerPackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(0);
         return new ValidationInfo("Must set controller path",
             generatorSettings.getTextControllerPackageParentPath());
       }
     }
     if (generatorSettings.getChkBoxGenerateService().isSelected()) {
       if (generatorSettings.getServicePackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(1);
         return new ValidationInfo("Must set service package",
             generatorSettings.getServicePackageReferenceEditorCombo());
       }
       if (generatorSettings.getTextServicePackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(1);
         return new ValidationInfo("Must set service path",
             generatorSettings.getTextServicePackageParentPath());
       }
     }
     if (generatorSettings.getChkBoxGenerateVO().isSelected()) {
       if (generatorSettings.getVoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
         return new ValidationInfo("Must set VO package",
             generatorSettings.getVoPackageReferenceEditorCombo());
       }
       if (generatorSettings.getTextVOPackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
         return new ValidationInfo("Must set VO path",
             generatorSettings.getTextVOPackageParentPath());
       }
     }
     if (generatorSettings.getChkBoxGenerateDTO().isSelected()) {
       if (generatorSettings.getDtoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
         return new ValidationInfo("Must set DTO package",
             generatorSettings.getDtoPackageReferenceEditorCombo());
       }
       if (generatorSettings.getTextDTOPackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
         return new ValidationInfo("Must set DTO path",
             generatorSettings.getTextDTOPackageParentPath());
       }

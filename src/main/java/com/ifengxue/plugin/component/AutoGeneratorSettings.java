@@ -68,6 +68,7 @@ public class AutoGeneratorSettings {
   private MyPackageNameReferenceEditorCombo dtoPackageReferenceEditorCombo;
   private JTextField textDTOPackageParentPath;
   private JCheckBox chkBoxGenerateDTO;
+  private JCheckBox chkBoxGenerateEntity;
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
@@ -88,7 +89,6 @@ public class AutoGeneratorSettings {
   public void setData(AutoGeneratorSettingsState data, @Nullable ModuleSettings moduleSettings) {
     textRemoveFieldPrefix.setText(data.getRemoveFieldPrefix());
     chkBoxUseLombok.setSelected(data.isUseLombok());
-    chkBoxGenerateRepository.setSelected(data.isGenerateRepository());
     chkBoxSerializable.setSelected(data.isSerializable());
     chkBoxGenerateClassComment.setSelected(data.isGenerateClassComment());
     chkBoxGenerateFieldComment.setSelected(data.isGenerateFieldComment());
@@ -100,6 +100,7 @@ public class AutoGeneratorSettings {
     textAddTableNamePrefix.setText(data.getAddEntityPrefix());
     textAddTableNameSuffix.setText(data.getAddEntitySuffix());
     if (moduleSettings != null) {
+      chkBoxGenerateEntity.setSelected(moduleSettings.isGenerateEntity());
       entityPackageReferenceEditorCombo.setText(moduleSettings.getEntityPackageName());
       textEntityPackageParentPath.setText(moduleSettings.getEntityParentDirectory());
 
@@ -137,7 +138,6 @@ public class AutoGeneratorSettings {
   public void getData(AutoGeneratorSettingsState data, ModuleSettings moduleData) {
     data.setRemoveFieldPrefix(textRemoveFieldPrefix.getText());
     data.setUseLombok(chkBoxUseLombok.isSelected());
-    data.setGenerateRepository(chkBoxGenerateRepository.isSelected());
     data.setSerializable(chkBoxSerializable.isSelected());
     data.setGenerateClassComment(chkBoxGenerateClassComment.isSelected());
     data.setGenerateFieldComment(chkBoxGenerateFieldComment.isSelected());
@@ -150,9 +150,11 @@ public class AutoGeneratorSettings {
     data.setAddEntityPrefix(textAddTableNamePrefix.getText());
     data.setAddEntitySuffix(textAddTableNameSuffix.getText());
 
+    moduleData.setGenerateEntity(chkBoxGenerateEntity.isSelected());
     moduleData.setEntityPackageName(entityPackageReferenceEditorCombo.getText());
     moduleData.setRepositoryParentDirectory(textRepositoryPackageParentPath.getText());
 
+    moduleData.setGenerateRepository(chkBoxGenerateRepository.isSelected());
     moduleData.setRepositoryPackageName(repositoryPackageReferenceEditorCombo.getText());
     moduleData.setEntityParentDirectory(textEntityPackageParentPath.getText());
 

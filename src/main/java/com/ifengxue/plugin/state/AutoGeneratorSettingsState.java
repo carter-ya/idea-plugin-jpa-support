@@ -61,10 +61,6 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    */
   private boolean useLombok = true;
   /**
-   * 是否生成Repository
-   */
-  private boolean generateRepository = true;
-  /**
    * 实体是否实现{@link java.io.Serializable}
    */
   private boolean serializable = true;
