@@ -499,7 +499,7 @@ public class SelectTablesDialog extends DialogWrapper {
               .filenameMapping(t -> t.getEntityName() + "QueryVO" + fileExtension)
               .build(),
           GeneratorTask.builder()
-              .shouldRun(moduleSettings.isGenerateVO())
+              .shouldRun(moduleSettings.isGenerateDTO())
               .sourceParser(templateIdToSourceParserMapping.apply(Constants.DTO_TEMPLATE_ID))
               .directory(moduleSettings.getDtoParentDirectory())
               .packageName(moduleSettings.getDtoPackageName())

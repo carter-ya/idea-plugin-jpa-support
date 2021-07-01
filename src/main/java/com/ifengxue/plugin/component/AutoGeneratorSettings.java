@@ -104,6 +104,7 @@ public class AutoGeneratorSettings {
       entityPackageReferenceEditorCombo.setText(moduleSettings.getEntityPackageName());
       textEntityPackageParentPath.setText(moduleSettings.getEntityParentDirectory());
 
+      chkBoxGenerateRepository.setSelected(moduleSettings.isGenerateRepository());
       repositoryPackageReferenceEditorCombo.setText(moduleSettings.getRepositoryPackageName());
       textRepositoryPackageParentPath.setText(moduleSettings.getRepositoryParentDirectory());
 

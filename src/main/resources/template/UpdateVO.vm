@@ -6,6 +6,7 @@ package $tablesConfig.voPackageName;
 #set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
 #set($serializable = $tablesConfig.isSerializable())
 
+
 #if($useLombok)
 @lombok.Data
 #end
