@@ -5,6 +5,7 @@ import com.ifengxue.plugin.util.StringHelper;
 import java.util.Arrays;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Accessors(chain = true)
@@ -91,10 +92,16 @@ public class TablesConfig {
   }
 
   public String getVoSuffixVariableName() {
+    if (StringUtils.isBlank(voSuffixName)) {
+      return "";
+    }
     return StringHelper.firstLetterLower(voSuffixName);
   }
 
   public String getDtoSuffixVariableName() {
+    if (StringUtils.isBlank(dtoSuffixName)) {
+      return "";
+    }
     return StringHelper.firstLetterLower(dtoSuffixName);
   }
 }
