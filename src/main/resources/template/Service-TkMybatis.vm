@@ -71,7 +71,7 @@ public class ${simpleName} {
                 ;
         Page<${entitySimpleName}> page = (Page<${entitySimpleName}>) ${repositoryVariableName}.selectByExample(example);
 
-        Page<${entitySimpleName}DTO> targetPage = new Page<>(
+        Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> targetPage = new Page<>(
             page.getPageNum(), page.getPageSize(), page.isCount(), page.getReasonable())
         );
         targetPage.setTotal(page.getTotal());

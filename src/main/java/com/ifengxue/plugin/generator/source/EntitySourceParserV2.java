@@ -104,9 +104,7 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
       importClassList.add(javax.persistence.Column.class.getName());
     }
     table.getColumns().forEach(column -> {
-      if (column.getAnnotations() == null) {
-        column.setAnnotations(new ArrayList<>());
-      }
+      column.setAnnotations(new ArrayList<>());
 
       if (isUseJpaAnnotation && column.isPrimary()) {
         importClassList.add(javax.persistence.Id.class.getName());
