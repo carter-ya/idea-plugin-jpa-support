@@ -232,6 +232,11 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         return new ValidationInfo("Must set VO path",
             generatorSettings.getTextVOPackageParentPath());
       }
+      if (generatorSettings.getTextVOSuffixName().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        return new ValidationInfo("Must set suffix name",
+            generatorSettings.getTextVOSuffixName());
+      }
     }
     if (generatorSettings.getChkBoxGenerateDTO().isSelected()) {
       if (generatorSettings.getDtoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
@@ -243,6 +248,11 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         generatorSettings.getExtensionPane().setSelectedIndex(3);
         return new ValidationInfo("Must set DTO path",
             generatorSettings.getTextDTOPackageParentPath());
+      }
+      if (generatorSettings.getTextDTOSuffixName().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        return new ValidationInfo("Must set suffix name",
+            generatorSettings.getTextDTOSuffixName());
       }
     }
     return null;

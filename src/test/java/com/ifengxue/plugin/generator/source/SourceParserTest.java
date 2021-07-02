@@ -154,7 +154,9 @@ public class SourceParserTest {
                 .setEntityPackageName("org.example.domain")
                 .setControllerPackageName("org.example.controller")
                 .setServicePackageName("org.example.service")
+                .setVoSuffixName("Request")
                 .setVoPackageName("org.example.vo")
+                .setDtoSuffixName("Response")
                 .setDtoPackageName("org.example.dto")
                 .setExtendsEntityName("org.example.domain.AbstractEntity")
                 .setIndent("  ")
@@ -173,6 +175,7 @@ public class SourceParserTest {
                 .setUseLombok(true)
                 .setUseWrapper(true)
                 .setUseSwaggerUIComment(true)
+                .setUseJpa(true)
         );
     return sourceParser.parse(config, new Table()
         .setTableComment("表注释")

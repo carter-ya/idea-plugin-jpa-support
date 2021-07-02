@@ -635,7 +635,7 @@
                   <forms/>
                 </constraints>
                 <properties>
-                  <text value="VO package:"/>
+                  <text value="Package:"/>
                 </properties>
               </component>
               <component id="c8cc1" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="voPackageReferenceEditorCombo" custom-create="true">
@@ -653,7 +653,7 @@
                   <forms/>
                 </constraints>
                 <properties>
-                  <text value="VO package path:"/>
+                  <text value="Package path:"/>
                 </properties>
               </component>
               <component id="3a009" class="javax.swing.JTextField" binding="textVOPackageParentPath">
@@ -674,6 +674,28 @@
                   <text value="Generate VO"/>
                 </properties>
               </component>
+              <grid id="e5c47" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="1b211" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
+                    </properties>
+                  </component>
+                  <component id="8bebb" class="javax.swing.JTextField" binding="textVOSuffixName">
+                    <constraints/>
+                    <properties>
+                      <columns value="5"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
             </children>
           </grid>
           <grid id="976bf" binding="dtoPane" layout-manager="FormLayout">
@@ -697,7 +719,7 @@
                   <forms/>
                 </constraints>
                 <properties>
-                  <text value="DTO package:"/>
+                  <text value="Package:"/>
                 </properties>
               </component>
               <component id="f7c4e" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="dtoPackageReferenceEditorCombo" custom-create="true">
@@ -715,7 +737,7 @@
                   <forms/>
                 </constraints>
                 <properties>
-                  <text value="DTO package path:"/>
+                  <text value="Package path:"/>
                 </properties>
               </component>
               <component id="27833" class="javax.swing.JTextField" binding="textDTOPackageParentPath">
@@ -736,6 +758,28 @@
                   <text value="Generate DTO"/>
                 </properties>
               </component>
+              <grid id="a3c76" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="95d10" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
+                    </properties>
+                  </component>
+                  <component id="6dca2" class="javax.swing.JTextField" binding="textDTOSuffixName">
+                    <constraints/>
+                    <properties>
+                      <columns value="5"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
             </children>
           </grid>
         </children>

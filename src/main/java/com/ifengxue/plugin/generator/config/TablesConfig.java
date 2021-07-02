@@ -46,9 +46,11 @@ public class TablesConfig {
   private String servicePackageName;
 
   // vo
+  private String voSuffixName;
   private String voPackageName;
 
   // dto
+  private String dtoSuffixName;
   private String dtoPackageName;
 
   /**
@@ -86,5 +88,13 @@ public class TablesConfig {
     public String getLineSeparator() {
       return lineSeparator;
     }
+  }
+
+  public String getVoSuffixVariableName() {
+    return StringHelper.firstLetterLower(voSuffixName);
+  }
+
+  public String getDtoSuffixVariableName() {
+    return StringHelper.firstLetterLower(dtoSuffixName);
   }
 }

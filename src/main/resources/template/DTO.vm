@@ -13,7 +13,7 @@ package $tablesConfig.voPackageName;
 #if($useSwaggerUI)
 @io.swagger.annotations.ApiModel("$table.tableComment")
 #end
-public class ${table.entityName}DTO #if($serializable) implements java.io.Serializable #end {
+public class ${table.entityName}${tablesConfig.dtoSuffixName} #if($serializable) implements java.io.Serializable #end {
     #if($serializable)
     private static final long serialVersionUID = 1L;
     #end

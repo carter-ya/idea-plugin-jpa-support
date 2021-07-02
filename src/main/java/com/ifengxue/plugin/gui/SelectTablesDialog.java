@@ -376,7 +376,9 @@ public class SelectTablesDialog extends DialogWrapper {
             .setEnumSubPackageName(basePackageName + ".enums")
             .setControllerPackageName(moduleSettings.getControllerPackageName())
             .setServicePackageName(moduleSettings.getServicePackageName())
+            .setVoSuffixName(moduleSettings.getVoSuffixName())
             .setVoPackageName(moduleSettings.getVoPackageName())
+            .setDtoSuffixName(moduleSettings.getDtoSuffixName())
             .setDtoPackageName(moduleSettings.getDtoPackageName())
             .setIndent(getIndent())
             .setLineSeparator(getLineSeparator())
@@ -482,28 +484,32 @@ public class SelectTablesDialog extends DialogWrapper {
               .sourceParser(templateIdToSourceParserMapping.apply(Constants.SAVE_VO_TEMPLATE_ID))
               .directory(moduleSettings.getVoParentDirectory())
               .packageName(moduleSettings.getVoPackageName())
-              .filenameMapping(t -> t.getEntityName() + "VO" + fileExtension)
+              .filenameMapping(
+                  t -> t.getEntityName() + moduleSettings.getVoSuffixName() + fileExtension)
               .build(),
           GeneratorTask.builder()
               .shouldRun(moduleSettings.isGenerateVO())
               .sourceParser(templateIdToSourceParserMapping.apply(Constants.UPDATE_VO_TEMPLATE_ID))
               .directory(moduleSettings.getVoParentDirectory())
               .packageName(moduleSettings.getVoPackageName())
-              .filenameMapping(t -> t.getEntityName() + "UpdateVO" + fileExtension)
+              .filenameMapping(t -> t.getEntityName() + "Update" + moduleSettings.getVoSuffixName()
+                  + fileExtension)
               .build(),
           GeneratorTask.builder()
               .shouldRun(moduleSettings.isGenerateVO())
               .sourceParser(templateIdToSourceParserMapping.apply(Constants.QUERY_VO_TEMPLATE_ID))
               .directory(moduleSettings.getVoParentDirectory())
               .packageName(moduleSettings.getVoPackageName())
-              .filenameMapping(t -> t.getEntityName() + "QueryVO" + fileExtension)
+              .filenameMapping(t -> t.getEntityName() + "Query" + moduleSettings.getVoSuffixName()
+                  + fileExtension)
               .build(),
           GeneratorTask.builder()
               .shouldRun(moduleSettings.isGenerateDTO())
               .sourceParser(templateIdToSourceParserMapping.apply(Constants.DTO_TEMPLATE_ID))
               .directory(moduleSettings.getDtoParentDirectory())
               .packageName(moduleSettings.getDtoPackageName())
-              .filenameMapping(t -> t.getEntityName() + "DTO" + fileExtension)
+              .filenameMapping(
+                  t -> t.getEntityName() + moduleSettings.getDtoSuffixName() + fileExtension)
               .build()
       );
       for (GeneratorTask task : tasks) {

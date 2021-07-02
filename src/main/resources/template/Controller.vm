@@ -16,12 +16,12 @@ import javax.validation.Valid;
 import ${tablesConfig.servicePackageName}.${table.serviceName};
 #end
 #if(!$tablesConfig.voPackageName.isEmpty())
-import ${tablesConfig.voPackageName}.${entitySimpleName}VO;
-import ${tablesConfig.voPackageName}.${entitySimpleName}UpdateVO;
-import ${tablesConfig.voPackageName}.${entitySimpleName}QueryVO;
+import ${tablesConfig.voPackageName}.${entitySimpleName}${tablesConfig.voSuffixName};
+import ${tablesConfig.voPackageName}.${entitySimpleName}Update${tablesConfig.voSuffixName};
+import ${tablesConfig.voPackageName}.${entitySimpleName}Query${tablesConfig.voSuffixName};
 #end
 #if(!$tablesConfig.dtoPackageName.isEmpty())
-import ${tablesConfig.dtoPackageName}.${entitySimpleName}DTO;
+import ${tablesConfig.dtoPackageName}.${entitySimpleName}${tablesConfig.dtoSuffixName};
 #end
 import org.springframework.beans.factory.annotation.Autowired;
 #if($useJPA)
@@ -58,8 +58,8 @@ public class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$save $comment")
     #end
-    public String save(@Valid @RequestBody ${entitySimpleName}VO vo) {
-        return ${serviceVariableName}.save(vo).toString();
+    public String save(@Valid @RequestBody ${entitySimpleName}${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
+        return ${serviceVariableName}.save(${tablesConfig.voSuffixVariableName}).toString();
     }
 
     @DeleteMapping("/{id}")
@@ -75,15 +75,15 @@ public class ${simpleName} {
     @ApiOperation("$update $comment")
     #end
     public void update(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id,
-    @Valid @RequestBody ${entitySimpleName}UpdateVO vo) {
-        ${serviceVariableName}.update(id, vo);
+    @Valid @RequestBody ${entitySimpleName}Update${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
+        ${serviceVariableName}.update(id, ${tablesConfig.voSuffixVariableName});
     }
 
     @GetMapping("/{id}")
     #if($useSwaggerUI)
     @ApiOperation("$getById $comment")
     #end
-    public ${entitySimpleName}DTO getById(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
+    public ${entitySimpleName}${tablesConfig.dtoSuffixName} getById(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
         return ${serviceVariableName}.getById(id);
     }
 
@@ -92,14 +92,14 @@ public class ${simpleName} {
     @ApiOperation("$query $comment")
     #end
     #if($useJPA)
-    public Page<${entitySimpleName}DTO> query(@Valid ${entitySimpleName}QueryVO vo) {
+    public Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> query(@Valid ${entitySimpleName}Query${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
     #end
     #if($useMybatisPlus)
-    public IPage<${entitySimpleName}DTO> query(@Valid ${entitySimpleName}QueryVO vo) {
+    public IPage<${entitySimpleName}${tablesConfig.dtoSuffixName}> query(@Valid ${entitySimpleName}Query${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
     #end
     #if($useTkMybatis)
-    public Page<${entitySimpleName}DTO> query(@Valid ${entitySimpleName}QueryVO vo) {
+    public Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> query(@Valid ${entitySimpleName}Query${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
     #end
-        return ${serviceVariableName}.query(vo);
+        return ${serviceVariableName}.query(${tablesConfig.voSuffixVariableName});
     }
 }

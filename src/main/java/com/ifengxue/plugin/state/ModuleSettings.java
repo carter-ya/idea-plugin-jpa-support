@@ -50,6 +50,10 @@ public class ModuleSettings {
     private String serviceParentDirectory = "";
     private boolean generateVO;
     /**
+     * VO后缀
+     */
+    private String voSuffixName = "VO";
+    /**
      * vo包名
      */
     private String voPackageName = "";
@@ -59,6 +63,10 @@ public class ModuleSettings {
      */
     private String voParentDirectory = "";
     private boolean generateDTO;
+    /**
+     * DTO后缀名称
+     */
+    private String dtoSuffixName = "DTO";
     /**
      * DTO包名
      */

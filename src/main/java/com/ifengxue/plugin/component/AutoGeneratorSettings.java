@@ -69,6 +69,8 @@ public class AutoGeneratorSettings {
   private JTextField textDTOPackageParentPath;
   private JCheckBox chkBoxGenerateDTO;
   private JCheckBox chkBoxGenerateEntity;
+  private JTextField textVOSuffixName;
+  private JTextField textDTOSuffixName;
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
@@ -120,10 +122,16 @@ public class AutoGeneratorSettings {
       radioTkMybatis.setSelected(moduleSettings.isRepositoryTypeTkMybatis());
 
       chkBoxGenerateVO.setSelected(moduleSettings.isGenerateVO());
+      textVOSuffixName.setText(moduleSettings.getVoSuffixName());
+      chkBoxGenerateVO.setText("Generate " + moduleSettings.getVoSuffixName());
+      extensionPane.setTitleAt(2, textVOSuffixName.getText());
       voPackageReferenceEditorCombo.setText(moduleSettings.getVoPackageName());
       textVOPackageParentPath.setText(moduleSettings.getVoParentDirectory());
 
       chkBoxGenerateDTO.setSelected(moduleSettings.isGenerateDTO());
+      textDTOSuffixName.setText(moduleSettings.getDtoSuffixName());
+      chkBoxGenerateDTO.setText("Generate " + moduleSettings.getDtoSuffixName());
+      extensionPane.setTitleAt(3, textDTOSuffixName.getText());
       dtoPackageReferenceEditorCombo.setText(moduleSettings.getDtoPackageName());
       textDTOPackageParentPath.setText(moduleSettings.getDtoParentDirectory());
     }
@@ -171,10 +179,12 @@ public class AutoGeneratorSettings {
     moduleData.setRepositoryTypeTkMybatis(radioTkMybatis.isSelected());
 
     moduleData.setGenerateVO(chkBoxGenerateVO.isSelected());
+    moduleData.setVoSuffixName(textVOSuffixName.getText());
     moduleData.setVoPackageName(voPackageReferenceEditorCombo.getText());
     moduleData.setVoParentDirectory(textVOPackageParentPath.getText());
 
     moduleData.setGenerateDTO(chkBoxGenerateDTO.isSelected());
+    moduleData.setDtoSuffixName(textDTOSuffixName.getText());
     moduleData.setDtoPackageName(dtoPackageReferenceEditorCombo.getText());
     moduleData.setDtoParentDirectory(textDTOPackageParentPath.getText());
 
