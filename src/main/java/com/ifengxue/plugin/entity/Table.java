@@ -127,8 +127,12 @@ public class Table implements Selectable {
    * 查找{@link Column#getFieldName()}是<code>version</code>的列
    */
   public Column guessVersionColumn() {
+    return findColumn("version");
+  }
+
+  public Column findColumn(String fieldName) {
     return columns.stream()
-        .filter(c -> "version".equalsIgnoreCase(c.getFieldName()))
+        .filter(c -> c.getFieldName().equalsIgnoreCase(fieldName))
         .findFirst()
         .orElse(null);
   }
