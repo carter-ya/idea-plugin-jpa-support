@@ -16,6 +16,7 @@ package $tablesConfig.voPackageName;
 public class ${table.entityName}Query${tablesConfig.voSuffixName} #if($serializable) implements java.io.Serializable #end {
     #if($serializable)
     private static final long serialVersionUID = 1L;
+
     #end
     #foreach($column in $table.columns)
         #if($tablesConfig.isUseFieldComment() && !$column.columnComment.isEmpty())

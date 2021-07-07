@@ -19,5 +19,6 @@ package $tablesConfig.voPackageName;
 public class ${table.entityName}Update${tablesConfig.voSuffixName} extends ${table.entityName}${tablesConfig.voSuffixName} #if($serializable) implements java.io.Serializable #end {
     #if($serializable)
     private static final long serialVersionUID = 1L;
+
     #end
 }

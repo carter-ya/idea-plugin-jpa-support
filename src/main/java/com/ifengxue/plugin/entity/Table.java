@@ -123,6 +123,16 @@ public class Table implements Selectable {
         .orElseThrow(NoSuchElementException::new);
   }
 
+  /**
+   * 查找{@link Column#getFieldName()}是<code>version</code>的列
+   */
+  public Column guessVersionColumn() {
+    return columns.stream()
+        .filter(c -> "version".equalsIgnoreCase(c.getFieldName()))
+        .findFirst()
+        .orElse(null);
+  }
+
   public String getServiceName() {
     if (serviceName == null) {
       return entityName + "Service";

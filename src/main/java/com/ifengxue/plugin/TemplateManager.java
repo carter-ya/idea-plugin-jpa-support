@@ -25,8 +25,8 @@ public class TemplateManager {
     private static final List<String> SEARCH_PATH = new ArrayList<>();
 
     static {
-        SEARCH_PATH.add("{module}/.idea/.JPA Support/template");
-        SEARCH_PATH.add("{project}/.idea/.JPA Support/template");
+        SEARCH_PATH.add("{module}/.idea/JPA Support/template");
+        SEARCH_PATH.add("{project}/.idea/JPA Support/template");
         SEARCH_PATH.add("{user.home}/.JPA Support/template");
     }
 

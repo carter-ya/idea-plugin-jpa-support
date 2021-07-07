@@ -31,18 +31,17 @@ public enum SourceFormatter {
   }
 
   public static void formatJavaCode(Project project, PsiFile psiFile) {
-    try {
-      CodeStyleManager.getInstance(project).reformat(psiFile);
-    } catch (Exception e) {
-      log.error("reformat source code error", e);
-    }
-
     JavaCodeStyleManager javaCodeStyleManager = JavaCodeStyleManager.getInstance(project);
     try {
       javaCodeStyleManager.optimizeImports(psiFile);
       javaCodeStyleManager.shortenClassReferences(psiFile);
     } catch (Exception e) {
       log.error("optimize imports error", e);
+    }
+    try {
+      CodeStyleManager.getInstance(project).reformat(psiFile);
+    } catch (Exception e) {
+      log.error("reformat source code error", e);
     }
   }
 }
