@@ -3,7 +3,9 @@ package com.ifengxue.plugin.component;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.fields.ExpandableTextField;
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,6 +77,8 @@ public class AutoGeneratorSettings {
   private ExpandableTextField textMapperXmlParentPath;
   private JCheckBox chkBoxGenerateMapperXml;
 
+  private Color originalForegroundColor;
+
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
         Holder.getProject(), "", "Entity");
@@ -94,6 +98,10 @@ public class AutoGeneratorSettings {
   }
 
   public void setData(AutoGeneratorSettingsState data, @Nullable ModuleSettings moduleSettings) {
+    if (originalForegroundColor == null) {
+      originalForegroundColor = extensionPane.getForegroundAt(0);
+    }
+
     textRemoveFieldPrefix.setText(data.getRemoveFieldPrefix());
     chkBoxUseLombok.setSelected(data.isUseLombok());
     chkBoxSerializable.setSelected(data.isSerializable());
@@ -115,10 +123,12 @@ public class AutoGeneratorSettings {
       repositoryPackageReferenceEditorCombo.setText(moduleSettings.getRepositoryPackageName());
       textRepositoryPackageParentPath.setText(moduleSettings.getRepositoryParentDirectory());
 
+      setForegroundColor(0, moduleSettings.isGenerateController());
       chkBoxGenerateController.setSelected(moduleSettings.isGenerateController());
       controllerPackageReferenceEditorCombo.setText(moduleSettings.getControllerPackageName());
       textControllerPackageParentPath.setText(moduleSettings.getControllerParentDirectory());
 
+      setForegroundColor(1, moduleSettings.isGenerateService());
       chkBoxGenerateService.setSelected(moduleSettings.isGenerateService());
       servicePackageReferenceEditorCombo.setText(moduleSettings.getServicePackageName());
       textServicePackageParentPath.setText(moduleSettings.getServiceParentDirectory());
@@ -126,10 +136,12 @@ public class AutoGeneratorSettings {
       radioMybatisPlus.setSelected(moduleSettings.isRepositoryTypeMybatisPlus());
       radioTkMybatis.setSelected(moduleSettings.isRepositoryTypeTkMybatis());
 
+      setForegroundColor(2, moduleSettings.isGenerateMapperXml());
       chkBoxGenerateMapperXml.setSelected(moduleSettings.isGenerateMapperXml());
       mapperXmlReferenceEditorCombo.setText(moduleSettings.getMapperXmlPackageName());
       textMapperXmlParentPath.setText(moduleSettings.getMapperXmlParentDirectory());
 
+      setForegroundColor(3, moduleSettings.isGenerateVO());
       chkBoxGenerateVO.setSelected(moduleSettings.isGenerateVO());
       textVOSuffixName.setText(moduleSettings.getVoSuffixName());
       chkBoxGenerateVO.setText("Generate " + moduleSettings.getVoSuffixName());
@@ -137,6 +149,7 @@ public class AutoGeneratorSettings {
       voPackageReferenceEditorCombo.setText(moduleSettings.getVoPackageName());
       textVOPackageParentPath.setText(moduleSettings.getVoParentDirectory());
 
+      setForegroundColor(4, moduleSettings.isGenerateDTO());
       chkBoxGenerateDTO.setSelected(moduleSettings.isGenerateDTO());
       textDTOSuffixName.setText(moduleSettings.getDtoSuffixName());
       chkBoxGenerateDTO.setText("Generate " + moduleSettings.getDtoSuffixName());
@@ -151,6 +164,11 @@ public class AutoGeneratorSettings {
     chkBoxGenerateJpaAnnotation.setSelected(data.isGenerateJpaAnnotation());
     chkBoxTableNameAddSchemaName.setSelected(data.isAddSchemaNameToTableName());
     textRepositorySuffix.setText(data.getRepositorySuffix());
+  }
+
+  public void setForegroundColor(int index, boolean isSelected) {
+    extensionPane.setForegroundAt(index,
+        isSelected ? JBColor.CYAN : originalForegroundColor);
   }
 
   public void getData(AutoGeneratorSettingsState data, ModuleSettings moduleData) {

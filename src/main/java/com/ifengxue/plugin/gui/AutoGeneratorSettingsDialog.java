@@ -29,6 +29,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -116,6 +118,31 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
             .forEach(excludeFieldSet::add);
         generatorSettings.getTextExcludeFields().setText(String.join(",", excludeFieldSet));
       }
+    });
+
+    // bind enable button listener
+    AtomicInteger paneIndex = new AtomicInteger(0);
+    ItemListener listener = itemEvent -> generatorSettings
+        .setForegroundColor(paneIndex.get(), itemEvent.getStateChange() == ItemEvent.SELECTED);
+    generatorSettings.getChkBoxGenerateController().addItemListener(e -> {
+      paneIndex.set(0);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateService().addItemListener(e -> {
+      paneIndex.set(1);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateMapperXml().addItemListener(e -> {
+      paneIndex.set(2);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateVO().addItemListener(e -> {
+      paneIndex.set(3);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateDTO().addItemListener(e -> {
+      paneIndex.set(4);
+      listener.itemStateChanged(e);
     });
   }
 
