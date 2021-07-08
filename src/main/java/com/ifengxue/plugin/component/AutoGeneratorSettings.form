@@ -48,7 +48,7 @@
           <text resource-bundle="bundles/ui_i18n" key="table_name"/>
         </properties>
       </component>
-      <component id="48cbd" class="javax.swing.JTextField" binding="textRemoveFieldPrefix">
+      <component id="48cbd" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRemoveFieldPrefix">
         <constraints>
           <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -182,7 +182,7 @@
           <text resource-bundle="bundles/ui_i18n" key="ignored_fields"/>
         </properties>
       </component>
-      <component id="3c808" class="javax.swing.JTextField" binding="textExcludeFields">
+      <component id="3c808" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textExcludeFields">
         <constraints>
           <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -206,7 +206,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="7d367" class="javax.swing.JTextField" binding="textExtendBaseClass">
+          <component id="7d367" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textExtendBaseClass">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -269,10 +269,10 @@
               <text resource-bundle="bundles/ui_i18n" key="remove_table_name_prefix"/>
             </properties>
           </component>
-          <component id="6f6bb" class="javax.swing.JTextField" binding="textRemoveTablePrefix">
+          <component id="6f6bb" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRemoveTablePrefix">
             <constraints/>
             <properties>
-              <columns value="5"/>
+              <columns value="15"/>
               <text value="t_" noi18n="true"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="set_remove_table_name_prefix"/>
             </properties>
@@ -283,10 +283,10 @@
               <text resource-bundle="bundles/ui_i18n" key="add_table_name_prefix"/>
             </properties>
           </component>
-          <component id="fdc6f" class="javax.swing.JTextField" binding="textAddTableNamePrefix">
+          <component id="fdc6f" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textAddTableNamePrefix">
             <constraints/>
             <properties>
-              <columns value="5"/>
+              <columns value="15"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="add_table_name_prefix_tips"/>
             </properties>
           </component>
@@ -296,10 +296,10 @@
               <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
             </properties>
           </component>
-          <component id="88d31" class="javax.swing.JTextField" binding="textAddTableNameSuffix">
+          <component id="88d31" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textAddTableNameSuffix">
             <constraints/>
             <properties>
-              <columns value="5"/>
+              <columns value="15"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="add_table_name_suffix_tips"/>
             </properties>
           </component>
@@ -344,7 +344,7 @@
           <text resource-bundle="bundles/ui_i18n" key="entity_package_base_path"/>
         </properties>
       </component>
-      <component id="400a4" class="javax.swing.JTextField" binding="textEntityPackageParentPath">
+      <component id="400a4" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textEntityPackageParentPath">
         <constraints>
           <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -365,7 +365,7 @@
           <text resource-bundle="bundles/ui_i18n" key="repository_package_parent_path"/>
         </properties>
       </component>
-      <component id="f150e" class="javax.swing.JTextField" binding="textRepositoryPackageParentPath">
+      <component id="f150e" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRepositoryPackageParentPath">
         <constraints>
           <grid row="18" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -431,10 +431,10 @@
               <text resource-bundle="bundles/ui_i18n" key="repository_suffix"/>
             </properties>
           </component>
-          <component id="21687" class="javax.swing.JTextField" binding="textRepositorySuffix">
+          <component id="21687" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRepositorySuffix">
             <constraints/>
             <properties>
-              <columns value="10"/>
+              <columns value="20"/>
               <text value="Repository"/>
             </properties>
           </component>
@@ -483,7 +483,7 @@
                   <text value="Controller package path:"/>
                 </properties>
               </component>
-              <component id="17785" class="javax.swing.JTextField" binding="textControllerPackageParentPath">
+              <component id="17785" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textControllerPackageParentPath">
                 <constraints>
                   <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -565,7 +565,7 @@
                   <text value="Service package path:"/>
                 </properties>
               </component>
-              <component id="7dc30" class="javax.swing.JTextField" binding="textServicePackageParentPath">
+              <component id="7dc30" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textServicePackageParentPath">
                 <constraints>
                   <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -714,7 +714,7 @@
                   <text value="Package path:"/>
                 </properties>
               </component>
-              <component id="3a009" class="javax.swing.JTextField" binding="textVOPackageParentPath">
+              <component id="3a009" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textVOPackageParentPath">
                 <constraints>
                   <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -746,10 +746,10 @@
                       <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
                     </properties>
                   </component>
-                  <component id="8bebb" class="javax.swing.JTextField" binding="textVOSuffixName">
+                  <component id="8bebb" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textVOSuffixName">
                     <constraints/>
                     <properties>
-                      <columns value="5"/>
+                      <columns value="15"/>
                     </properties>
                   </component>
                 </children>
@@ -798,7 +798,7 @@
                   <text value="Package path:"/>
                 </properties>
               </component>
-              <component id="27833" class="javax.swing.JTextField" binding="textDTOPackageParentPath">
+              <component id="27833" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textDTOPackageParentPath">
                 <constraints>
                   <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -830,10 +830,10 @@
                       <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
                     </properties>
                   </component>
-                  <component id="6dca2" class="javax.swing.JTextField" binding="textDTOSuffixName">
+                  <component id="6dca2" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textDTOSuffixName">
                     <constraints/>
                     <properties>
-                      <columns value="5"/>
+                      <columns value="15"/>
                     </properties>
                   </component>
                 </children>
