@@ -11,6 +11,7 @@ public interface Constants {
   String JPA_SERVICE_TEMPLATE_ID = "template/Service.vm";
   String MYBATIS_PLUS_SERVICE_TEMPLATE_ID = "template/Service-MybatisPlus.vm";
   String TK_MYBATIS_SERVICE_TEMPLATE_ID = "template/Service-TkMybatis.vm";
+  String MAPPER_XML_TEMPLATE_ID = "template/MapperXml.vm";
   String SAVE_VO_TEMPLATE_ID = "template/SaveVO.vm";
   String UPDATE_VO_TEMPLATE_ID = "template/UpdateVO.vm";
   String QUERY_VO_TEMPLATE_ID = "template/QueryVO.vm";

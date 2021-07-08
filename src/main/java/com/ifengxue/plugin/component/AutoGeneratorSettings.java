@@ -3,6 +3,7 @@ package com.ifengxue.plugin.component;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
+import com.intellij.ui.components.fields.ExpandableTextField;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -71,6 +72,9 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxGenerateEntity;
   private JTextField textVOSuffixName;
   private JTextField textDTOSuffixName;
+  private MyPackageNameReferenceEditorCombo mapperXmlReferenceEditorCombo;
+  private ExpandableTextField textMapperXmlParentPath;
+  private JCheckBox chkBoxGenerateMapperXml;
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
@@ -82,6 +86,8 @@ public class AutoGeneratorSettings {
         Holder.getProject(), "", "Controller");
     servicePackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
         Holder.getProject(), "", "Service");
+    mapperXmlReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(),
+        "", "Mapper XML");
     voPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(),
         "", "VO");
     dtoPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("", Holder.getProject(),
@@ -121,17 +127,21 @@ public class AutoGeneratorSettings {
       radioMybatisPlus.setSelected(moduleSettings.isRepositoryTypeMybatisPlus());
       radioTkMybatis.setSelected(moduleSettings.isRepositoryTypeTkMybatis());
 
+      chkBoxGenerateMapperXml.setSelected(moduleSettings.isGenerateMapperXml());
+      mapperXmlReferenceEditorCombo.setText(moduleSettings.getMapperXmlPackageName());
+      textMapperXmlParentPath.setText(moduleSettings.getMapperXmlParentDirectory());
+
       chkBoxGenerateVO.setSelected(moduleSettings.isGenerateVO());
       textVOSuffixName.setText(moduleSettings.getVoSuffixName());
       chkBoxGenerateVO.setText("Generate " + moduleSettings.getVoSuffixName());
-      extensionPane.setTitleAt(2, textVOSuffixName.getText());
+      extensionPane.setTitleAt(3, textVOSuffixName.getText());
       voPackageReferenceEditorCombo.setText(moduleSettings.getVoPackageName());
       textVOPackageParentPath.setText(moduleSettings.getVoParentDirectory());
 
       chkBoxGenerateDTO.setSelected(moduleSettings.isGenerateDTO());
       textDTOSuffixName.setText(moduleSettings.getDtoSuffixName());
       chkBoxGenerateDTO.setText("Generate " + moduleSettings.getDtoSuffixName());
-      extensionPane.setTitleAt(3, textDTOSuffixName.getText());
+      extensionPane.setTitleAt(4, textDTOSuffixName.getText());
       dtoPackageReferenceEditorCombo.setText(moduleSettings.getDtoPackageName());
       textDTOPackageParentPath.setText(moduleSettings.getDtoParentDirectory());
     }
@@ -177,6 +187,10 @@ public class AutoGeneratorSettings {
     moduleData.setRepositoryTypeJPA(radioJPA.isSelected());
     moduleData.setRepositoryTypeMybatisPlus(radioMybatisPlus.isSelected());
     moduleData.setRepositoryTypeTkMybatis(radioTkMybatis.isSelected());
+
+    moduleData.setGenerateMapperXml(chkBoxGenerateMapperXml.isSelected());
+    moduleData.setMapperXmlPackageName(mapperXmlReferenceEditorCombo.getText());
+    moduleData.setMapperXmlParentDirectory(textMapperXmlParentPath.getText());
 
     moduleData.setGenerateVO(chkBoxGenerateVO.isSelected());
     moduleData.setVoSuffixName(textVOSuffixName.getText());

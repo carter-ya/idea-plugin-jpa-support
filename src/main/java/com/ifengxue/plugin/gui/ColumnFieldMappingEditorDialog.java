@@ -8,12 +8,17 @@ import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.source.ControllerSourceParser;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.generator.source.MapperXmlSourceParser;
 import com.ifengxue.plugin.generator.source.ServiceSourceParser;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
 import com.ifengxue.plugin.util.TestTemplateHelper;
+import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.ide.highlighter.XmlFileType;
+import com.intellij.lang.java.JavaLanguage;
+import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -88,9 +93,10 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
         new PreviewAction(LocaleContextHolder.format("preview_controller"), () -> {
           String template = TemplateManager.getInstance()
               .loadTemplate(Constants.CONTROLLER_TEMPLATE_ID);
-          String sourceCode = TestTemplateHelper
-              .evaluateToString(ControllerSourceParser.class, table, template);
-          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
+          String sourceCode = TestTemplateHelper.evaluateToString(
+              ControllerSourceParser.class, table, template, JavaFileType.INSTANCE);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
+              project, JavaLanguage.INSTANCE, true);
           dialog.setSourceCode(sourceCode);
           dialog.show();
         }),
@@ -105,27 +111,40 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
             templateId = Constants.TK_MYBATIS_SERVICE_TEMPLATE_ID;
           }
           String template = TemplateManager.getInstance().loadTemplate(templateId);
-          String sourceCode = TestTemplateHelper
-              .evaluateToString(ServiceSourceParser.class, table, template);
-          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
+          String sourceCode = TestTemplateHelper.evaluateToString(
+              ServiceSourceParser.class, table, template, JavaFileType.INSTANCE);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
+              project, JavaLanguage.INSTANCE, true);
+          dialog.setSourceCode(sourceCode);
+          dialog.show();
+        }),
+        new PreviewAction(LocaleContextHolder.format("preview_mapper_xml"), () -> {
+          String template = TemplateManager.getInstance()
+              .loadTemplate(Constants.MAPPER_XML_TEMPLATE_ID);
+          String sourceCode = TestTemplateHelper.evaluateToString(
+              MapperXmlSourceParser.class, table, template, XmlFileType.INSTANCE);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
+              project, XMLLanguage.INSTANCE, true);
           dialog.setSourceCode(sourceCode);
           dialog.show();
         }),
         new PreviewAction(LocaleContextHolder.format("preview_bean"), () -> {
           String template = TemplateManager.getInstance()
               .loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID);
-          String sourceCode = TestTemplateHelper
-              .evaluateToString(EntitySourceParserV2.class, table, template);
-          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
+          String sourceCode = TestTemplateHelper.evaluateToString(
+              EntitySourceParserV2.class, table, template, JavaFileType.INSTANCE);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
+              project, JavaLanguage.INSTANCE, true);
           dialog.setSourceCode(sourceCode);
           dialog.show();
         }),
         new PreviewAction(LocaleContextHolder.format("preview_repository"), () -> {
           String template = TemplateManager.getInstance()
               .loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID);
-          String sourceCode = TestTemplateHelper
-              .evaluateToString(JpaRepositorySourceParser.class, table, template);
-          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(project, true);
+          String sourceCode = TestTemplateHelper.evaluateToString(
+              JpaRepositorySourceParser.class, table, template, JavaFileType.INSTANCE);
+          SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
+              project, JavaLanguage.INSTANCE, true);
           dialog.setSourceCode(sourceCode);
           dialog.show();
         }),

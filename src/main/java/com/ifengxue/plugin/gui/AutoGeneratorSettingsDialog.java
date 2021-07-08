@@ -125,17 +125,22 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
     List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(JavaSourceRootType.SOURCE);
     String sourceRoot;
+    String resourceRoot;
     if (sourceRoots.isEmpty()) {
       VirtualFile[] contentRoots = moduleRootManager.getContentRoots();
       if (contentRoots.length == 0) {
-        BusUtil.notify(Holder.getProject(), "Module " + moduleName + " does not contain Source Root.",
-            NotificationType.WARNING);
+        BusUtil.notify(Holder.getProject(),
+            "Module " + moduleName + " does not contain Source Root.", NotificationType.WARNING);
         return;
       }
-      sourceRoot = contentRoots[0].getCanonicalPath() + "/src/main/java";
+      sourceRoot = Paths
+          .get(Objects.requireNonNull(contentRoots[0].getCanonicalPath()), "src", "main", "java")
+          .toString();
     } else {
       sourceRoot = sourceRoots.get(0).getCanonicalPath();
     }
+    assert sourceRoot != null;
+    resourceRoot = Paths.get(sourceRoot).resolveSibling("resources").toString();
 
     if (!checkEmpty || generatorSettings.getTextEntityPackageParentPath().getText().isEmpty()) {
       generatorSettings.getTextEntityPackageParentPath().setText(sourceRoot);
@@ -148,6 +153,9 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     }
     if (!checkEmpty || generatorSettings.getTextServicePackageParentPath().getText().isEmpty()) {
       generatorSettings.getTextServicePackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextMapperXmlParentPath().getText().isEmpty()) {
+      generatorSettings.getTextMapperXmlParentPath().setText(resourceRoot);
     }
     if (!checkEmpty || generatorSettings.getTextVOPackageParentPath().getText().isEmpty()) {
       generatorSettings.getTextVOPackageParentPath().setText(sourceRoot);
@@ -221,36 +229,48 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
             generatorSettings.getTextServicePackageParentPath());
       }
     }
+    if (generatorSettings.getChkBoxGenerateMapperXml().isSelected()) {
+      if (generatorSettings.getMapperXmlReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        return new ValidationInfo("Must set Mapper XML directory",
+            generatorSettings.getMapperXmlReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextMapperXmlParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        return new ValidationInfo("Must set Mapper XML path",
+            generatorSettings.getTextMapperXmlParentPath());
+      }
+    }
     if (generatorSettings.getChkBoxGenerateVO().isSelected()) {
       if (generatorSettings.getVoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
-        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
         return new ValidationInfo("Must set VO package",
             generatorSettings.getVoPackageReferenceEditorCombo());
       }
       if (generatorSettings.getTextVOPackageParentPath().getText().trim().isEmpty()) {
-        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
         return new ValidationInfo("Must set VO path",
             generatorSettings.getTextVOPackageParentPath());
       }
       if (generatorSettings.getTextVOSuffixName().getText().trim().isEmpty()) {
-        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
         return new ValidationInfo("Must set suffix name",
             generatorSettings.getTextVOSuffixName());
       }
     }
     if (generatorSettings.getChkBoxGenerateDTO().isSelected()) {
       if (generatorSettings.getDtoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
-        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        generatorSettings.getExtensionPane().setSelectedIndex(4);
         return new ValidationInfo("Must set DTO package",
             generatorSettings.getDtoPackageReferenceEditorCombo());
       }
       if (generatorSettings.getTextDTOPackageParentPath().getText().trim().isEmpty()) {
-        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        generatorSettings.getExtensionPane().setSelectedIndex(4);
         return new ValidationInfo("Must set DTO path",
             generatorSettings.getTextDTOPackageParentPath());
       }
       if (generatorSettings.getTextDTOSuffixName().getText().trim().isEmpty()) {
-        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        generatorSettings.getExtensionPane().setSelectedIndex(4);
         return new ValidationInfo("Must set suffix name",
             generatorSettings.getTextDTOSuffixName());
       }
@@ -339,6 +359,12 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
               moduleSettings.getServicePackageName(),
               generatorSettings.getTextServicePackageParentPath(),
               moduleSettings.getServiceParentDirectory()
+          },
+          {
+              generatorSettings.getMapperXmlReferenceEditorCombo(),
+              moduleSettings.getMapperXmlPackageName(),
+              generatorSettings.getTextMapperXmlParentPath(),
+              moduleSettings.getMapperXmlParentDirectory()
           },
           {
               generatorSettings.getVoPackageReferenceEditorCombo(),

@@ -48,6 +48,15 @@ public class ModuleSettings {
      * <br> 如:/path/to/maven/module/src/main/java
      */
     private String serviceParentDirectory = "";
+    private boolean generateMapperXml;
+    /**
+     * mapper xml 包名
+     */
+    private String mapperXmlPackageName = "mapper";
+    /**
+     * mapper xml parent directory
+     */
+    private String mapperXmlParentDirectory = "";
     private boolean generateVO;
     /**
      * VO后缀

@@ -17,6 +17,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.source.ControllerSourceParser;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.generator.source.MapperXmlSourceParser;
 import com.ifengxue.plugin.generator.source.ServiceSourceParser;
 import com.ifengxue.plugin.generator.source.SimpleBeanSourceParser;
 import com.ifengxue.plugin.generator.source.SourceParser;
@@ -31,6 +32,7 @@ import com.ifengxue.plugin.util.SourceFormatter;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -41,6 +43,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
@@ -324,6 +327,11 @@ public class SelectTablesDialog extends DialogWrapper {
                 moduleSettings.getControllerPackageName()
             },
             {
+                moduleSettings.isGenerateMapperXml(),
+                moduleSettings.getMapperXmlParentDirectory(),
+                moduleSettings.getMapperXmlPackageName()
+            },
+            {
                 moduleSettings.isGenerateService(),
                 moduleSettings.getServiceParentDirectory(),
                 moduleSettings.getServicePackageName()
@@ -480,6 +488,13 @@ public class SelectTablesDialog extends DialogWrapper {
                   t.getEntityName() + "Service" + fileExtension))
               .build(),
           GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateMapperXml())
+              .sourceParser(new MapperXmlSourceParser())
+              .directory(moduleSettings.getMapperXmlParentDirectory())
+              .packageName(moduleSettings.getMapperXmlPackageName())
+              .filenameMapping(t -> t.getRepositoryName() + ".xml")
+              .build(),
+          GeneratorTask.builder()
               .shouldRun(moduleSettings.isGenerateVO())
               .sourceParser(templateIdToSourceParserMapping.apply(Constants.SAVE_VO_TEMPLATE_ID))
               .directory(moduleSettings.getVoParentDirectory())
@@ -544,8 +559,16 @@ public class SelectTablesDialog extends DialogWrapper {
           .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
     }
 
-    private void writeContent(Project project, String filename, String parentPath, String packageName,
-        String sourceCode) {
+    private FileType guessFileType(String filename) {
+      if (filename.endsWith(".xml")) {
+        return XmlFileType.INSTANCE;
+      } else {
+        return JavaFileType.INSTANCE;
+      }
+    }
+
+    private void writeContent(Project project, String filename, String parentPath,
+        String packageName, String sourceCode) {
       PsiDirectory psiDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
           Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)));
       PsiFile originalFile = psiDirectory.findFile(filename);
@@ -553,11 +576,13 @@ public class SelectTablesDialog extends DialogWrapper {
         log.info("Ignore exists file " + filename);
         return;
       }
+
+      FileType fileType = guessFileType(filename);
       PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
-      PsiFile psiFile = psiFileFactory.createFileFromText(filename, JavaFileType.INSTANCE, sourceCode);
+      PsiFile psiFile = psiFileFactory.createFileFromText(filename, fileType, sourceCode);
       if (originalFile != null) {
         if (duplicateActionType.isMerge()) {
-          merge(originalFile, psiFile);
+          merge(originalFile, psiFile, fileType);
           log.info("Try merge exists file " + filename);
         } else {
           Document document = PsiDocumentManager.getInstance(project).getDocument(originalFile);
@@ -573,7 +598,7 @@ public class SelectTablesDialog extends DialogWrapper {
         PsiDocumentManager.getInstance(project).commitDocument(document);
       }
 
-      SourceFormatter.formatJavaCode(project, psiFile);
+      SourceFormatter.format(project, psiFile, fileType);
 
       if (document != null) {
         PsiDocumentManager.getInstance(project).commitDocument(document);
@@ -583,7 +608,10 @@ public class SelectTablesDialog extends DialogWrapper {
       }
     }
 
-    private void merge(PsiFile originalFile, PsiFile psiFile) {
+    private void merge(PsiFile originalFile, PsiFile psiFile, FileType fileType) {
+      if (fileType != JavaFileType.INSTANCE) {
+        return;
+      }
       PsiClass[] originalPsiClasses = ((PsiJavaFile) originalFile).getClasses();
       PsiClass[] psiClasses = ((PsiJavaFile) psiFile).getClasses();
       PsiClass originalTopClass = originalPsiClasses[0];

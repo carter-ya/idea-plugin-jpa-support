@@ -14,6 +14,7 @@ import com.ifengxue.plugin.generator.tree.Element.Indent;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.fileTypes.FileType;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public enum TestTemplateHelper {
     ;
 
     public static Object evaluate(Class<? extends AbstractSourceParser> clazz, Table table,
-        String template) {
+        String template, FileType fileType) {
         AutoGeneratorSettingsState settingsState = ServiceManager.getService(
             Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
         ModuleSettings moduleSettings = settingsState
@@ -68,14 +69,14 @@ public enum TestTemplateHelper {
         AbstractSourceParser sourceParser = newInstance(clazz);
         sourceParser.setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");
         try {
-            return SourceFormatter.formatJavaCode(sourceParser.parse(config, table, template));
+            return SourceFormatter.format(sourceParser.parse(config, table, template), fileType);
         } catch (Exception ex) {
             return ex;
         }
     }
 
     public static String evaluateToString(Class<? extends AbstractSourceParser> clazz,
-        String template) {
+        String template, FileType fileType) {
         AutoGeneratorSettingsState settingsState = ServiceManager.getService(
             Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
         Table table = new Table();
@@ -151,12 +152,12 @@ public enum TestTemplateHelper {
         table.getColumns().forEach(column -> ColumnUtil
             .parseColumn(column, settingsState.getRemoveFieldPrefix(),
                 true, settingsState.isUseJava8DateType()));
-        return evaluateToString(clazz, table, template);
+        return evaluateToString(clazz, table, template, fileType);
     }
 
     public static String evaluateToString(Class<? extends AbstractSourceParser> clazz, Table table,
-        String template) {
-        Object evaluate = evaluate(clazz, table, template);
+        String template, FileType fileType) {
+        Object evaluate = evaluate(clazz, table, template, fileType);
         if (evaluate instanceof String) {
             return (String) evaluate;
         }

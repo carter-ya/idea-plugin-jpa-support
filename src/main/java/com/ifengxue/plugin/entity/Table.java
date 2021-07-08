@@ -1,12 +1,13 @@
 package com.ifengxue.plugin.entity;
 
+import static java.util.stream.Collectors.joining;
+
 import com.ifengxue.plugin.gui.annotation.TableEditable;
 import com.ifengxue.plugin.gui.annotation.TableHeight;
 import com.ifengxue.plugin.gui.annotation.TableProperty;
 import com.ifengxue.plugin.gui.annotation.TableWidth;
 import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
 import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -120,7 +121,7 @@ public class Table implements Selectable {
     return columns.stream()
         .filter(Column::isPrimary)
         .findFirst()
-        .orElseThrow(NoSuchElementException::new);
+        .orElse(null);
   }
 
   /**
@@ -149,5 +150,27 @@ public class Table implements Selectable {
       return entityName + "Controller";
     }
     return controllerName;
+  }
+
+  /**
+   * joining column name
+   *
+   * @param delimiter delimiter
+   */
+  public String columnNameJoining(String delimiter) {
+    return columnNameJoining(delimiter, "");
+  }
+
+  /**
+   * joining column name
+   *
+   * @param delimiter delimiter
+   * @param reservedWordWrapper reserved word wrapper, eg <code>`</code>
+   */
+  public String columnNameJoining(String delimiter, String reservedWordWrapper) {
+    return columns.stream()
+        .map(c -> c.isReservedWord() ? reservedWordWrapper + c.getColumnName() + reservedWordWrapper
+            : c.getColumnName())
+        .collect(joining(delimiter));
   }
 }

@@ -12,6 +12,7 @@ import com.ifengxue.plugin.util.StringHelper;
 import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.mybatis.generator.internal.db.SqlReservedWords;
 
 @Data
 @Accessors(chain = true)
@@ -122,6 +123,10 @@ public class Column implements Selectable {
   @Override
   public boolean isSelected() {
     return selected;
+  }
+
+  public boolean isReservedWord() {
+    return SqlReservedWords.containsWord(columnName);
   }
 
   public String getGetterMethodName() {

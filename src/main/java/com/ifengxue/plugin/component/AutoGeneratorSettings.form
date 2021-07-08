@@ -614,6 +614,64 @@
               </component>
             </children>
           </grid>
+          <grid id="ddc68" layout-manager="FormLayout">
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <colspec value="left:4dlu:noGrow"/>
+            <colspec value="fill:d:grow"/>
+            <constraints>
+              <tabbedpane title="Mapper XML"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="e210" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Mapper XML directory:"/>
+                </properties>
+              </component>
+              <component id="7479" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="mapperXmlReferenceEditorCombo" custom-create="true">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false" defaultalign-vert="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="72f33" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Mapper XML parent path:"/>
+                </properties>
+              </component>
+              <component id="cf72" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textMapperXmlParentPath">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="c50b6" class="javax.swing.JCheckBox" binding="chkBoxGenerateMapperXml">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Generate Mapper XML"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
           <grid id="2ae12" binding="voPane" layout-manager="FormLayout">
             <rowspec value="center:max(d;4px):noGrow"/>
             <rowspec value="top:3dlu:noGrow"/>
