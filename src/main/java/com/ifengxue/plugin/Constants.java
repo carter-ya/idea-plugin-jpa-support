@@ -16,4 +16,6 @@ public interface Constants {
   String UPDATE_VO_TEMPLATE_ID = "template/UpdateVO.vm";
   String QUERY_VO_TEMPLATE_ID = "template/QueryVO.vm";
   String DTO_TEMPLATE_ID = "template/DTO.vm";
+
+  String MYBATIS_GENERATOR_CONFIG_TEMPLATE_ID = "template/MybatisGenerateConfig.vm";
 }

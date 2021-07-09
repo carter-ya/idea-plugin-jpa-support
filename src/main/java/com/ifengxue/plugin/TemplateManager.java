@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,6 +24,10 @@ public class TemplateManager {
     private static final Logger log = Logger.getInstance(TemplateManager.class);
     private static final TemplateManager INSTANCE = new TemplateManager();
     private static final List<String> SEARCH_PATH = new ArrayList<>();
+    /**
+     * only used for debug
+     */
+    public static Function<String, String> debugTemplateMapping;
 
     static {
         SEARCH_PATH.add("{module}/.idea/JPA Support/template");
@@ -38,6 +43,11 @@ public class TemplateManager {
     }
 
     public String loadTemplate(String templateId) {
+        // debug
+        if (debugTemplateMapping != null && debugTemplateMapping.apply(templateId) != null) {
+            return debugTemplateMapping.apply(templateId);
+        }
+
         AutoGeneratorSettingsState service = ServiceManager
             .getService(Holder.getProject(), AutoGeneratorSettingsState.class);
         VirtualFile projectDir = ProjectUtil.guessProjectDir(Holder.getProject());

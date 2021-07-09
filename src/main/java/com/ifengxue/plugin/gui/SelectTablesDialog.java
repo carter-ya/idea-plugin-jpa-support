@@ -1,7 +1,6 @@
 package com.ifengxue.plugin.gui;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
@@ -14,6 +13,8 @@ import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
+import com.ifengxue.plugin.generator.merge.SourceFileMerger;
+import com.ifengxue.plugin.generator.merge.SourceFileMergerFactory;
 import com.ifengxue.plugin.generator.source.ControllerSourceParser;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
@@ -33,7 +34,6 @@ import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.highlighter.XmlFileType;
-import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
@@ -48,22 +48,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.PsiJavaCodeReferenceElement;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiModifierList;
-import com.intellij.psi.PsiReferenceList;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
@@ -76,8 +65,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -306,7 +293,7 @@ public class SelectTablesDialog extends DialogWrapper {
           .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
       ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings();
 
-      List<GeneratorTask> tasks = buildTask(autoGeneratorSettingsState, moduleSettings);
+      List<GeneratorTask> tasks = buildTask(moduleSettings);
 
       CountDownLatch isReadForWrite = new CountDownLatch(1);
       ApplicationManager.getApplication().runWriteAction(() -> {
@@ -428,8 +415,9 @@ public class SelectTablesDialog extends DialogWrapper {
                 continue;
               }
               String sourceCode = task.sourceParser.parse(generatorConfig, table);
-              writeContent(project, task.filenameMapping.apply(table), task.directory,
-                  task.packageName, sourceCode);
+              writeContent(generatorConfig, table,
+                  project, task.filenameMapping.apply(table),
+                  task.directory, task.packageName, sourceCode);
             }
           } catch (Exception e) {
             Bus.notify(
@@ -448,8 +436,7 @@ public class SelectTablesDialog extends DialogWrapper {
       }
     }
 
-    private List<GeneratorTask> buildTask(AutoGeneratorSettingsState state,
-        ModuleSettings moduleSettings) {
+    private List<GeneratorTask> buildTask(ModuleSettings moduleSettings) {
       Function<String, SourceParser> templateIdToSourceParserMapping = templateId -> {
         SimpleBeanSourceParser parser = new SimpleBeanSourceParser();
         parser.setTemplateId(templateId);
@@ -567,7 +554,8 @@ public class SelectTablesDialog extends DialogWrapper {
       }
     }
 
-    private void writeContent(Project project, String filename, String parentPath,
+    private void writeContent(GeneratorConfig generatorConfig, Table table, Project project,
+        String filename, String parentPath,
         String packageName, String sourceCode) {
       PsiDirectory psiDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
           Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)));
@@ -582,8 +570,13 @@ public class SelectTablesDialog extends DialogWrapper {
       PsiFile psiFile = psiFileFactory.createFileFromText(filename, fileType, sourceCode);
       if (originalFile != null) {
         if (duplicateActionType.isMerge()) {
-          merge(originalFile, psiFile, fileType);
-          log.info("Try merge exists file " + filename);
+          SourceFileMerger merger = SourceFileMergerFactory.createMerger(fileType);
+          if (merger != null) {
+            merger.tryMerge(generatorConfig, table, originalFile, psiFile);
+            log.info("Try merge exists file " + filename);
+          } else {
+            log.warn("File type " + fileType.getName() + " not support to merged");
+          }
         } else {
           Document document = PsiDocumentManager.getInstance(project).getDocument(originalFile);
           assert document != null;
@@ -605,123 +598,6 @@ public class SelectTablesDialog extends DialogWrapper {
       } else {
         // The new file needs to be saved last, otherwise the formatting will not take effect
         psiDirectory.add(psiFile);
-      }
-    }
-
-    private void merge(PsiFile originalFile, PsiFile psiFile, FileType fileType) {
-      if (fileType != JavaFileType.INSTANCE) {
-        return;
-      }
-      PsiClass[] originalPsiClasses = ((PsiJavaFile) originalFile).getClasses();
-      PsiClass[] psiClasses = ((PsiJavaFile) psiFile).getClasses();
-      PsiClass originalTopClass = originalPsiClasses[0];
-      PsiClass psiTopClass = psiClasses[0];
-
-      // merge annotations
-      Map<String, PsiAnnotation> nameToAnnotation = Arrays.stream(originalTopClass.getAnnotations())
-          .collect(toMap(PsiAnnotation::getQualifiedName, Function.identity()));
-      for (PsiAnnotation annotation : psiTopClass.getAnnotations()) {
-        if (!nameToAnnotation.containsKey(annotation.getQualifiedName())) {
-          PsiModifierList modifierList = originalTopClass.getModifierList();
-          if (modifierList != null && annotation.getQualifiedName() != null) {
-            PsiAnnotation psiAnnotation = modifierList.addAnnotation(annotation.getQualifiedName());
-            for (JvmAnnotationAttribute attribute : annotation.getAttributes()) {
-              psiAnnotation.setDeclaredAttributeValue(attribute.getAttributeName(),
-                  annotation.findAttributeValue(attribute.getAttributeName()));
-            }
-          }
-        }
-      }
-
-      // merge implements
-      try {
-        Map<String, PsiClassType> nameToClassType = Arrays.stream(originalTopClass.getImplementsListTypes())
-            .collect(toMap(psiClassType -> Objects.requireNonNull(psiClassType.resolve()).getQualifiedName(),
-                Function.identity()));
-        for (PsiClassType implementsListType : psiTopClass.getImplementsListTypes()) {
-          PsiClass resolvePsiClass = implementsListType.resolve();
-          if (resolvePsiClass != null && !nameToClassType.containsKey(resolvePsiClass.getQualifiedName())) {
-            PsiJavaCodeReferenceElement implementsReference = ServiceManager
-                .getService(Holder.getOrDefaultProject(), PsiElementFactory.class)
-                .createReferenceFromText(Objects.requireNonNull(resolvePsiClass.getQualifiedName()),
-                    originalTopClass);
-            PsiReferenceList implementsList = originalTopClass.getImplementsList();
-            if (implementsList != null) {
-              implementsList.add(implementsReference);
-            }
-          }
-        }
-      } catch (Exception e) {
-        log.warn("Can't merge implements", e);
-      }
-
-      // merge fields
-      Map<String, PsiField> nameToField = Arrays.stream(originalTopClass.getFields())
-          .collect(toMap(PsiField::getName, Function.identity()));
-      for (PsiField field : psiTopClass.getFields()) {
-        if (!nameToField.containsKey(field.getName())) {
-          mergeFieldAndTryKeepOrder(field, psiTopClass, originalTopClass);
-        }
-      }
-
-      // merge methods
-      Map<String, PsiMethod> nameToMethod = Arrays.stream(originalTopClass.getMethods())
-          .collect(toMap(PsiMethod::getName, Function.identity()));
-      for (PsiMethod method : psiTopClass.getMethods()) {
-        if (!nameToMethod.containsKey(method.getName())) {
-          originalTopClass.add(method);
-        }
-      }
-    }
-
-    /**
-     * merge field to target class, and try keep order
-     */
-    private void mergeFieldAndTryKeepOrder(PsiField field, PsiClass originalClass, PsiClass targetClass) {
-      PsiField precursorField = null;
-      boolean precursorIsFound = false;
-      for (PsiField originalClassField : originalClass.getFields()) {
-        if (originalClassField.getName().equals(field.getName())) {
-          precursorIsFound = true;
-          break;
-        } else {
-          precursorField = originalClassField;
-        }
-      }
-      PsiField[] targetClassFields = targetClass.getFields();
-      if (precursorIsFound && precursorField != null) {
-        for (PsiField targetClassField : targetClassFields) {
-          if (targetClassField.getName().equals(precursorField.getName())) {
-            precursorField = targetClassField;
-            break;
-          }
-        }
-      }
-
-      if (!precursorIsFound) {
-        if (targetClassFields.length == 0) {
-          PsiMethod[] methods = targetClass.getMethods();
-          if (methods.length == 0) {
-            targetClass.add(field);
-          } else {
-            targetClass.addBefore(field, methods[0]);
-          }
-        } else {
-          PsiField firstNotStaticField = null;
-          for (PsiField targetClassField : targetClassFields) {
-            if (targetClassField.getModifierList() == null
-                || !targetClassField.getModifierList().hasModifierProperty(PsiModifier.STATIC)) {
-              firstNotStaticField = targetClassField;
-              break;
-            }
-          }
-          if (firstNotStaticField == null) {
-            firstNotStaticField = targetClassFields[targetClassFields.length - 1];
-          }
-          targetClass.addBefore(field, firstNotStaticField);
-        }
-      } else {
-        targetClass.addAfter(field, precursorField);
       }
     }
   }

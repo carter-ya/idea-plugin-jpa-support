@@ -4,6 +4,7 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 
 import com.ifengxue.plugin.Constants;
+import com.ifengxue.plugin.TemplateManager;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.DriverConfig;
@@ -11,6 +12,7 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
+import com.ifengxue.plugin.generator.merge.XmlSourceFileMerger;
 import com.ifengxue.plugin.util.MyLogChute;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +31,16 @@ public class SourceParserTest {
 
   private final VelocityEngine velocityEngine = new VelocityEngine();
   private AbstractIDEASourceParser sourceParser;
+
+  static {
+    TemplateManager.debugTemplateMapping = templateId -> {
+      try {
+        return loadTemplate(templateId);
+      } catch (IOException e) {
+        return null;
+      }
+    };
+  }
 
   public void initParser() {
     velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new MyLogChute());
@@ -141,7 +153,12 @@ public class SourceParserTest {
     System.out.println(sourceCode);
   }
 
-  private String parse(String templateId) throws IOException {
+  @Test
+  public void xmlSourceFileMerger() {
+    new XmlSourceFileMerger().tryMerge(createGeneratorConfig(), createTable(), null, null);
+  }
+
+  private GeneratorConfig createGeneratorConfig() {
     GeneratorConfig config = new GeneratorConfig();
     config.setDriverConfig(
         new DriverConfig()
@@ -177,7 +194,11 @@ public class SourceParserTest {
                 .setUseSwaggerUIComment(true)
                 .setUseJpa(true)
         );
-    return sourceParser.parse(config, new Table()
+    return config;
+  }
+
+  public Table createTable() {
+    return new Table()
         .setTableComment("表注释")
         .setTableName("t_table_name")
         .setTableSchema("test_db")
@@ -193,6 +214,7 @@ public class SourceParserTest {
                 .setColumnComment("自增主键")
                 .setColumnName("f_id")
                 .setDbDataType("BIGINT")
+                .setJdbcTypeName("BIGINT")
                 .setFieldName("id")
                 .setHasDefaultValue(false)
                 .setJavaDataType(Long.class)
@@ -202,6 +224,7 @@ public class SourceParserTest {
                 .setColumnComment("乐观锁")
                 .setColumnName("f_version")
                 .setDbDataType("BIGINT")
+                .setJdbcTypeName("BIGINT")
                 .setFieldName("version")
                 .setHasDefaultValue(true)
                 .setJavaDataType(Long.class)
@@ -212,6 +235,7 @@ public class SourceParserTest {
                 .setColumnComment("名称")
                 .setColumnName("f_name")
                 .setDbDataType("VARCHAR")
+                .setJdbcTypeName("VARCHAR")
                 .setFieldName("name")
                 .setHasDefaultValue(false)
                 .setJavaDataType(String.class)
@@ -222,6 +246,7 @@ public class SourceParserTest {
                 .setColumnComment("创建时间")
                 .setColumnName("f_created_at")
                 .setDbDataType("DATETIME")
+                .setJdbcTypeName("TIMESTAMP")
                 .setFieldName("createdAt")
                 .setHasDefaultValue(true)
                 .setJavaDataType(Timestamp.class)
@@ -232,6 +257,7 @@ public class SourceParserTest {
                 .setColumnComment("更新时间")
                 .setColumnName("f_updated_at")
                 .setDbDataType("DATETIME")
+                .setJdbcTypeName("TIMESTAMP")
                 .setFieldName("updatedAt")
                 .setHasDefaultValue(true)
                 .setJavaDataType(Timestamp.class)
@@ -239,13 +265,20 @@ public class SourceParserTest {
                 .setNullable(false)
                 .setPrimary(false)
         ))
-        .setSelected(true), loadTemplate(templateId));
+        .setSelected(true);
   }
 
-  private String loadTemplate(String templateId) throws IOException {
+  private String parse(String templateId) throws IOException {
+    GeneratorConfig config = createGeneratorConfig();
+    Table table = createTable();
+    return sourceParser.parse(config, table, loadTemplate(templateId));
+  }
+
+  private static String loadTemplate(String templateId) throws IOException {
     try (BufferedReader reader = new BufferedReader(
         new InputStreamReader(
-            Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(templateId)),
+            Objects.requireNonNull(
+                SourceParserTest.class.getClassLoader().getResourceAsStream(templateId)),
             StandardCharsets.UTF_8))) {
       return IOUtils.toString(reader);
     }
