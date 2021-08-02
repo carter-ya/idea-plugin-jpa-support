@@ -48,27 +48,6 @@
           <text resource-bundle="bundles/ui_i18n" key="table_name"/>
         </properties>
       </component>
-      <component id="48cbd" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRemoveFieldPrefix">
-        <constraints>
-          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-          <forms defaultalign-horz="false"/>
-        </constraints>
-        <properties>
-          <text value="f_"/>
-          <toolTipText resource-bundle="bundles/ui_i18n" key="set_remove_field_name_prefix"/>
-        </properties>
-      </component>
-      <component id="a8efa" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-          <forms/>
-        </constraints>
-        <properties>
-          <text resource-bundle="bundles/ui_i18n" key="remove_field_name_prefix"/>
-        </properties>
-      </component>
       <component id="e001e" class="javax.swing.JLabel">
         <constraints>
           <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -842,6 +821,50 @@
           </grid>
         </children>
       </tabbedpane>
+      <component id="a8efa" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text resource-bundle="bundles/ui_i18n" key="field_name"/>
+        </properties>
+      </component>
+      <grid id="53005" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="39d15" class="javax.swing.JLabel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="remove_prefixes"/>
+            </properties>
+          </component>
+          <component id="47d03" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRemoveFieldPrefix">
+            <constraints/>
+            <properties>
+              <text value="f_"/>
+            </properties>
+          </component>
+          <component id="92fde" class="javax.swing.JLabel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="java_keyword_auto_add_suffix"/>
+              <toolTipText resource-bundle="bundles/ui_i18n" key="java_keyword_auto_add_suffix_tip"/>
+            </properties>
+          </component>
+          <component id="6df46" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textIfJavaKeywordAddSuffix">
+            <constraints/>
+            <properties>
+              <text value="Field"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
   <buttonGroups>

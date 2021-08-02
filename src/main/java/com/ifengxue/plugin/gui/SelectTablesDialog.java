@@ -218,8 +218,9 @@ public class SelectTablesDialog extends DialogWrapper {
     int sequence = 1;
     for (ColumnSchema columnSchema : columnSchemas) {
       Column column = ColumnUtil.columnSchemaToColumn(columnSchema,
-          autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
-          autoGeneratorSettingsState.isUseJava8DateType());
+          autoGeneratorSettingsState.getRemoveFieldPrefix(),
+          autoGeneratorSettingsState.getIfJavaKeywordAddSuffix(),
+          true, autoGeneratorSettingsState.isUseJava8DateType());
       column.setSequence(sequence++);
       column.setSelected(!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName()));
       if (column.isPrimary()) {

@@ -151,7 +151,8 @@ public enum TestTemplateHelper {
             .setSelected(true);
         table.getColumns().forEach(column -> ColumnUtil
             .parseColumn(column, settingsState.getRemoveFieldPrefix(),
-                true, settingsState.isUseJava8DateType()));
+                settingsState.getIfJavaKeywordAddSuffix(), true,
+                settingsState.isUseJava8DateType()));
         return evaluateToString(clazz, table, template, fileType);
     }
 

@@ -24,6 +24,7 @@ public class AutoGeneratorSettings {
 
   private JPanel rootComponent;
   private ExpandableTextField textRemoveFieldPrefix;
+  private ExpandableTextField textIfJavaKeywordAddSuffix;
   private ExpandableTextField textExtendBaseClass;
   private JCheckBox chkBoxUseLombok;
   private JCheckBox chkBoxGenerateRepository;
@@ -103,6 +104,7 @@ public class AutoGeneratorSettings {
     }
 
     textRemoveFieldPrefix.setText(data.getRemoveFieldPrefix());
+    textIfJavaKeywordAddSuffix.setText(data.getIfJavaKeywordAddSuffix());
     chkBoxUseLombok.setSelected(data.isUseLombok());
     chkBoxSerializable.setSelected(data.isSerializable());
     chkBoxGenerateClassComment.setSelected(data.isGenerateClassComment());
@@ -173,6 +175,7 @@ public class AutoGeneratorSettings {
 
   public void getData(AutoGeneratorSettingsState data, ModuleSettings moduleData) {
     data.setRemoveFieldPrefix(textRemoveFieldPrefix.getText());
+    data.setIfJavaKeywordAddSuffix(textIfJavaKeywordAddSuffix.getText());
     data.setUseLombok(chkBoxUseLombok.isSelected());
     data.setSerializable(chkBoxSerializable.isSelected());
     data.setGenerateClassComment(chkBoxGenerateClassComment.isSelected());

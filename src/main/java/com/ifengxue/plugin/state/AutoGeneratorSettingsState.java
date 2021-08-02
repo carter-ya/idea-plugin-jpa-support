@@ -49,6 +49,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    */
   private String removeFieldPrefix = "f_";
   /**
+   * 如果字段名是Java关键字则添加的后缀
+   */
+  private String ifJavaKeywordAddSuffix = "Field";
+  /**
    * 继承的父类名称
    */
   private String inheritedParentClassName = "";
