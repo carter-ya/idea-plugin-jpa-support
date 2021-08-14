@@ -16,8 +16,11 @@ A clear and concise description of what you expected to happen.
 **Screenshots （截图，如果有的话）**
 If applicable, add screenshots to help explain your problem.
 
-**idea version (idea的版本号):**
+**idea version (idea的版本号)**
 For example: IntelliJ IDEA 2019.3.3 (Ultimate Edition)
 
-**idea plugin jpa support version (idea plugin jpa support的版本号）:**
+**idea plugin jpa support version (idea plugin jpa support的版本号）**
 For example: 1.1.7
+
+**OS version (操作系统版本号）**
+For example: Mac OS 11.5.1
