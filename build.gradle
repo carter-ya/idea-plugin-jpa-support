@@ -39,7 +39,6 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.3'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
-    compileOnly fileTree('lib')
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.7.2'
     testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 }
@@ -62,7 +61,7 @@ intellij {
         printf('use remote version: %s', version)
     }
     updateSinceUntilBuild false
-    plugins = ['java']
+    plugins = ['java', 'DatabaseTools']
 }
 
 runIde {
@@ -75,9 +74,46 @@ test {
 
 patchPluginXml {
     version '2.0.8-RC1'
+    description """
+        <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
+        <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
+        <p>Support all databases.</p>
+        <p>Support generate source code from Database plugin</p>
+        <p>Support custom generate code template</p>
+        <p>Support custom db type mapping</p>
+        <p>Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b></p>
+        <h3>Templates</h3>
+        <ol>Template directories
+          <li>Module template directory:{module}/.idea/JPA Support/template</li>
+          <li>Project template directory:{project}/.idea/JPA Support/template"</li>
+          <li>Home template directory:{user.home}/.JPA Support/template</li>
+        </ol>
+        <ol>Templates
+            <li>Controller.vm</li>
+            <li>DTO.vm</li>
+            <li>JpaEntity.vm</li>
+            <li>JpaRepository.vm</li>
+            <li>MapperXml.vm</li>
+            <li>MybatisGenerateConfig.vm</li>
+            <li>QueryVO.vm</li>
+            <li>SaveVO.vm</li>
+            <li>Service.vm</li>
+            <li>Service-MybatisPlus.vm</li>
+            <li>Service-TkMybatis.vm</li>
+            <li>UpdateVO.vm</li>
+        </ol>
+        <a href="https://github.com/carter-ya/idea-plugin-jpa-support">README</a> <br>
+        <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/set_database_connection.png?raw=true" alt="Use tips.">
+        <br> <br>
+        <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/generate_setting.png?raw=true" alt="Use tips.">
+        <br> <br>
+        <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
+    """
     changeNotes """
       <ol>
           <li>Support generate Controller、Service、VO、DTO</li>
+          <li>Temporarily turn off the function of configuring templates in Settings</li>
+          <li>Support setting templates in the module directory, project directory, and home directory</li>
       </ol>
       """
 }
