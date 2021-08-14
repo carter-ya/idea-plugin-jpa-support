@@ -47,12 +47,14 @@
                   <component id="d487" class="javax.swing.JButton" binding="btnTestTemplate">
                     <constraints/>
                     <properties>
+                      <enabled value="false"/>
                       <text resource-bundle="bundles/ui_i18n" key="test_template"/>
                     </properties>
                   </component>
                   <component id="87064" class="javax.swing.JButton" binding="btnResetTemplate">
                     <constraints/>
                     <properties>
+                      <enabled value="false"/>
                       <text resource-bundle="bundles/ui_i18n" key="reset_this_template"/>
                     </properties>
                   </component>
