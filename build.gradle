@@ -5,14 +5,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'io.freefair.gradle:lombok-plugin:6.1.0'
+        classpath 'io.freefair.gradle:lombok-plugin:5.3.3.3'
     }
 }
 
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.7.3'
-    id 'io.freefair.lombok' version '6.1.0'
+    id 'io.freefair.lombok' version '5.3.3.3'
 }
 
 apply plugin: 'java'
@@ -52,7 +52,7 @@ intellij {
     if (localPropertyFile.exists()) {
         properties.load(localPropertyFile.newDataInputStream())
     }
-    def localIdePath = properties.get('local_ide_path');
+    def localIdePath = properties.get('local_ide_path')
     if (localIdePath != null && !localIdePath.isEmpty()) {
         localPath = localIdePath
         printf('use local path: %s', localIdePath)

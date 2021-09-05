@@ -1,9 +1,8 @@
 package com.ifengxue.plugin.entity;
 
+import com.ifengxue.plugin.util.ColumnUtil;
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.util.DasUtil;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.sql.Types;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -69,18 +68,10 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
 
   @Override
   public int jdbcType() {
-    for (Field field : Types.class.getFields()) {
-      if (Modifier.isStatic(field.getModifiers())
-          && Modifier.isFinal(field.getModifiers())
-          && (field.getType() == int.class || field.getType() == Integer.class)) {
-        if (field.getName().equalsIgnoreCase(dasColumn.getDataType().typeName)) {
-          try {
-            return field.getInt(Types.class);
-          } catch (ReflectiveOperationException e) {
-            return Types.VARCHAR;
-          }
-        }
-      }
+    Integer code = ColumnUtil.jdbcTypeNameToCode
+        .get(dasColumn.getDataType().typeName.toUpperCase());
+    if (code != null) {
+      return code;
     }
     return Types.VARCHAR;
   }
@@ -88,14 +79,12 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
   @Nullable
   @Override
   public String jdbcTypeName() {
-    for (Field field : Types.class.getFields()) {
-      if (Modifier.isStatic(field.getModifiers())
-          && Modifier.isFinal(field.getModifiers())
-          && (field.getType() == int.class || field.getType() == Integer.class)) {
-        if (field.getName().equalsIgnoreCase(dasColumn.getDataType().typeName)) {
-          return dasColumn.getDataType().typeName.toUpperCase();
-        }
-      }
+    Integer code = ColumnUtil.jdbcTypeNameToCode
+        .get(dasColumn.getDataType().typeName.toUpperCase());
+    if (code != null) {
+      IntrospectedColumn column = new IntrospectedColumn();
+      column.setJdbcType(jdbcType());
+      return javaTypeResolver.calculateJdbcTypeName(column);
     }
     return "VARCHAR";
   }

@@ -3,14 +3,75 @@ package com.ifengxue.plugin.util;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.ColumnSchemaExtension;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColumnUtil {
+
+  public static final Map<String, Integer> jdbcTypeNameToCode = new HashMap<>();
+
+  static {
+    // MySQL
+    jdbcTypeNameToCode.put("INT", Types.INTEGER);
+    jdbcTypeNameToCode.put("DATETIME", Types.TIMESTAMP);
+    jdbcTypeNameToCode.put("MEDIUMINT", Types.INTEGER);
+    jdbcTypeNameToCode.put("YEAR", Types.DATE);
+    jdbcTypeNameToCode.put("TINYBLOB", Types.BLOB);
+    jdbcTypeNameToCode.put("TINYTEXT", Types.VARCHAR);
+    jdbcTypeNameToCode.put("TEXT", Types.VARCHAR);
+    jdbcTypeNameToCode.put("MEDIUMBLOB", Types.BLOB);
+    jdbcTypeNameToCode.put("MEDIUMTEXT", Types.VARCHAR);
+    jdbcTypeNameToCode.put("LONGBLOB", Types.LONGVARBINARY);
+    jdbcTypeNameToCode.put("LONGTEXT", Types.LONGVARCHAR);
+    jdbcTypeNameToCode.put("ENUM", Types.VARCHAR);
+    jdbcTypeNameToCode.put("SET", Types.VARCHAR);
+
+    // Postgre SQL
+    jdbcTypeNameToCode.put("INT8", Types.BIGINT);
+    jdbcTypeNameToCode.put("BIGSERIAL", Types.BIGINT);
+    jdbcTypeNameToCode.put("OID", Types.BIGINT);
+    jdbcTypeNameToCode.put("BYTEA", Types.BLOB);
+    jdbcTypeNameToCode.put("BPCHAR", Types.CHAR);
+    jdbcTypeNameToCode.put("CHARACTER", Types.VARCHAR);
+    jdbcTypeNameToCode.put("CHARACTER VARYING", Types.VARCHAR);
+    jdbcTypeNameToCode.put("DOUBLE PRECISION", Types.DOUBLE);
+    jdbcTypeNameToCode.put("FLOAT8", Types.DOUBLE);
+    jdbcTypeNameToCode.put("INT4", Types.INTEGER);
+    jdbcTypeNameToCode.put("SERIAL", Types.INTEGER);
+    jdbcTypeNameToCode.put("JSON", Types.VARCHAR);
+    jdbcTypeNameToCode.put("JSONB", Types.VARCHAR);
+    jdbcTypeNameToCode.put("FLOAT4", Types.FLOAT);
+    jdbcTypeNameToCode.put("INT2", Types.SMALLINT);
+    jdbcTypeNameToCode.put("SMALLSERIAL", Types.SMALLINT);
+    jdbcTypeNameToCode.put("MONEY", Types.DOUBLE);
+    jdbcTypeNameToCode.put("NAME", Types.VARCHAR);
+    jdbcTypeNameToCode.put("TIME WITH TIME ZONE", Types.TIME_WITH_TIMEZONE);
+    jdbcTypeNameToCode.put("TIMETZ", Types.TIME_WITH_TIMEZONE);
+    jdbcTypeNameToCode.put("TIMESTAMPTZ", Types.TIMESTAMP);
+    jdbcTypeNameToCode.put("TIMESTAMP WITH TIME ZONE", Types.TIMESTAMP_WITH_TIMEZONE);
+    jdbcTypeNameToCode.put("UUID", Types.VARCHAR);
+    jdbcTypeNameToCode.put("XML", Types.VARCHAR);
+
+    for (Field field : Types.class.getFields()) {
+      if (Modifier.isStatic(field.getModifiers())
+          && Modifier.isFinal(field.getModifiers())
+          && (field.getType() == int.class || field.getType() == Integer.class)) {
+        try {
+          jdbcTypeNameToCode.put(field.getName().toUpperCase(), field.getInt(Types.class));
+        } catch (ReflectiveOperationException ignore) {
+        }
+      }
+    }
+  }
 
   public static Column columnSchemaToColumn(ColumnSchema columnSchema, String removePrefixes,
       String ifJavaKeywordAddSuffix, boolean useWrapper, boolean useJava8DateType) {
