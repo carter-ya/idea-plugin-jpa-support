@@ -1,7 +1,7 @@
 package com.ifengxue.plugin.component;
 
 import com.ifengxue.plugin.util.Editors;
-import com.intellij.lang.java.JavaLanguage;
+import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.LanguageTextField;
@@ -17,11 +17,11 @@ public class SourceCodeViewer {
     private JPanel sourceCodePanel;
     private LanguageTextField txtSourceCode;
 
-    public SourceCodeViewer() {
+    public SourceCodeViewer(Language language) {
         Project defaultProject = ProjectManager.getInstance().getDefaultProject();
-        txtSourceCode = new LanguageTextField(JavaLanguage.INSTANCE, defaultProject, "",
-            (value, language, project) -> Editors
-                .createSourceEditor(project, JavaLanguage.INSTANCE, value, false)
+        txtSourceCode = new LanguageTextField(language, defaultProject, "",
+            (value, lang, project) -> Editors
+                .createSourceEditor(project, language, value, false)
                 .getDocument(), false);
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(txtSourceCode);
         sourceCodePanel.add(scrollPane);

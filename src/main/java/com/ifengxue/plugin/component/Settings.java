@@ -41,8 +41,10 @@ public class Settings {
         Project defaultProject = ProjectManager.getInstance().getDefaultProject();
         txtSourceCode = new LanguageTextField(velocityLanguage,
             defaultProject, "",
-            (value, language, project) -> Editors.createSourceEditor(project, velocityLanguage, value, false)
+            (value, language, project) -> Editors
+                .createSourceEditor(project, velocityLanguage, value, false)
                 .getDocument(), false);
+        txtSourceCode.setEnabled(false);
         textFallbackType = TextFieldWithAutoCompletion
             .create(defaultProject, TypeUtil.getAllJavaDbType(), true, String.class.getName());
     }

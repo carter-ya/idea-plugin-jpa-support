@@ -1,5 +1,7 @@
 package com.ifengxue.plugin.entity;
 
+import static java.util.stream.Collectors.joining;
+
 import com.ifengxue.plugin.gui.annotation.TableEditable;
 import com.ifengxue.plugin.gui.annotation.TableHeight;
 import com.ifengxue.plugin.gui.annotation.TableProperty;
@@ -85,6 +87,15 @@ public class Table implements Selectable {
 
   private List<Column> columns;
 
+  /**
+   * Service 名称
+   */
+  private String serviceName;
+  /**
+   * Controller 名称
+   */
+  private String controllerName;
+
   public static Table from(
       TableSchema tableSchema,
       String entityName,
@@ -104,5 +115,62 @@ public class Table implements Selectable {
 
   public void incPrimaryKeyCount() {
     primaryKeyCount++;
+  }
+
+  public Column getPrimaryColumn() {
+    return columns.stream()
+        .filter(Column::isPrimary)
+        .findFirst()
+        .orElse(null);
+  }
+
+  /**
+   * 查找{@link Column#getFieldName()}是<code>version</code>的列
+   */
+  public Column guessVersionColumn() {
+    return findColumn("version");
+  }
+
+  public Column findColumn(String fieldName) {
+    return columns.stream()
+        .filter(c -> c.getFieldName().equalsIgnoreCase(fieldName))
+        .findFirst()
+        .orElse(null);
+  }
+
+  public String getServiceName() {
+    if (serviceName == null) {
+      return entityName + "Service";
+    }
+    return serviceName;
+  }
+
+  public String getControllerName() {
+    if (controllerName == null) {
+      return entityName + "Controller";
+    }
+    return controllerName;
+  }
+
+  /**
+   * joining column name
+   *
+   * @param delimiter delimiter
+   */
+  public String columnNameJoining(String delimiter) {
+    return columnNameJoining(delimiter, "");
+  }
+
+  /**
+   * joining column name
+   *
+   * @param delimiter delimiter
+   * @param reservedWordWrapper reserved word wrapper, eg <code>`</code>
+   */
+  public String columnNameJoining(String delimiter, String reservedWordWrapper) {
+    return columns.stream()
+        .map(c -> c.isReservedWord() ? reservedWordWrapper + c.getColumnName() + reservedWordWrapper
+            : c.getColumnName())
+        .collect(joining(delimiter));
   }
 }

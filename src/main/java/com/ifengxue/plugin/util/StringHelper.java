@@ -27,6 +27,7 @@ public class StringHelper {
 
   private static final Map<Class<?>, Class<?>> WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE = new HashMap<>();
   private static final Set<Class<?>> DATETIME_CLASSES = new HashSet<>();
+  private static final Set<String> JAVA_KEYWORDS = new HashSet<>();
 
   static {
     WRAPPER_DATA_TYPE_AND_PRIMITIVE_DATA_TYPE.put(Boolean.class, boolean.class);
@@ -42,6 +43,57 @@ public class StringHelper {
     DATETIME_CLASSES.add(LocalTime.class);
     DATETIME_CLASSES.add(LocalDateTime.class);
     DATETIME_CLASSES.add(ZonedDateTime.class);
+
+    JAVA_KEYWORDS.add("abstract");
+    JAVA_KEYWORDS.add("continue");
+    JAVA_KEYWORDS.add("for");
+    JAVA_KEYWORDS.add("new");
+    JAVA_KEYWORDS.add("switch");
+    JAVA_KEYWORDS.add("assert");
+    JAVA_KEYWORDS.add("default");
+    JAVA_KEYWORDS.add("goto");
+    JAVA_KEYWORDS.add("package");
+    JAVA_KEYWORDS.add("synchronized");
+    JAVA_KEYWORDS.add("boolean");
+    JAVA_KEYWORDS.add("do");
+    JAVA_KEYWORDS.add("if");
+    JAVA_KEYWORDS.add("private");
+    JAVA_KEYWORDS.add("this");
+    JAVA_KEYWORDS.add("break");
+    JAVA_KEYWORDS.add("double");
+    JAVA_KEYWORDS.add("implements");
+    JAVA_KEYWORDS.add("protected");
+    JAVA_KEYWORDS.add("throw");
+    JAVA_KEYWORDS.add("byte");
+    JAVA_KEYWORDS.add("else");
+    JAVA_KEYWORDS.add("import");
+    JAVA_KEYWORDS.add("public");
+    JAVA_KEYWORDS.add("throws");
+    JAVA_KEYWORDS.add("case");
+    JAVA_KEYWORDS.add("enum");
+    JAVA_KEYWORDS.add("instanceof");
+    JAVA_KEYWORDS.add("return");
+    JAVA_KEYWORDS.add("transient");
+    JAVA_KEYWORDS.add("catch");
+    JAVA_KEYWORDS.add("extends");
+    JAVA_KEYWORDS.add("int");
+    JAVA_KEYWORDS.add("short");
+    JAVA_KEYWORDS.add("try");
+    JAVA_KEYWORDS.add("char");
+    JAVA_KEYWORDS.add("final");
+    JAVA_KEYWORDS.add("interface");
+    JAVA_KEYWORDS.add("static");
+    JAVA_KEYWORDS.add("void");
+    JAVA_KEYWORDS.add("class");
+    JAVA_KEYWORDS.add("finally");
+    JAVA_KEYWORDS.add("long");
+    JAVA_KEYWORDS.add("strictfp");
+    JAVA_KEYWORDS.add("volatile");
+    JAVA_KEYWORDS.add("const");
+    JAVA_KEYWORDS.add("float");
+    JAVA_KEYWORDS.add("native");
+    JAVA_KEYWORDS.add("super");
+    JAVA_KEYWORDS.add("while");
   }
 
   /**
@@ -188,17 +240,28 @@ public class StringHelper {
    *
    * @param columnName 字段名称
    * @param removePrefixes 要移除的前缀，多个前缀用,分割
+   * @param ifJavaKeywordAddSuffix 当解析完成后的字段名是Java关键词，则添加该后缀
    */
-  public static String parseFieldName(String columnName, String removePrefixes) {
+  public static String parseFieldName(String columnName, String removePrefixes,
+      String ifJavaKeywordAddSuffix) {
+    String fieldName = null;
     if (removePrefixes == null || removePrefixes.isEmpty()) {
-      return parseFieldName(columnName);
-    }
-    for (String removePrefix : removePrefixes.split(",")) {
-      if (columnName.startsWith(removePrefix)) {
-        return parseFieldName(columnName.substring(removePrefix.length()));
+      fieldName = parseFieldName(columnName);
+    } else {
+      for (String removePrefix : removePrefixes.split(",")) {
+        if (columnName.startsWith(removePrefix)) {
+          fieldName = parseFieldName(columnName.substring(removePrefix.length()));
+          break;
+        }
+      }
+      if (fieldName == null) {
+        fieldName = parseFieldName(columnName);
       }
     }
-    return parseFieldName(columnName);
+    if (JAVA_KEYWORDS.contains(fieldName)) {
+      fieldName += ifJavaKeywordAddSuffix;
+    }
+    return fieldName;
   }
 
   /**

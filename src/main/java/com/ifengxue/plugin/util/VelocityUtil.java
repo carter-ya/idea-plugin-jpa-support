@@ -1,8 +1,10 @@
 package com.ifengxue.plugin.util;
 
+import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -40,5 +42,14 @@ public enum VelocityUtil {
         ctx.put("HOUR", now.format(DateTimeFormatter.ofPattern("HH")));
         ctx.put("MINUTE", now.format(DateTimeFormatter.ofPattern("mm")));
         ctx.put("SECOND", now.format(DateTimeFormatter.ofPattern("ss")));
+
+        StringHelper helper = new StringHelper();
+        ctx.put("stringHelper", helper);
+        ctx.put("StringHelper", helper);
+
+        StringUtils stringUtils = new StringUtils();
+        ctx.put("StringUtils", stringUtils);
+
+        ctx.put("LocaleContextHolder", new LocaleContextHolder());
     }
 }

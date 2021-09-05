@@ -1,7 +1,6 @@
 package com.ifengxue.plugin.gui;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
@@ -14,8 +13,16 @@ import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
+import com.ifengxue.plugin.generator.merge.SourceFileMerger;
+import com.ifengxue.plugin.generator.merge.SourceFileMergerFactory;
+import com.ifengxue.plugin.generator.source.ControllerSourceParser;
 import com.ifengxue.plugin.generator.source.EntitySourceParserV2;
 import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
+import com.ifengxue.plugin.generator.source.MapperXmlSourceParser;
+import com.ifengxue.plugin.generator.source.ServiceSourceParser;
+import com.ifengxue.plugin.generator.source.SimpleBeanSourceParser;
+import com.ifengxue.plugin.generator.source.SourceParser;
+import com.ifengxue.plugin.generator.source.VelocityEngineAware;
 import com.ifengxue.plugin.gui.table.TableFactory;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
@@ -26,7 +33,7 @@ import com.ifengxue.plugin.util.SourceFormatter;
 import com.ifengxue.plugin.util.StringHelper;
 import com.ifengxue.plugin.util.VelocityUtil;
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
+import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
@@ -36,26 +43,16 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.PsiJavaCodeReferenceElement;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiModifierList;
-import com.intellij.psi.PsiReferenceList;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
@@ -63,14 +60,11 @@ import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import java.awt.event.MouseEvent;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -82,6 +76,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -223,8 +218,9 @@ public class SelectTablesDialog extends DialogWrapper {
     int sequence = 1;
     for (ColumnSchema columnSchema : columnSchemas) {
       Column column = ColumnUtil.columnSchemaToColumn(columnSchema,
-          autoGeneratorSettingsState.getRemoveFieldPrefix(), true,
-          autoGeneratorSettingsState.isUseJava8DateType());
+          autoGeneratorSettingsState.getRemoveFieldPrefix(),
+          autoGeneratorSettingsState.getIfJavaKeywordAddSuffix(),
+          true, autoGeneratorSettingsState.isUseJava8DateType());
       column.setSequence(sequence++);
       column.setSelected(!autoGeneratorSettingsState.getIgnoredFields().contains(column.getFieldName()));
       if (column.isPrimary()) {
@@ -294,28 +290,59 @@ public class SelectTablesDialog extends DialogWrapper {
       Project project = event.getProject();
       assert project != null;
 
-      String encoding = StandardCharsets.UTF_8.name();
-      JpaRepositorySourceParser repositorySourceParser = new JpaRepositorySourceParser();
-      repositorySourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
-
-      EntitySourceParserV2 sourceParser = new EntitySourceParserV2();
-      sourceParser.setVelocityEngine(VelocityUtil.getInstance(), encoding);
-
       AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
           .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
       ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings();
 
+      List<GeneratorTask> tasks = buildTask(moduleSettings);
+
       CountDownLatch isReadForWrite = new CountDownLatch(1);
       ApplicationManager.getApplication().runWriteAction(() -> {
-        // create entity directory
-        FileUtil.mkdirs(PsiManager.getInstance(project), Paths.get(moduleSettings.getEntityParentDirectory(),
-            StringHelper.packageNameToFolder(moduleSettings.getEntityPackageName())));
-        // create repository dir
-        if (autoGeneratorSettingsState.isGenerateRepository()) {
-          FileUtil.mkdirs(PsiManager.getInstance(project), Paths.get(moduleSettings.getRepositoryParentDirectory(),
-              StringHelper.packageNameToFolder(moduleSettings.getRepositoryPackageName())));
+        Object[][] directoryAndPackageNames = {
+            {
+                moduleSettings.isGenerateEntity(),
+                moduleSettings.getEntityParentDirectory(),
+                moduleSettings.getEntityPackageName()
+            },
+            {
+                moduleSettings.isGenerateRepository(),
+                moduleSettings.getRepositoryParentDirectory(),
+                moduleSettings.getRepositoryPackageName()
+            },
+            {
+                moduleSettings.isGenerateController(),
+                moduleSettings.getControllerParentDirectory(),
+                moduleSettings.getControllerPackageName()
+            },
+            {
+                moduleSettings.isGenerateMapperXml(),
+                moduleSettings.getMapperXmlParentDirectory(),
+                moduleSettings.getMapperXmlPackageName()
+            },
+            {
+                moduleSettings.isGenerateService(),
+                moduleSettings.getServiceParentDirectory(),
+                moduleSettings.getServicePackageName()
+            },
+            {
+                moduleSettings.isGenerateVO(),
+                moduleSettings.getVoParentDirectory(),
+                moduleSettings.getVoPackageName()
+            },
+            {
+                moduleSettings.isGenerateDTO(),
+                moduleSettings.getDtoParentDirectory(),
+                moduleSettings.getDtoPackageName()
+            },
+        };
+        for (Object[] directoryAndPackageName : directoryAndPackageNames) {
+          if (!(boolean) directoryAndPackageName[0]) {
+            continue;
+          }
+          FileUtil.mkdirs(PsiManager.getInstance(project),
+              Paths.get((String) directoryAndPackageName[1],
+                  StringHelper.packageNameToFolder((String) directoryAndPackageName[2])));
         }
-
         isReadForWrite.countDown();
       });
 
@@ -343,6 +370,12 @@ public class SelectTablesDialog extends DialogWrapper {
             .setBasePackageName(basePackageName)
             .setEntityPackageName(moduleSettings.getEntityPackageName())
             .setEnumSubPackageName(basePackageName + ".enums")
+            .setControllerPackageName(moduleSettings.getControllerPackageName())
+            .setServicePackageName(moduleSettings.getServicePackageName())
+            .setVoSuffixName(moduleSettings.getVoSuffixName())
+            .setVoPackageName(moduleSettings.getVoPackageName())
+            .setDtoSuffixName(moduleSettings.getDtoSuffixName())
+            .setDtoPackageName(moduleSettings.getDtoPackageName())
             .setIndent(getIndent())
             .setLineSeparator(getLineSeparator())
             .setOrm(ORM.JPA)
@@ -363,36 +396,132 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
             .setUseJpaAnnotation(autoGeneratorSettingsState.isGenerateJpaAnnotation())
             .setAddSchemeNameToTableName(autoGeneratorSettingsState.isAddSchemaNameToTableName())
+            .setUseJpa(moduleSettings.isRepositoryTypeJPA())
+            .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())
+            .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
-        String sourceCode = sourceParser.parse(generatorConfig, table);
         WriteCommandAction.runWriteCommandAction(project, () -> {
           try {
             isReadForWrite.await();
 
-            String fileExtension = ".java";
-            String filename = table.getEntityName() + fileExtension;
-            writeContent(project, filename, moduleSettings.getEntityParentDirectory(),
-                moduleSettings.getEntityPackageName(), sourceCode);
-            if (autoGeneratorSettingsState.isGenerateRepository()) {
-              filename = table.getRepositoryName() + fileExtension;
-              String repositorySourceCode = repositorySourceParser.parse(generatorConfig, table);
-              writeContent(project, filename, moduleSettings.getRepositoryParentDirectory(),
-                  moduleSettings.getRepositoryPackageName(),
-                  repositorySourceCode);
+            if (StringUtils.isBlank(table.getServiceName())) {
+              table.setServiceName(table.getEntityName() + "Service");
+            }
+            if (StringUtils.isBlank(table.getControllerName())) {
+              table.setControllerName(table.getEntityName() + "Controller");
+            }
+            for (GeneratorTask task : tasks) {
+              if (!task.shouldRun) {
+                continue;
+              }
+              String sourceCode = task.sourceParser.parse(generatorConfig, table);
+              writeContent(generatorConfig, table,
+                  project, task.filenameMapping.apply(table),
+                  task.directory, task.packageName, sourceCode);
             }
           } catch (Exception e) {
-            Bus.notify(new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e,
-                NotificationType.ERROR), project);
+            Bus.notify(
+                new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e,
+                    NotificationType.ERROR), project);
+            Logger.getInstance(getClass()).warn("Generate source code error", e);
           } finally {
             if (leftGenerateCount.decrementAndGet() == 0) {
               ApplicationManager.getApplication().invokeLater(
-                  () -> Messages.showInfoMessage(LocaleContextHolder.format("generate_source_code_success"),
-                      Constants.NAME));
+                  () -> Messages
+                      .showInfoMessage(LocaleContextHolder.format("generate_source_code_success"),
+                          Constants.NAME));
             }
           }
         });
       }
+    }
+
+    private List<GeneratorTask> buildTask(ModuleSettings moduleSettings) {
+      Function<String, SourceParser> templateIdToSourceParserMapping = templateId -> {
+        SimpleBeanSourceParser parser = new SimpleBeanSourceParser();
+        parser.setTemplateId(templateId);
+        return parser;
+      };
+      String fileExtension = ".java";
+      List<GeneratorTask> tasks = Arrays.asList(
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateEntity())
+              .sourceParser(new EntitySourceParserV2())
+              .directory(moduleSettings.getEntityParentDirectory())
+              .packageName(moduleSettings.getEntityPackageName())
+              .filenameMapping(t -> t.getEntityName() + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateRepository())
+              .sourceParser(new JpaRepositorySourceParser())
+              .directory(moduleSettings.getRepositoryParentDirectory())
+              .packageName(moduleSettings.getRepositoryPackageName())
+              .filenameMapping(t -> t.getRepositoryName() + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateController())
+              .sourceParser(new ControllerSourceParser())
+              .directory(moduleSettings.getControllerParentDirectory())
+              .packageName(moduleSettings.getControllerPackageName())
+              .filenameMapping(t -> StringUtils.firstNonBlank(t.getControllerName() + fileExtension,
+                  t.getEntityName() + "Controller" + fileExtension))
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateService())
+              .sourceParser(new ServiceSourceParser())
+              .directory(moduleSettings.getServiceParentDirectory())
+              .packageName(moduleSettings.getServicePackageName())
+              .filenameMapping(t -> StringUtils.firstNonBlank(t.getServiceName() + fileExtension,
+                  t.getEntityName() + "Service" + fileExtension))
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateMapperXml())
+              .sourceParser(new MapperXmlSourceParser())
+              .directory(moduleSettings.getMapperXmlParentDirectory())
+              .packageName(moduleSettings.getMapperXmlPackageName())
+              .filenameMapping(t -> t.getRepositoryName() + ".xml")
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.SAVE_VO_TEMPLATE_ID))
+              .directory(moduleSettings.getVoParentDirectory())
+              .packageName(moduleSettings.getVoPackageName())
+              .filenameMapping(
+                  t -> t.getEntityName() + moduleSettings.getVoSuffixName() + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.UPDATE_VO_TEMPLATE_ID))
+              .directory(moduleSettings.getVoParentDirectory())
+              .packageName(moduleSettings.getVoPackageName())
+              .filenameMapping(t -> t.getEntityName() + "Update" + moduleSettings.getVoSuffixName()
+                  + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateVO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.QUERY_VO_TEMPLATE_ID))
+              .directory(moduleSettings.getVoParentDirectory())
+              .packageName(moduleSettings.getVoPackageName())
+              .filenameMapping(t -> t.getEntityName() + "Query" + moduleSettings.getVoSuffixName()
+                  + fileExtension)
+              .build(),
+          GeneratorTask.builder()
+              .shouldRun(moduleSettings.isGenerateDTO())
+              .sourceParser(templateIdToSourceParserMapping.apply(Constants.DTO_TEMPLATE_ID))
+              .directory(moduleSettings.getDtoParentDirectory())
+              .packageName(moduleSettings.getDtoPackageName())
+              .filenameMapping(
+                  t -> t.getEntityName() + moduleSettings.getDtoSuffixName() + fileExtension)
+              .build()
+      );
+      for (GeneratorTask task : tasks) {
+        if (task.sourceParser instanceof VelocityEngineAware) {
+          ((VelocityEngineAware) task.sourceParser)
+              .setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");
+        }
+      }
+      return tasks;
     }
 
     private String getIndent() {
@@ -418,8 +547,17 @@ public class SelectTablesDialog extends DialogWrapper {
           .orElseGet(() -> CodeStyleSettings.getDefaults().getLineSeparator());
     }
 
-    private void writeContent(Project project, String filename, String parentPath, String packageName,
-        String sourceCode) {
+    private FileType guessFileType(String filename) {
+      if (filename.endsWith(".xml")) {
+        return XmlFileType.INSTANCE;
+      } else {
+        return JavaFileType.INSTANCE;
+      }
+    }
+
+    private void writeContent(GeneratorConfig generatorConfig, Table table, Project project,
+        String filename, String parentPath,
+        String packageName, String sourceCode) {
       PsiDirectory psiDirectory = FileUtil.mkdirs(PsiManager.getInstance(project),
           Paths.get(parentPath, StringHelper.packageNameToFolder(packageName)));
       PsiFile originalFile = psiDirectory.findFile(filename);
@@ -427,12 +565,19 @@ public class SelectTablesDialog extends DialogWrapper {
         log.info("Ignore exists file " + filename);
         return;
       }
+
+      FileType fileType = guessFileType(filename);
       PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
-      PsiFile psiFile = psiFileFactory.createFileFromText(filename, JavaFileType.INSTANCE, sourceCode);
+      PsiFile psiFile = psiFileFactory.createFileFromText(filename, fileType, sourceCode);
       if (originalFile != null) {
         if (duplicateActionType.isMerge()) {
-          merge(originalFile, psiFile);
-          log.info("Try merge exists file " + filename);
+          SourceFileMerger merger = SourceFileMergerFactory.createMerger(fileType);
+          if (merger != null) {
+            merger.tryMerge(generatorConfig, table, originalFile, psiFile);
+            log.info("Try merge exists file " + filename);
+          } else {
+            log.warn("File type " + fileType.getName() + " not support to merged");
+          }
         } else {
           Document document = PsiDocumentManager.getInstance(project).getDocument(originalFile);
           assert document != null;
@@ -447,7 +592,7 @@ public class SelectTablesDialog extends DialogWrapper {
         PsiDocumentManager.getInstance(project).commitDocument(document);
       }
 
-      SourceFormatter.formatJavaCode(project, psiFile);
+      SourceFormatter.format(project, psiFile, fileType);
 
       if (document != null) {
         PsiDocumentManager.getInstance(project).commitDocument(document);
@@ -456,119 +601,16 @@ public class SelectTablesDialog extends DialogWrapper {
         psiDirectory.add(psiFile);
       }
     }
+  }
 
-    private void merge(PsiFile originalFile, PsiFile psiFile) {
-      PsiClass[] originalPsiClasses = ((PsiJavaFile) originalFile).getClasses();
-      PsiClass[] psiClasses = ((PsiJavaFile) psiFile).getClasses();
-      PsiClass originalTopClass = originalPsiClasses[0];
-      PsiClass psiTopClass = psiClasses[0];
+  @Builder
+  private static class GeneratorTask {
 
-      // merge annotations
-      Map<String, PsiAnnotation> nameToAnnotation = Arrays.stream(originalTopClass.getAnnotations())
-          .collect(toMap(PsiAnnotation::getQualifiedName, Function.identity()));
-      for (PsiAnnotation annotation : psiTopClass.getAnnotations()) {
-        if (!nameToAnnotation.containsKey(annotation.getQualifiedName())) {
-          PsiModifierList modifierList = originalTopClass.getModifierList();
-          if (modifierList != null && annotation.getQualifiedName() != null) {
-            PsiAnnotation psiAnnotation = modifierList.addAnnotation(annotation.getQualifiedName());
-            for (JvmAnnotationAttribute attribute : annotation.getAttributes()) {
-              psiAnnotation.setDeclaredAttributeValue(attribute.getAttributeName(),
-                  annotation.findAttributeValue(attribute.getAttributeName()));
-            }
-          }
-        }
-      }
+    private final boolean shouldRun;
+    private final SourceParser sourceParser;
+    private final String directory;
+    private final String packageName;
+    private final Function<Table, String> filenameMapping;
 
-      // merge implements
-      try {
-        Map<String, PsiClassType> nameToClassType = Arrays.stream(originalTopClass.getImplementsListTypes())
-            .collect(toMap(psiClassType -> Objects.requireNonNull(psiClassType.resolve()).getQualifiedName(),
-                Function.identity()));
-        for (PsiClassType implementsListType : psiTopClass.getImplementsListTypes()) {
-          PsiClass resolvePsiClass = implementsListType.resolve();
-          if (resolvePsiClass != null && !nameToClassType.containsKey(resolvePsiClass.getQualifiedName())) {
-            PsiJavaCodeReferenceElement implementsReference = ServiceManager
-                .getService(Holder.getOrDefaultProject(), PsiElementFactory.class)
-                .createReferenceFromText(Objects.requireNonNull(resolvePsiClass.getQualifiedName()),
-                    originalTopClass);
-            PsiReferenceList implementsList = originalTopClass.getImplementsList();
-            if (implementsList != null) {
-              implementsList.add(implementsReference);
-            }
-          }
-        }
-      } catch (Exception e) {
-        log.warn("Can't merge implements", e);
-      }
-
-      // merge fields
-      Map<String, PsiField> nameToField = Arrays.stream(originalTopClass.getFields())
-          .collect(toMap(PsiField::getName, Function.identity()));
-      for (PsiField field : psiTopClass.getFields()) {
-        if (!nameToField.containsKey(field.getName())) {
-          mergeFieldAndTryKeepOrder(field, psiTopClass, originalTopClass);
-        }
-      }
-
-      // merge methods
-      Map<String, PsiMethod> nameToMethod = Arrays.stream(originalTopClass.getMethods())
-          .collect(toMap(PsiMethod::getName, Function.identity()));
-      for (PsiMethod method : psiTopClass.getMethods()) {
-        if (!nameToMethod.containsKey(method.getName())) {
-          originalTopClass.add(method);
-        }
-      }
-    }
-
-    /**
-     * merge field to target class, and try keep order
-     */
-    private void mergeFieldAndTryKeepOrder(PsiField field, PsiClass originalClass, PsiClass targetClass) {
-      PsiField precursorField = null;
-      boolean precursorIsFound = false;
-      for (PsiField originalClassField : originalClass.getFields()) {
-        if (originalClassField.getName().equals(field.getName())) {
-          precursorIsFound = true;
-          break;
-        } else {
-          precursorField = originalClassField;
-        }
-      }
-      PsiField[] targetClassFields = targetClass.getFields();
-      if (precursorIsFound && precursorField != null) {
-        for (PsiField targetClassField : targetClassFields) {
-          if (targetClassField.getName().equals(precursorField.getName())) {
-            precursorField = targetClassField;
-            break;
-          }
-        }
-      }
-
-      if (!precursorIsFound) {
-        if (targetClassFields.length == 0) {
-          PsiMethod[] methods = targetClass.getMethods();
-          if (methods.length == 0) {
-            targetClass.add(field);
-          } else {
-            targetClass.addBefore(field, methods[0]);
-          }
-        } else {
-          PsiField firstNotStaticField = null;
-          for (PsiField targetClassField : targetClassFields) {
-            if (targetClassField.getModifierList() == null
-                || !targetClassField.getModifierList().hasModifierProperty(PsiModifier.STATIC)) {
-              firstNotStaticField = targetClassField;
-              break;
-            }
-          }
-          if (firstNotStaticField == null) {
-            firstNotStaticField = targetClassFields[targetClassFields.length - 1];
-          }
-          targetClass.addBefore(field, firstNotStaticField);
-        }
-      } else {
-        targetClass.addAfter(field, precursorField);
-      }
-    }
   }
 }

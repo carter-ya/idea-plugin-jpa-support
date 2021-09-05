@@ -2,6 +2,9 @@ package com.ifengxue.plugin.entity;
 
 import com.intellij.database.model.DasColumn;
 import com.intellij.database.util.DasUtil;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.sql.Types;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -66,15 +69,35 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
 
   @Override
   public int jdbcType() {
-    return dasColumn.getDataType().jdbcType;
+    for (Field field : Types.class.getFields()) {
+      if (Modifier.isStatic(field.getModifiers())
+          && Modifier.isFinal(field.getModifiers())
+          && (field.getType() == int.class || field.getType() == Integer.class)) {
+        if (field.getName().equalsIgnoreCase(dasColumn.getDataType().typeName)) {
+          try {
+            return field.getInt(Types.class);
+          } catch (ReflectiveOperationException e) {
+            return Types.VARCHAR;
+          }
+        }
+      }
+    }
+    return Types.VARCHAR;
   }
 
   @Nullable
   @Override
   public String jdbcTypeName() {
-    IntrospectedColumn column = new IntrospectedColumn();
-    column.setJdbcType(jdbcType());
-    return javaTypeResolver.calculateJdbcTypeName(column);
+    for (Field field : Types.class.getFields()) {
+      if (Modifier.isStatic(field.getModifiers())
+          && Modifier.isFinal(field.getModifiers())
+          && (field.getType() == int.class || field.getType() == Integer.class)) {
+        if (field.getName().equalsIgnoreCase(dasColumn.getDataType().typeName)) {
+          return dasColumn.getDataType().typeName.toUpperCase();
+        }
+      }
+    }
+    return "VARCHAR";
   }
 
   @Nullable

@@ -3,6 +3,7 @@ package com.ifengxue.plugin.gui;
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
+import com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.Selectable;
 import com.ifengxue.plugin.entity.Table;
@@ -28,6 +29,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +38,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -115,6 +119,31 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         generatorSettings.getTextExcludeFields().setText(String.join(",", excludeFieldSet));
       }
     });
+
+    // bind enable button listener
+    AtomicInteger paneIndex = new AtomicInteger(0);
+    ItemListener listener = itemEvent -> generatorSettings
+        .setForegroundColor(paneIndex.get(), itemEvent.getStateChange() == ItemEvent.SELECTED);
+    generatorSettings.getChkBoxGenerateController().addItemListener(e -> {
+      paneIndex.set(0);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateService().addItemListener(e -> {
+      paneIndex.set(1);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateMapperXml().addItemListener(e -> {
+      paneIndex.set(2);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateVO().addItemListener(e -> {
+      paneIndex.set(3);
+      listener.itemStateChanged(e);
+    });
+    generatorSettings.getChkBoxGenerateDTO().addItemListener(e -> {
+      paneIndex.set(4);
+      listener.itemStateChanged(e);
+    });
   }
 
   private void setPackagePath(Module module, boolean checkEmpty) {
@@ -123,23 +152,43 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
     List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(JavaSourceRootType.SOURCE);
     String sourceRoot;
+    String resourceRoot;
     if (sourceRoots.isEmpty()) {
       VirtualFile[] contentRoots = moduleRootManager.getContentRoots();
       if (contentRoots.length == 0) {
-        BusUtil.notify(Holder.getProject(), "Module " + moduleName + " does not contain Source Root.",
-            NotificationType.WARNING);
+        BusUtil.notify(Holder.getProject(),
+            "Module " + moduleName + " does not contain Source Root.", NotificationType.WARNING);
         return;
       }
-      sourceRoot = contentRoots[0].getCanonicalPath() + "/src/main/java";
+      sourceRoot = Paths
+          .get(Objects.requireNonNull(contentRoots[0].getCanonicalPath()), "src", "main", "java")
+          .toString();
     } else {
       sourceRoot = sourceRoots.get(0).getCanonicalPath();
     }
+    assert sourceRoot != null;
+    resourceRoot = Paths.get(sourceRoot).resolveSibling("resources").toString();
 
     if (!checkEmpty || generatorSettings.getTextEntityPackageParentPath().getText().isEmpty()) {
       generatorSettings.getTextEntityPackageParentPath().setText(sourceRoot);
     }
     if (!checkEmpty || generatorSettings.getTextRepositoryPackageParentPath().getText().isEmpty()) {
       generatorSettings.getTextRepositoryPackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextControllerPackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextControllerPackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextServicePackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextServicePackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextMapperXmlParentPath().getText().isEmpty()) {
+      generatorSettings.getTextMapperXmlParentPath().setText(resourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextVOPackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextVOPackageParentPath().setText(sourceRoot);
+    }
+    if (!checkEmpty || generatorSettings.getTextDTOPackageParentPath().getText().isEmpty()) {
+      generatorSettings.getTextDTOPackageParentPath().setText(sourceRoot);
     }
   }
 
@@ -157,23 +206,101 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected ValidationInfo doValidate() {
-    String entityPackage = generatorSettings.getEntityPackageReferenceEditorCombo().getText().trim();
-    if (entityPackage.isEmpty()) {
-      generatorSettings.getEntityPackageReferenceEditorCombo().requestFocus();
-      return new ValidationInfo("Must set entity package",
-          generatorSettings.getEntityPackageReferenceEditorCombo());
+    Module module = ModuleManager.getInstance(Holder.getProject())
+        .findModuleByName(
+            (String) Objects.requireNonNull(generatorSettings.getCbxModule().getSelectedItem()));
+    if (module == null) {
+      return new ValidationInfo("Must select valid module", generatorSettings.getCbxModule());
+    }
+    if (generatorSettings.getChkBoxGenerateEntity().isSelected()) {
+      if (generatorSettings.getEntityPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set entity package",
+            generatorSettings.getEntityPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextEntityPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set entity path",
+            generatorSettings.getTextEntityPackageParentPath());
+      }
     }
     if (generatorSettings.getChkBoxGenerateRepository().isSelected()) {
-      if (generatorSettings.getChkBoxSerializable().isSelected() && generatorSettings
-          .getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+      if (generatorSettings.getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
         return new ValidationInfo("Must set repository package",
             generatorSettings.getRepositoryPackageReferenceEditorCombo());
       }
+      if (generatorSettings.getTextRepositoryPackageParentPath().getText().trim().isEmpty()) {
+        return new ValidationInfo("Must set repository path",
+            generatorSettings.getTextRepositoryPackageParentPath());
+      }
     }
-    Module module = ModuleManager.getInstance(Holder.getProject())
-        .findModuleByName((String) Objects.requireNonNull(generatorSettings.getCbxModule().getSelectedItem()));
-    if (module == null) {
-      return new ValidationInfo("Must select valid module", generatorSettings.getCbxModule());
+    if (generatorSettings.getChkBoxGenerateController().isSelected()) {
+      if (generatorSettings.getControllerPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(0);
+        return new ValidationInfo("Must set controller package",
+            generatorSettings.getControllerPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextControllerPackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(0);
+        return new ValidationInfo("Must set controller path",
+            generatorSettings.getTextControllerPackageParentPath());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateService().isSelected()) {
+      if (generatorSettings.getServicePackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(1);
+        return new ValidationInfo("Must set service package",
+            generatorSettings.getServicePackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextServicePackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(1);
+        return new ValidationInfo("Must set service path",
+            generatorSettings.getTextServicePackageParentPath());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateMapperXml().isSelected()) {
+      if (generatorSettings.getMapperXmlReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        return new ValidationInfo("Must set Mapper XML directory",
+            generatorSettings.getMapperXmlReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextMapperXmlParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(2);
+        return new ValidationInfo("Must set Mapper XML path",
+            generatorSettings.getTextMapperXmlParentPath());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateVO().isSelected()) {
+      if (generatorSettings.getVoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        return new ValidationInfo("Must set VO package",
+            generatorSettings.getVoPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextVOPackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        return new ValidationInfo("Must set VO path",
+            generatorSettings.getTextVOPackageParentPath());
+      }
+      if (generatorSettings.getTextVOSuffixName().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(3);
+        return new ValidationInfo("Must set suffix name",
+            generatorSettings.getTextVOSuffixName());
+      }
+    }
+    if (generatorSettings.getChkBoxGenerateDTO().isSelected()) {
+      if (generatorSettings.getDtoPackageReferenceEditorCombo().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(4);
+        return new ValidationInfo("Must set DTO package",
+            generatorSettings.getDtoPackageReferenceEditorCombo());
+      }
+      if (generatorSettings.getTextDTOPackageParentPath().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(4);
+        return new ValidationInfo("Must set DTO path",
+            generatorSettings.getTextDTOPackageParentPath());
+      }
+      if (generatorSettings.getTextDTOSuffixName().getText().trim().isEmpty()) {
+        generatorSettings.getExtensionPane().setSelectedIndex(4);
+        return new ValidationInfo("Must set suffix name",
+            generatorSettings.getTextDTOSuffixName());
+      }
     }
     return null;
   }
@@ -235,16 +362,59 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     generatorSettings.setData(autoGeneratorSettingsState, moduleSettings);
 
     if (moduleSettings != null) {
-      generatorSettings.getEntityPackageReferenceEditorCombo().setText(moduleSettings.getEntityPackageName());
-      if (StringUtils.isNotBlank(moduleSettings.getEntityPackageName())) {
-        generatorSettings.getEntityPackageReferenceEditorCombo().prependItem(moduleSettings.getEntityPackageName());
+      Object[][] combos = {
+          {
+              generatorSettings.getEntityPackageReferenceEditorCombo(),
+              moduleSettings.getEntityPackageName(),
+              generatorSettings.getTextEntityPackageParentPath(),
+              moduleSettings.getEntityParentDirectory()
+          },
+          {
+              generatorSettings.getRepositoryPackageReferenceEditorCombo(),
+              moduleSettings.getRepositoryPackageName(),
+              generatorSettings.getTextRepositoryPackageParentPath(),
+              moduleSettings.getRepositoryParentDirectory()
+          },
+          {
+              generatorSettings.getControllerPackageReferenceEditorCombo(),
+              moduleSettings.getControllerPackageName(),
+              generatorSettings.getTextControllerPackageParentPath(),
+              moduleSettings.getControllerParentDirectory()
+          },
+          {
+              generatorSettings.getServicePackageReferenceEditorCombo(),
+              moduleSettings.getServicePackageName(),
+              generatorSettings.getTextServicePackageParentPath(),
+              moduleSettings.getServiceParentDirectory()
+          },
+          {
+              generatorSettings.getMapperXmlReferenceEditorCombo(),
+              moduleSettings.getMapperXmlPackageName(),
+              generatorSettings.getTextMapperXmlParentPath(),
+              moduleSettings.getMapperXmlParentDirectory()
+          },
+          {
+              generatorSettings.getVoPackageReferenceEditorCombo(),
+              moduleSettings.getVoPackageName(),
+              generatorSettings.getTextVOPackageParentPath(),
+              moduleSettings.getVoParentDirectory()
+          },
+          {
+              generatorSettings.getDtoPackageReferenceEditorCombo(),
+              moduleSettings.getDtoPackageName(),
+              generatorSettings.getTextDTOPackageParentPath(),
+              moduleSettings.getDtoParentDirectory()
+          }
+      };
+      for (Object[] combo : combos) {
+        String packageName = (String) combo[1];
+        ((MyPackageNameReferenceEditorCombo) combo[0]).setText(packageName);
+        if (StringUtils.isNotBlank(packageName)) {
+          ((MyPackageNameReferenceEditorCombo) combo[0]).prependItem(packageName);
+          ((MyPackageNameReferenceEditorCombo) combo[0]).appendItem(packageName);
+        }
+        ((JTextField) combo[2]).setText((String) combo[3]);
       }
-      generatorSettings.getRepositoryPackageReferenceEditorCombo().setText(moduleSettings.getRepositoryPackageName());
-      if (StringUtils.isNotBlank(moduleSettings.getRepositoryPackageName())) {
-        generatorSettings.getRepositoryPackageReferenceEditorCombo().prependItem(moduleSettings.getRepositoryPackageName());
-      }
-      generatorSettings.getTextEntityPackageParentPath().setText(moduleSettings.getEntityParentDirectory());
-      generatorSettings.getTextRepositoryPackageParentPath().setText(moduleSettings.getRepositoryParentDirectory());
     }
   }
 

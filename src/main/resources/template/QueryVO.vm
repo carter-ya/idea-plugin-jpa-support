@@ -1,0 +1,34 @@
+#if($StringUtils.isNotBlank($tablesConfig.voPackageName))
+package $tablesConfig.voPackageName;
+
+#end
+#set($useLombok = $tablesConfig.isUseLombok())
+#set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($serializable = $tablesConfig.isSerializable())
+
+
+#if($useLombok)
+@lombok.Data
+#end
+#if($useSwaggerUI)
+@io.swagger.annotations.ApiModel("$LocaleContextHolder.format("controller_query") $table.tableComment")
+#end
+public class ${table.entityName}Query${tablesConfig.voSuffixName} #if($serializable) implements java.io.Serializable #end {
+    #if($serializable)
+    private static final long serialVersionUID = 1L;
+
+    #end
+    #foreach($column in $table.columns)
+        #if($tablesConfig.isUseFieldComment() && !$column.columnComment.isEmpty())
+
+        /**
+         * $column.getColumnComment()
+         */
+        #end
+        #if($useSwaggerUI && !$column.columnComment.isEmpty())
+        @io.swagger.annotations.ApiModelProperty("$column.columnComment")
+        #end
+        private $column.javaDataType.name $column.fieldName;
+
+    #end
+}

@@ -12,7 +12,9 @@ import com.ifengxue.plugin.generator.source.AbstractSourceParser;
 import com.ifengxue.plugin.generator.source.EvaluateSourceCodeException;
 import com.ifengxue.plugin.generator.tree.Element.Indent;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
+import com.ifengxue.plugin.state.ModuleSettings;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.fileTypes.FileType;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -22,18 +24,27 @@ public enum TestTemplateHelper {
     ;
 
     public static Object evaluate(Class<? extends AbstractSourceParser> clazz, Table table,
-        String template) {
+        String template, FileType fileType) {
         AutoGeneratorSettingsState settingsState = ServiceManager.getService(
             Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+        ModuleSettings moduleSettings = settingsState
+            .getModuleSettings(settingsState.getModuleName());
         GeneratorConfig config = new GeneratorConfig();
         config.setDriverConfig(new DriverConfig()
             .setVendor(Vendor.MYSQL))
             .setPluginConfigs(Collections.emptyList())
             .setTablesConfig(
                 new TablesConfig()
-                    .setBasePackageName("")
+                    .setBasePackageName("org.example.jpa.support.test")
                     .setEntityPackageName("org.example.jpa.support.test.domain")
                     .setExtendsEntityName(settingsState.getInheritedParentClassName())
+                    .setRepositoryPackageName("org.example.jpa.support.test.repository")
+                    .setControllerPackageName("org.example.jpa.support.test.controller")
+                    .setServicePackageName("org.example.jpa.support.test.service")
+                    .setVoSuffixName(moduleSettings.getVoSuffixName())
+                    .setVoPackageName("org.example.jpa.support.test.vo")
+                    .setDtoSuffixName(moduleSettings.getDtoSuffixName())
+                    .setDtoPackageName("org.example.jpa.support.test.dto")
                     .setIndent(Indent.FOUR_SPACE.getIndent())
                     .setLineSeparator("\n")
                     .setOrm(ORM.JPA)
@@ -51,18 +62,21 @@ public enum TestTemplateHelper {
                     .setUseFluidProgrammingStyle(settingsState.isUseFluidProgrammingStyle())
                     .setUseSwaggerUIComment(settingsState.isGenerateSwaggerUIComment())
                     .setUseWrapper(true)
+                    .setUseJpa(moduleSettings.isRepositoryTypeJPA())
+                    .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())
+                    .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())
             );
         AbstractSourceParser sourceParser = newInstance(clazz);
         sourceParser.setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");
         try {
-            return SourceFormatter.formatJavaCode(sourceParser.parse(config, table, template));
+            return SourceFormatter.format(sourceParser.parse(config, table, template), fileType);
         } catch (Exception ex) {
             return ex;
         }
     }
 
     public static String evaluateToString(Class<? extends AbstractSourceParser> clazz,
-        String template) {
+        String template, FileType fileType) {
         AutoGeneratorSettingsState settingsState = ServiceManager.getService(
             Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
         Table table = new Table();
@@ -137,13 +151,14 @@ public enum TestTemplateHelper {
             .setSelected(true);
         table.getColumns().forEach(column -> ColumnUtil
             .parseColumn(column, settingsState.getRemoveFieldPrefix(),
-                true, settingsState.isUseJava8DateType()));
-        return evaluateToString(clazz, table, template);
+                settingsState.getIfJavaKeywordAddSuffix(), true,
+                settingsState.isUseJava8DateType()));
+        return evaluateToString(clazz, table, template, fileType);
     }
 
     public static String evaluateToString(Class<? extends AbstractSourceParser> clazz, Table table,
-        String template) {
-        Object evaluate = evaluate(clazz, table, template);
+        String template, FileType fileType) {
+        Object evaluate = evaluate(clazz, table, template, fileType);
         if (evaluate instanceof String) {
             return (String) evaluate;
         }

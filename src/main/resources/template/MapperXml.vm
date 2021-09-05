@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${tablesConfig.repositoryPackageName}.${table.repositoryName}">
+  <resultMap id="BaseResultMap" type="${tablesConfig.entityPackageName}.${table.entityName}">
+    <!--@JPA.Support generated on ${DATE} ${TIME}.-->
+    <!--@Table ${table.tableName}-->
+      #foreach($column in $table.columns)
+          #if($column.primary)
+            <id column="${column.columnName}" #if($column.jdbcTypeName) jdbcType="${column.jdbcTypeName}" #end property="${column.fieldName}"/>
+          #else
+            <result column="${column.columnName}" #if($column.jdbcTypeName) jdbcType="${column.jdbcTypeName}" #end property="${column.fieldName}"/>
+          #end
+      #end
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@JPA.Support generated on ${DATE} ${TIME}.-->
+    ${table.columnNameJoining(', ', '`')}
+  </sql>
+</mapper>

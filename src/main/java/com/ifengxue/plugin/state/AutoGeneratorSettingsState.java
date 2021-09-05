@@ -49,6 +49,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    */
   private String removeFieldPrefix = "f_";
   /**
+   * 如果字段名是Java关键字则添加的后缀
+   */
+  private String ifJavaKeywordAddSuffix = "Field";
+  /**
    * 继承的父类名称
    */
   private String inheritedParentClassName = "";
@@ -60,10 +64,6 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 是否使用Lombok<a href="https://projectlombok.org/">Lombok</a>
    */
   private boolean useLombok = true;
-  /**
-   * 是否生成Repository
-   */
-  private boolean generateRepository = true;
   /**
    * 实体是否实现{@link java.io.Serializable}
    */

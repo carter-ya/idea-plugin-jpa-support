@@ -7,9 +7,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.tree.Annotation;
 import com.ifengxue.plugin.generator.tree.Element;
 import com.ifengxue.plugin.generator.tree.Element.KeyValuePair;
-import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.StringHelper;
-import com.intellij.openapi.components.ServiceManager;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,19 +21,9 @@ import javax.persistence.SequenceGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 
-public class EntitySourceParserV2 extends AbstractSourceParser {
+public class EntitySourceParserV2 extends AbstractIDEASourceParser {
 
   @Override
-  public String parse(GeneratorConfig config, Table table) {
-    return parse(config, table,
-        () -> ServiceManager.getService(SettingsState.class).loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID));
-  }
-
-  @Override
-  public String parse(GeneratorConfig config, Table table, String template) {
-    return parse(config, table, () -> template);
-  }
-
   protected String parse(GeneratorConfig config, Table table, Supplier<String> templateProvider) {
     VelocityContext context = new VelocityContext();
     TablesConfig tablesConfig = config.getTablesConfig();
@@ -43,7 +31,6 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     context.put("tablesConfig", config.getTablesConfig());
     context.put("table", table);
     context.put("empty", "");
-    context.put("stringHelper", new StringHelper());
     // set indent
     context.put("indent", Element.Indent.findByDTDDeclare(tablesConfig.getIndent()));
     context.put("package", tablesConfig.getEntityPackageName());
@@ -117,9 +104,7 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
       importClassList.add(javax.persistence.Column.class.getName());
     }
     table.getColumns().forEach(column -> {
-      if (column.getAnnotations() == null) {
-        column.setAnnotations(new ArrayList<>());
-      }
+      column.setAnnotations(new ArrayList<>());
 
       if (isUseJpaAnnotation && column.isPrimary()) {
         importClassList.add(javax.persistence.Id.class.getName());
@@ -180,5 +165,10 @@ public class EntitySourceParserV2 extends AbstractSourceParser {
     annotationList.sort(Comparator.comparingInt(String::length));
     context.put("annotationList", annotationList);
     return evaluate(context, templateProvider);
+  }
+
+  @Override
+  protected String getTemplateId() {
+    return Constants.JPA_ENTITY_TEMPLATE_ID;
   }
 }

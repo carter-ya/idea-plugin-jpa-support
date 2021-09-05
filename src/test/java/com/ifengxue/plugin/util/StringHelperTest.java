@@ -35,9 +35,16 @@ public class StringHelperTest {
 
   @Test
   public void parseFieldNameWithRemovePrefix() {
-    assertEquals("columnName", StringHelper.parseFieldName("column_name", ""));
-    assertEquals("columnName", StringHelper.parseFieldName("column_name", "f_"));
-    assertEquals("columnName", StringHelper.parseFieldName("f_column_name", "f_"));
-    assertEquals("columnName", StringHelper.parseFieldName("f_column_name", "f_,field_"));
+    assertEquals("columnName", StringHelper.parseFieldName("column_name", "", ""));
+    assertEquals("columnName", StringHelper.parseFieldName("column_name", "f_", ""));
+    assertEquals("columnName", StringHelper.parseFieldName("f_column_name", "f_", ""));
+    assertEquals("columnName", StringHelper.parseFieldName("f_column_name", "f_,field_", ""));
+  }
+
+  @Test
+  public void parseFieldNameWithJavaKeyword() {
+    assertEquals("implementsF", StringHelper.parseFieldName("implements", "", "F"));
+    assertEquals("publicF", StringHelper.parseFieldName("public", "", "F"));
+    assertEquals("voidF", StringHelper.parseFieldName("void", "", "F"));
   }
 }

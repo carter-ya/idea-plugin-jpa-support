@@ -13,6 +13,8 @@ import com.ifengxue.plugin.gui.table.TableFactory.MyTableModel;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.ifengxue.plugin.util.TestTemplateHelper;
+import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -98,11 +100,14 @@ public class SettingsConfigurable implements SearchableConfigurable {
             settings.getTxtSourceCode().setText(item.getTemplate());
         });
         settings.getBtnTestTemplate().addActionListener(event -> {
-            SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(ProjectManager.getInstance().getDefaultProject(),
-                false);
-            dialog.setSourceCode(TestTemplateHelper.evaluateToString(settings.getCbxSelectCodeTemplate()
-                    .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex()).getSourceParseClass(),
-                settings.getTxtSourceCode().getText()));
+            SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
+                ProjectManager.getInstance().getDefaultProject(),
+                JavaLanguage.INSTANCE, false);
+            dialog.setSourceCode(
+                TestTemplateHelper.evaluateToString(settings.getCbxSelectCodeTemplate()
+                        .getItemAt(settings.getCbxSelectCodeTemplate().getSelectedIndex())
+                        .getSourceParseClass(),
+                    settings.getTxtSourceCode().getText(), JavaFileType.INSTANCE));
             dialog.show();
         });
         settings.getTxtSourceCode().addDocumentListener(new DocumentListener() {

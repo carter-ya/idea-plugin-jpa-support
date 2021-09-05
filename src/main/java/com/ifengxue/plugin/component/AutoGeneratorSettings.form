@@ -28,11 +28,13 @@
     <rowspec value="center:max(d;4px):noGrow"/>
     <rowspec value="top:3dlu:noGrow"/>
     <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
     <colspec value="fill:d:noGrow"/>
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="fill:d:grow"/>
     <constraints>
-      <xy x="20" y="20" width="950" height="505"/>
+      <xy x="20" y="20" width="978" height="677"/>
     </constraints>
     <properties/>
     <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="auto_generation_settings"/>
@@ -44,27 +46,6 @@
         </constraints>
         <properties>
           <text resource-bundle="bundles/ui_i18n" key="table_name"/>
-        </properties>
-      </component>
-      <component id="48cbd" class="javax.swing.JTextField" binding="textRemoveFieldPrefix">
-        <constraints>
-          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-          <forms defaultalign-horz="false"/>
-        </constraints>
-        <properties>
-          <text value="f_"/>
-          <toolTipText resource-bundle="bundles/ui_i18n" key="set_remove_field_name_prefix"/>
-        </properties>
-      </component>
-      <component id="a8efa" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-          <forms/>
-        </constraints>
-        <properties>
-          <text resource-bundle="bundles/ui_i18n" key="remove_field_name_prefix"/>
         </properties>
       </component>
       <component id="e001e" class="javax.swing.JLabel">
@@ -84,14 +65,6 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="c7679" class="javax.swing.JCheckBox" binding="chkBoxUseLombok">
-            <constraints/>
-            <properties>
-              <horizontalAlignment value="10"/>
-              <selected value="true"/>
-              <text resource-bundle="bundles/ui_i18n" key="use_lombok"/>
-            </properties>
-          </component>
           <component id="3b39b" class="javax.swing.JCheckBox" binding="chkBoxGenerateRepository">
             <constraints/>
             <properties>
@@ -99,12 +72,19 @@
               <text resource-bundle="bundles/ui_i18n" key="generate_repository"/>
             </properties>
           </component>
-          <component id="25144" class="javax.swing.JCheckBox" binding="chkBoxGenerateService">
+          <component id="156c8" class="javax.swing.JCheckBox" binding="chkBoxGenerateEntity">
             <constraints/>
             <properties>
-              <enabled value="false"/>
-              <selected value="false"/>
-              <text resource-bundle="bundles/ui_i18n" key="generate_service"/>
+              <selected value="true"/>
+              <text resource-bundle="bundles/ui_i18n" key="generate_entity"/>
+            </properties>
+          </component>
+          <component id="c7679" class="javax.swing.JCheckBox" binding="chkBoxUseLombok">
+            <constraints/>
+            <properties>
+              <horizontalAlignment value="10"/>
+              <selected value="true"/>
+              <text resource-bundle="bundles/ui_i18n" key="use_lombok"/>
             </properties>
           </component>
           <component id="5f283" class="javax.swing.JCheckBox" binding="chkBoxSerializable">
@@ -181,7 +161,7 @@
           <text resource-bundle="bundles/ui_i18n" key="ignored_fields"/>
         </properties>
       </component>
-      <component id="3c808" class="javax.swing.JTextField" binding="textExcludeFields">
+      <component id="3c808" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textExcludeFields">
         <constraints>
           <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -205,7 +185,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="7d367" class="javax.swing.JTextField" binding="textExtendBaseClass">
+          <component id="7d367" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textExtendBaseClass">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -268,10 +248,10 @@
               <text resource-bundle="bundles/ui_i18n" key="remove_table_name_prefix"/>
             </properties>
           </component>
-          <component id="6f6bb" class="javax.swing.JTextField" binding="textRemoveTablePrefix">
+          <component id="6f6bb" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRemoveTablePrefix">
             <constraints/>
             <properties>
-              <columns value="5"/>
+              <columns value="15"/>
               <text value="t_" noi18n="true"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="set_remove_table_name_prefix"/>
             </properties>
@@ -282,10 +262,10 @@
               <text resource-bundle="bundles/ui_i18n" key="add_table_name_prefix"/>
             </properties>
           </component>
-          <component id="fdc6f" class="javax.swing.JTextField" binding="textAddTableNamePrefix">
+          <component id="fdc6f" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textAddTableNamePrefix">
             <constraints/>
             <properties>
-              <columns value="5"/>
+              <columns value="15"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="add_table_name_prefix_tips"/>
             </properties>
           </component>
@@ -295,10 +275,10 @@
               <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
             </properties>
           </component>
-          <component id="88d31" class="javax.swing.JTextField" binding="textAddTableNameSuffix">
+          <component id="88d31" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textAddTableNameSuffix">
             <constraints/>
             <properties>
-              <columns value="5"/>
+              <columns value="15"/>
               <toolTipText resource-bundle="bundles/ui_i18n" key="add_table_name_suffix_tips"/>
             </properties>
           </component>
@@ -343,7 +323,7 @@
           <text resource-bundle="bundles/ui_i18n" key="entity_package_base_path"/>
         </properties>
       </component>
-      <component id="400a4" class="javax.swing.JTextField" binding="textEntityPackageParentPath">
+      <component id="400a4" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textEntityPackageParentPath">
         <constraints>
           <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -364,7 +344,7 @@
           <text resource-bundle="bundles/ui_i18n" key="repository_package_parent_path"/>
         </properties>
       </component>
-      <component id="f150e" class="javax.swing.JTextField" binding="textRepositoryPackageParentPath">
+      <component id="f150e" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRepositoryPackageParentPath">
         <constraints>
           <grid row="18" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
@@ -430,15 +410,471 @@
               <text resource-bundle="bundles/ui_i18n" key="repository_suffix"/>
             </properties>
           </component>
-          <component id="21687" class="javax.swing.JTextField" binding="textRepositorySuffix">
+          <component id="21687" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRepositorySuffix">
             <constraints/>
             <properties>
-              <columns value="10"/>
+              <columns value="20"/>
               <text value="Repository"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <tabbedpane id="d815" binding="extensionPane">
+        <constraints>
+          <grid row="28" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="200"/>
+          </grid>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="d7b04" binding="controllerPane" layout-manager="FormLayout">
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <colspec value="left:4dlu:noGrow"/>
+            <colspec value="fill:d:grow"/>
+            <constraints>
+              <tabbedpane title="Controller"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="d839d" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Controller package:"/>
+                </properties>
+              </component>
+              <component id="af76f" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Controller package path:"/>
+                </properties>
+              </component>
+              <component id="17785" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textControllerPackageParentPath">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="4d139" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="controllerPackageReferenceEditorCombo" custom-create="true">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="cd4f7" class="javax.swing.JCheckBox" binding="chkBoxGenerateController">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Generate Controller"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="7d77d" binding="servicePane" layout-manager="FormLayout">
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <colspec value="left:4dlu:noGrow"/>
+            <colspec value="fill:d:grow"/>
+            <constraints>
+              <tabbedpane title="Service"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="425b9" class="javax.swing.JCheckBox" binding="chkBoxGenerateService">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Generate Service"/>
+                </properties>
+              </component>
+              <component id="db89d" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Repository type:"/>
+                </properties>
+              </component>
+              <component id="1a113" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Service package:"/>
+                </properties>
+              </component>
+              <component id="273d6" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Service package path:"/>
+                </properties>
+              </component>
+              <component id="7dc30" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textServicePackageParentPath">
+                <constraints>
+                  <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <grid id="fa70d" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="e19b5" class="javax.swing.JRadioButton" binding="radioJPA">
+                    <constraints/>
+                    <properties>
+                      <selected value="true"/>
+                      <text value="JPA"/>
+                    </properties>
+                  </component>
+                  <component id="72c16" class="javax.swing.JRadioButton" binding="radioMybatisPlus">
+                    <constraints/>
+                    <properties>
+                      <text value="Mybatis Plus"/>
+                    </properties>
+                  </component>
+                  <component id="afa44" class="javax.swing.JRadioButton" binding="radioTkMybatis">
+                    <constraints/>
+                    <properties>
+                      <text value="TK Mybatis"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <component id="9a41b" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="servicePackageReferenceEditorCombo" custom-create="true">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </grid>
+          <grid id="ddc68" layout-manager="FormLayout">
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <colspec value="left:4dlu:noGrow"/>
+            <colspec value="fill:d:grow"/>
+            <constraints>
+              <tabbedpane title="Mapper XML"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="e210" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Mapper XML directory:"/>
+                </properties>
+              </component>
+              <component id="7479" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="mapperXmlReferenceEditorCombo" custom-create="true">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false" defaultalign-vert="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="72f33" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Mapper XML parent path:"/>
+                </properties>
+              </component>
+              <component id="cf72" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textMapperXmlParentPath">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="c50b6" class="javax.swing.JCheckBox" binding="chkBoxGenerateMapperXml">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Generate Mapper XML"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="2ae12" binding="voPane" layout-manager="FormLayout">
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <colspec value="left:4dlu:noGrow"/>
+            <colspec value="fill:d:grow"/>
+            <constraints>
+              <tabbedpane title="VO"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="f264c" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Package:"/>
+                </properties>
+              </component>
+              <component id="c8cc1" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="voPackageReferenceEditorCombo" custom-create="true">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="bb116" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Package path:"/>
+                </properties>
+              </component>
+              <component id="3a009" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textVOPackageParentPath">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="4502d" class="javax.swing.JCheckBox" binding="chkBoxGenerateVO">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Generate VO"/>
+                </properties>
+              </component>
+              <grid id="e5c47" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="1b211" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
+                    </properties>
+                  </component>
+                  <component id="8bebb" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textVOSuffixName">
+                    <constraints/>
+                    <properties>
+                      <columns value="15"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="976bf" binding="dtoPane" layout-manager="FormLayout">
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:3dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <colspec value="left:4dlu:noGrow"/>
+            <colspec value="fill:d:grow"/>
+            <constraints>
+              <tabbedpane title="DTO"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="d1145" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Package:"/>
+                </properties>
+              </component>
+              <component id="f7c4e" class="com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo" binding="dtoPackageReferenceEditorCombo" custom-create="true">
+                <constraints>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="b5d4f" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Package path:"/>
+                </properties>
+              </component>
+              <component id="27833" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textDTOPackageParentPath">
+                <constraints>
+                  <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="fdfe4" class="javax.swing.JCheckBox" binding="chkBoxGenerateDTO">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Generate DTO"/>
+                </properties>
+              </component>
+              <grid id="a3c76" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="95d10" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text resource-bundle="bundles/ui_i18n" key="add_table_name_suffix"/>
+                    </properties>
+                  </component>
+                  <component id="6dca2" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textDTOSuffixName">
+                    <constraints/>
+                    <properties>
+                      <columns value="15"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+        </children>
+      </tabbedpane>
+      <component id="a8efa" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text resource-bundle="bundles/ui_i18n" key="field_name"/>
+        </properties>
+      </component>
+      <grid id="53005" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+        <constraints>
+          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="39d15" class="javax.swing.JLabel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="remove_prefixes"/>
+            </properties>
+          </component>
+          <component id="47d03" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textRemoveFieldPrefix">
+            <constraints/>
+            <properties>
+              <text value="f_"/>
+            </properties>
+          </component>
+          <component id="92fde" class="javax.swing.JLabel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="java_keyword_auto_add_suffix"/>
+              <toolTipText resource-bundle="bundles/ui_i18n" key="java_keyword_auto_add_suffix_tip"/>
+            </properties>
+          </component>
+          <component id="6df46" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textIfJavaKeywordAddSuffix">
+            <constraints/>
+            <properties>
+              <text value="Field"/>
             </properties>
           </component>
         </children>
       </grid>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="buttonGroup1">
+      <member id="78942"/>
+      <member id="97374"/>
+      <member id="cddfc"/>
+      <member id="72c16"/>
+      <member id="e19b5"/>
+      <member id="afa44"/>
+    </group>
+  </buttonGroups>
 </form>

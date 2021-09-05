@@ -1,0 +1,97 @@
+#if(!$package.isEmpty())
+package $package;
+
+#end
+import static java.util.stream.Collectors.toList;
+
+#if(!$tablesConfig.repositoryPackageName.isEmpty())
+import ${tablesConfig.repositoryPackageName}.${table.repositoryName};
+#end
+#if(!$tablesConfig.entityPackageName.isEmpty())
+import ${tablesConfig.entityPackageName}.${table.entityName};
+#end
+#if(!$tablesConfig.voPackageName.isEmpty())
+import ${tablesConfig.voPackageName}.${entitySimpleName}${tablesConfig.voSuffixName};
+import ${tablesConfig.voPackageName}.${entitySimpleName}Update${tablesConfig.voSuffixName};
+import ${tablesConfig.voPackageName}.${entitySimpleName}Query${tablesConfig.voSuffixName};
+#end
+#if(!$tablesConfig.dtoPackageName.isEmpty())
+import ${tablesConfig.dtoPackageName}.${entitySimpleName}${tablesConfig.dtoSuffixName};
+#end
+import java.util.Optional;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import javax.persistence.OptimisticLockException;
+
+@Service
+public class ${simpleName} {
+
+    @Autowired
+    private $repositoryName $repositoryVariableName;
+
+    public $primaryKeyDataType save(${entitySimpleName}${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
+        ${entitySimpleName} bean = new ${entitySimpleName}();
+        BeanUtils.copyProperties(${tablesConfig.voSuffixVariableName}, bean);
+        ${repositoryVariableName}.insert(bean);
+        return bean.${table.primaryColumn.getterMethodName}();
+    }
+
+    public void delete($primaryKeyDataType id) {
+        int affectRows = ${repositoryVariableName}.deleteById(id);
+        if (affectRows == 0) {
+            throw new OptimisticLockException("Can't delete entity:" + id);
+        }
+    }
+
+    public void update($primaryKeyDataType id, ${entitySimpleName}Update${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
+        $entitySimpleName bean = requireOne(id);
+        BeanUtils.copyProperties(${tablesConfig.voSuffixVariableName}, bean);
+        int affectRows = ${repositoryVariableName}.updateById(bean);
+        if (affectRows == 0) {
+            throw new OptimisticLockException("Can't update entity:" + id);
+        }
+    }
+
+    public ${entitySimpleName}${tablesConfig.dtoSuffixName} getById($primaryKeyDataType id) {
+        ${entitySimpleName} original = requireOne(id);
+        return toDTO(original);
+    }
+
+    public IPage<${entitySimpleName}${tablesConfig.dtoSuffixName}> query(${entitySimpleName}Query${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
+        IPage<${entitySimpleName}> page = ${repositoryVariableName}.selectPage(
+            new Page<>(${tablesConfig.voSuffixVariableName}.getPageNum(), ${tablesConfig.voSuffixVariableName}.getPageSize()),
+            Wrappers.lambdaQuery(${entitySimpleName}.class)
+            #foreach($column in $table.columns)
+                .eq(${tablesConfig.voSuffixVariableName}.${column.getterMethodName}() != null#if($column.javaDataType.name == 'java.lang.String') && !${tablesConfig.voSuffixVariableName}.${column.getterMethodName}().isEmpty()#end, ${entitySimpleName}::${column.getterMethodName}, ${tablesConfig.voSuffixVariableName}.${column.getterMethodName}())
+            #end
+        );
+
+        Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> targetPage = new Page<>(
+            page.getCurrent(), page.getSize(), page.getTotal()
+        );
+        targetPage.setPages(page.getPages());
+        targetPage.hitCount(page.hitCount());
+        targetPage.setRecords(
+            page.getRecords()
+                .stream()
+                .map(this::to${tablesConfig.dtoSuffixName})
+                .collect(toList());
+        );
+        return targetPage;
+    }
+
+    private ${entitySimpleName}${tablesConfig.dtoSuffixName} to${tablesConfig.dtoSuffixName}(${entitySimpleName} original) {
+        ${entitySimpleName}${tablesConfig.dtoSuffixName} bean = new ${entitySimpleName}${tablesConfig.dtoSuffixName}();
+        BeanUtils.copyProperties(original, bean);
+        return bean;
+    }
+
+    private ${entitySimpleName} requireOne($primaryKeyDataType id) {
+        return Optional.ofNullable(${repositoryVariableName}.selectById(id))
+            .orElseThrow(() -> new NoSuchElementException("Resource not found: " + id));
+    }
+}

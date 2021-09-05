@@ -21,7 +21,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 public class DatabaseSettings {
 
   private JPanel rootComponent;
-  private JTextField textHost;
+  private ExpandableTextField textHost;
   private JTextField textUsername;
   private JTextField textDatabase;
   private JPasswordField textPassword;
@@ -31,7 +31,7 @@ public class DatabaseSettings {
   private JComboBox<LocaleItem> cbxSelectLanguage;
   private JCheckBox chkBoxRequireSavePassword;
   private TextFieldWithBrowseButton textDriverPath;
-  private JTextField textDriverClass;
+  private ExpandableTextField textDriverClass;
   private ExpandableTextField textPreviewConnectionUrl;
 
   public void setData(DatabaseSettingsState data) {

@@ -2,20 +2,22 @@ package com.ifengxue.plugin.gui;
 
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.component.SourceCodeViewer;
+import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
 
 public class SourceCodeViewerDialog extends DialogWrapper {
 
     private SourceCodeViewer sourceCodeViewer;
 
-    public SourceCodeViewerDialog(@Nullable Project project, boolean canBeParent) {
+    public SourceCodeViewerDialog(@Nullable Project project, Language language,
+        boolean canBeParent) {
         super(project, canBeParent);
-        sourceCodeViewer = new SourceCodeViewer();
+        sourceCodeViewer = new SourceCodeViewer(language);
         init();
         setTitle("Source Code Viewer");
     }

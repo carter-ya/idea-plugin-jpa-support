@@ -5,6 +5,7 @@ import com.ifengxue.plugin.util.StringHelper;
 import java.util.Arrays;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Accessors(chain = true)
@@ -30,10 +31,28 @@ public class TablesConfig {
   private String removeFieldPrefix;
   private String entityPackageName;
   private String enumSubPackageName;
-  private String serviceSubPackageName;
   private String repositoryPackageName;
   private String basePackageName;
   private String extendsEntityName;
+
+  // controller
+
+  private String controllerPackageName;
+
+  // service
+
+  private boolean useJpa;
+  private boolean useMybatisPlus;
+  private boolean useTkMybatis;
+  private String servicePackageName;
+
+  // vo
+  private String voSuffixName;
+  private String voPackageName;
+
+  // dto
+  private String dtoSuffixName;
+  private String dtoPackageName;
 
   /**
    * 是否需要输出默认值
@@ -70,5 +89,19 @@ public class TablesConfig {
     public String getLineSeparator() {
       return lineSeparator;
     }
+  }
+
+  public String getVoSuffixVariableName() {
+    if (StringUtils.isBlank(voSuffixName)) {
+      return "";
+    }
+    return StringHelper.firstLetterLower(voSuffixName);
+  }
+
+  public String getDtoSuffixVariableName() {
+    if (StringUtils.isBlank(dtoSuffixName)) {
+      return "";
+    }
+    return StringHelper.firstLetterLower(dtoSuffixName);
   }
 }

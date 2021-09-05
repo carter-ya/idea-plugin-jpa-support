@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class ColumnUtil {
 
   public static Column columnSchemaToColumn(ColumnSchema columnSchema, String removePrefixes,
-      boolean useWrapper, boolean useJava8DateType) {
+      String ifJavaKeywordAddSuffix, boolean useWrapper, boolean useJava8DateType) {
     if (!(columnSchema instanceof ColumnSchemaExtension)) {
       throw new IllegalStateException(
           columnSchema.getClass().getName() + " is not instance of " + ColumnSchemaExtension.class
@@ -33,13 +33,15 @@ public class ColumnUtil {
     column.setJdbcType(extension.jdbcType());
     column.setJdbcTypeName(extension.jdbcTypeName());
     column.setSequenceColumn(extension.sequenceColumn());
-    ColumnUtil.parseColumn(column, removePrefixes, useWrapper, useJava8DateType);
+    ColumnUtil
+        .parseColumn(column, removePrefixes, ifJavaKeywordAddSuffix, useWrapper, useJava8DateType);
     return column;
   }
 
-  public static void parseColumn(Column column, String removePrefixes, boolean useWrapper,
-      boolean useJava8DateType) {
-    column.setFieldName(StringHelper.parseFieldName(column.getColumnName(), removePrefixes));
+  public static void parseColumn(Column column, String removePrefixes,
+      String ifJavaKeywordAddSuffix, boolean useWrapper, boolean useJava8DateType) {
+    column.setFieldName(StringHelper
+        .parseFieldName(column.getColumnName(), removePrefixes, ifJavaKeywordAddSuffix));
     Class<?> javaDataType = StringHelper.parseJavaDataType(column.getJavaDataType(),
         column.getJdbcTypeName(), column.getDbDataType(), column.getColumnName(), useWrapper,
         useJava8DateType);

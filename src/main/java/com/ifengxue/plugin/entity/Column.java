@@ -8,9 +8,11 @@ import com.ifengxue.plugin.gui.property.BooleanTableCellEditor;
 import com.ifengxue.plugin.gui.property.ClassNamePropertyEditor;
 import com.ifengxue.plugin.gui.property.ExpandableTextTableCellEditor;
 import com.ifengxue.plugin.gui.property.JavaDataTypeEditorProvider;
+import com.ifengxue.plugin.util.StringHelper;
 import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.mybatis.generator.internal.db.SqlReservedWords;
 
 @Data
 @Accessors(chain = true)
@@ -72,7 +74,24 @@ public class Column implements Selectable {
   /**
    * 是否允许为null
    */
-  private boolean nullable;
+  @TableProperty(bundleName = "Nullable", columnClass = Boolean.class, index = 400)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
+  private boolean nullable = true;
+  /**
+   * 是否允许为null或空串或仅包含空白字符的字符串
+   */
+  @TableProperty(bundleName = "NotBlank", columnClass = Boolean.class, index = 410)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
+  private boolean notBlank;
+  /**
+   * 是否允许为null或空串
+   */
+  @TableProperty(bundleName = "NotEmpty", columnClass = Boolean.class, index = 420)
+  @TableWidth(maxWidth = 60)
+  @TableEditable(editorProvider = BooleanTableCellEditor.class)
+  private boolean notEmpty;
   /**
    * 是否是自增字段
    */
@@ -104,5 +123,20 @@ public class Column implements Selectable {
   @Override
   public boolean isSelected() {
     return selected;
+  }
+
+  public boolean isReservedWord() {
+    return SqlReservedWords.containsWord(columnName);
+  }
+
+  public String getGetterMethodName() {
+    if (javaDataType == boolean.class) {
+      return StringHelper.parseIsMethodName(fieldName);
+    }
+    return StringHelper.parseGetMethodName(fieldName);
+  }
+
+  public String getSetterMethodName() {
+    return StringHelper.parseSetMethodName(fieldName);
   }
 }
