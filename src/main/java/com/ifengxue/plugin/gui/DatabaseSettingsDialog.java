@@ -23,6 +23,10 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -47,6 +51,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -217,22 +222,31 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         return;
       }
 
-      try {
-        List<TableSchema> tableSchemaList = findDatabaseSchemas(database);
-        ApplicationManager.getApplication().invokeLater(() -> {
-          dispose();
-          // show dialog
-          AutoGeneratorSettingsDialog
-              .show(tableSchemaList, tableSchema -> ((MybatisGeneratorTableSchema) tableSchema).toColumnSchemas());
-        });
-      } catch (SQLException se) {
-        String sb = "SQL error code: " + se.getErrorCode()
-            + "\nSQL error state: " + se.getSQLState() + "\n"
-            + "Error message: " + se.getLocalizedMessage();
-        ApplicationManager.getApplication()
-            .invokeLater(() -> Bus.notify(new Notification(Constants.GROUP_ID, "Error",
-                sb, NotificationType.ERROR)));
-      }
+      CompletableFuture<List<TableSchema>> tableSchemasFuture = new CompletableFuture<>();
+      Task.Backgroundable task = new Task.Backgroundable(project, "Retrieve table schemas", false) {
+
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+          try {
+            indicator.setText("Retrieve table schemas...");
+            indicator.setIndeterminate(true);
+            tableSchemasFuture.complete(findDatabaseSchemas(database));
+            indicator.setText("Retrieve table schemas succeed.");
+          } catch (Exception error) {
+            tableSchemasFuture.completeExceptionally(error);
+            indicator.setText("Retrieve table schemas failed.");
+          }
+        }
+      };
+      BackgroundableProcessIndicator indicator = new BackgroundableProcessIndicator(task);
+      ProgressManager.getInstance()
+          .runProcessWithProgressAsynchronously(task, indicator);
+      ApplicationManager.getApplication().invokeLater(() -> {
+        dispose();
+        // show dialog
+        AutoGeneratorSettingsDialog.show(tableSchemasFuture,
+            tableSchema -> ((MybatisGeneratorTableSchema) tableSchema).toColumnSchemas());
+      });
     });
   }
 
