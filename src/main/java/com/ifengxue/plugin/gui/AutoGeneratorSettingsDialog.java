@@ -25,7 +25,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -318,9 +318,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Override
   protected void doOKAction() {
     if (!tableSchemasFuture.isDone()) {
-      MessageDialogBuilder.yesNo("Waiting", "Parsing table schemas, please wait...")
-          .project(Holder.getOrDefaultProject())
-          .show();
+      Messages.showWarningDialog(generatorSettings.getRootComponent(),
+          "Parsing table schemas, please wait...", "Waiting");
       return;
     }
     ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings(
