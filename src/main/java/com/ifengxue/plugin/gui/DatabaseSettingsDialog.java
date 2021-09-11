@@ -33,6 +33,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.components.JBScrollPane;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
@@ -122,7 +123,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     }
     databaseSettings.getTextDriverPath()
         .addBrowseFolderListener("Choose Database Driver", "Choose database driver", project, descriptor);
-    return databaseSettings.getRootComponent();
+    return new JBScrollPane(databaseSettings.getRootComponent());
   }
 
   @Override
