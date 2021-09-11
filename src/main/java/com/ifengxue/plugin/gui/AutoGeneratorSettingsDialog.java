@@ -319,7 +319,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   protected void doOKAction() {
     if (!tableSchemasFuture.isDone()) {
       MessageDialogBuilder.yesNo("Waiting", "Parsing table schemas, please wait...")
-          .ask(Holder.getOrDefaultProject());
+          .project(Holder.getOrDefaultProject())
+          .show();
       return;
     }
     ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings(
