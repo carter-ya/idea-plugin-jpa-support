@@ -73,7 +73,7 @@ test {
 }
 
 patchPluginXml {
-    version '2.0.8-RC1'
+    version '2.0.8-RC2'
     description """
         <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
         <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
@@ -110,6 +110,13 @@ patchPluginXml {
         <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
     """
     changeNotes """
+      <h2>2.0.8-RC2</h2>
+      <ol>
+          <li>Optimize the problem that the componets cannot be fully displayed on some screens</li>
+          <li>No longer freezes when there are too many data tables</li>
+          <li>Some bug fixs</li>
+      </ol>
+      <h2>2.0.8-RC1</h2>
       <ol>
           <li>Support generate Controller、Service、VO、DTO</li>
           <li>Temporarily turn off the function of configuring templates in Settings</li>
