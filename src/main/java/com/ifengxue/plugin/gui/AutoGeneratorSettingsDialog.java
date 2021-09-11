@@ -32,6 +32,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
+import com.intellij.ui.components.JBScrollPane;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.nio.file.Paths;
@@ -204,7 +205,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected JComponent createCenterPanel() {
-    return generatorSettings.getRootComponent();
+    return new JBScrollPane(generatorSettings.getRootComponent());
   }
 
   @Override
