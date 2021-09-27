@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -72,7 +73,9 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
         .stream()
         .map(t -> toTableSchema(t, selectedTableNames.contains(t.getName())))
         .collect(toList());
-    AutoGeneratorSettingsDialog.show(tableSchemas, tableSchema -> {
+    CompletableFuture<List<TableSchema>> tableSchemasFuture = CompletableFuture
+        .completedFuture(tableSchemas);
+    AutoGeneratorSettingsDialog.show(tableSchemasFuture, tableSchema -> {
       DasObject dasObject = ((DatabasePluginTableSchema) tableSchema).getDasObject();
       List<ColumnSchema> columnSchemas = new ArrayList<>();
       DasUtil.getColumns(dasObject).consumeEach(dasColumn -> {

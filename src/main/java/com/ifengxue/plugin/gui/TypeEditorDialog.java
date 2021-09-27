@@ -6,6 +6,7 @@ import com.ifengxue.plugin.util.TypeUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.ui.components.JBScrollPane;
 import java.util.List;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -37,7 +38,7 @@ public class TypeEditorDialog extends DialogWrapper {
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        return typeEditor.getRootComponent();
+        return new JBScrollPane(typeEditor.getRootComponent());
     }
 
     @Override

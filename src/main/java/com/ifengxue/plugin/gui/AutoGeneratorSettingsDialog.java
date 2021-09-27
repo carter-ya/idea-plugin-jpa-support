@@ -14,20 +14,25 @@ import com.ifengxue.plugin.state.ModuleSettings;
 import com.ifengxue.plugin.util.BusUtil;
 import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
+import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
+import com.intellij.ui.components.JBScrollPane;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.nio.file.Paths;
@@ -38,6 +43,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import javax.swing.Action;
@@ -50,19 +57,22 @@ import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
+  private final Logger log = Logger.getInstance(AutoGeneratorSettingsDialog.class);
   private final AutoGeneratorSettings generatorSettings;
-  private final List<TableSchema> tableSchemaList;
+  private final CompletableFuture<List<TableSchema>> tableSchemasFuture;
   private final AutoGeneratorSettingsState autoGeneratorSettingsState;
   private final Function<TableSchema, List<ColumnSchema>> mapping;
 
-  protected AutoGeneratorSettingsDialog(Project project, List<TableSchema> tableSchemaList,
-                                        Function<TableSchema, List<ColumnSchema>> mapping) {
+  protected AutoGeneratorSettingsDialog(Project project,
+      CompletableFuture<List<TableSchema>> tableSchemasFuture,
+      Function<TableSchema, List<ColumnSchema>> mapping) {
     super(project, true);
     generatorSettings = new AutoGeneratorSettings();
 
-    this.tableSchemaList = tableSchemaList;
+    this.tableSchemasFuture = tableSchemasFuture;
     this.mapping = mapping;
-    this.autoGeneratorSettingsState = ServiceManager.getService(project, AutoGeneratorSettingsState.class);
+    this.autoGeneratorSettingsState = ServiceManager
+        .getService(project, AutoGeneratorSettingsState.class);
     init();
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 
@@ -195,7 +205,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected JComponent createCenterPanel() {
-    return generatorSettings.getRootComponent();
+    return new JBScrollPane(generatorSettings.getRootComponent());
   }
 
   @Override
@@ -307,10 +317,32 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
   @Override
   protected void doOKAction() {
+    if (!tableSchemasFuture.isDone()) {
+      Messages.showWarningDialog(generatorSettings.getRootComponent(),
+          "Parsing table schemas, please wait...", "Waiting");
+      return;
+    }
     ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings(
         (String) generatorSettings.getCbxModule().getSelectedItem());
     // read attributes
     generatorSettings.getData(autoGeneratorSettingsState, moduleSettings);
+    List<TableSchema> tableSchemaList;
+    try {
+      tableSchemaList = tableSchemasFuture.get();
+    } catch (InterruptedException e) {
+      ApplicationManager.getApplication()
+          .invokeLater(() -> Bus.notify(new Notification(Constants.GROUP_ID, "Warning",
+              "Retrieve table schemas cancelled", NotificationType.ERROR)));
+      return;
+    } catch (ExecutionException e) {
+      log.error("Retrieve table schemas error", e);
+      Throwable cause = e.getCause();
+      String message = "Retrieve table schemas error: " + cause.getLocalizedMessage();
+      ApplicationManager.getApplication()
+          .invokeLater(() -> Bus.notify(new Notification(Constants.GROUP_ID, "Error",
+              message, NotificationType.ERROR)));
+      return;
+    }
     List<Table> tableList = new ArrayList<>(tableSchemaList.size());
     String entityDirectory = Paths.get(moduleSettings.getEntityParentDirectory(),
         StringHelper.packageNameToFolder(moduleSettings.getEntityPackageName()))
@@ -321,7 +353,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
       String entityName = StringHelper.parseEntityName(tableName);
       entityName = autoGeneratorSettingsState.concatPrefixAndSuffix(entityName);
       // If the path contains a file with the same name, it is not selected by default
-      boolean selected = entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
+      boolean selected =
+          entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
       if (tableSchema instanceof Selectable) {
         selected = ((Selectable) tableSchema).isSelected();
       }
@@ -423,7 +456,8 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
         .findModuleByName(moduleName));
   }
 
-  public static void show(List<TableSchema> tableSchemaList, Function<TableSchema, List<ColumnSchema>> mapping) {
-    new AutoGeneratorSettingsDialog(Holder.getProject(), tableSchemaList, mapping).show();
+  public static void show(CompletableFuture<List<TableSchema>> tableSchemasFuture,
+      Function<TableSchema, List<ColumnSchema>> mapping) {
+    new AutoGeneratorSettingsDialog(Holder.getProject(), tableSchemasFuture, mapping).show();
   }
 }
