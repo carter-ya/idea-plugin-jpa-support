@@ -88,8 +88,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
 
     // bind text listener
     MyDocumentListener listener = new MyDocumentListener();
-    databaseSettings.getTextDriverClass().getDocument().addDocumentListener(listener);
-    databaseSettings.getTextDriverClass().getDocument()
+    databaseSettings.getTextDriverClass().addDocumentListener(listener);
+    databaseSettings.getTextDriverClass()
         .addDocumentListener(new DriverChangeDocumentListener());
     databaseSettings.getTextConnectionUrl().getDocument().addDocumentListener(listener);
     databaseSettings.getTextHost().getDocument().addDocumentListener(listener);
@@ -338,7 +338,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     }
   }
 
-  private final class DriverChangeDocumentListener implements DocumentListener {
+  private final class DriverChangeDocumentListener implements DocumentListener,
+      com.intellij.openapi.editor.event.DocumentListener {
 
     @Override
     public void insertUpdate(DocumentEvent e) {
@@ -386,7 +387,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     }
   }
 
-  private final class MyDocumentListener implements DocumentListener {
+  private final class MyDocumentListener implements DocumentListener,
+      com.intellij.openapi.editor.event.DocumentListener {
 
     @Override
     public void insertUpdate(DocumentEvent e) {

@@ -5,6 +5,9 @@ import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.state.DatabaseSettingsState;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.refactoring.ui.ClassNameReferenceEditor;
+import com.intellij.ui.ReferenceEditorWithBrowseButton;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import java.util.Locale;
 import java.util.Objects;
@@ -31,9 +34,14 @@ public class DatabaseSettings {
   private JComboBox<LocaleItem> cbxSelectLanguage;
   private JCheckBox chkBoxRequireSavePassword;
   private TextFieldWithBrowseButton textDriverPath;
-  private ExpandableTextField textDriverClass;
+  private ReferenceEditorWithBrowseButton textDriverClass;
   private ExpandableTextField textPreviewConnectionUrl;
   private JTextField textSchema;
+
+  private void createUIComponents() {
+    textDriverClass = new ClassNameReferenceEditor(Holder.getOrDefaultProject(), null,
+        GlobalSearchScope.everythingScope(Holder.getOrDefaultProject()));
+  }
 
   public void setData(DatabaseSettingsState data) {
     textHost.setText(data.getHost());
