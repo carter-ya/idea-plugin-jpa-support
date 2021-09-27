@@ -16,6 +16,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiJvmModifiersOwner;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
@@ -48,22 +49,7 @@ public class JavaSourceFileMerger implements SourceFileMerger {
         PsiClass psiTopClass = psiClasses[0];
 
         // merge annotations
-        Map<String, PsiAnnotation> nameToAnnotation = Arrays
-            .stream(originalTopClass.getAnnotations())
-            .collect(toMap(PsiAnnotation::getQualifiedName, Function.identity()));
-        for (PsiAnnotation annotation : psiTopClass.getAnnotations()) {
-            if (!nameToAnnotation.containsKey(annotation.getQualifiedName())) {
-                PsiModifierList modifierList = originalTopClass.getModifierList();
-                if (modifierList != null && annotation.getQualifiedName() != null) {
-                    PsiAnnotation psiAnnotation = modifierList
-                        .addAnnotation(annotation.getQualifiedName());
-                    for (JvmAnnotationAttribute attribute : annotation.getAttributes()) {
-                        psiAnnotation.setDeclaredAttributeValue(attribute.getAttributeName(),
-                            annotation.findAttributeValue(attribute.getAttributeName()));
-                    }
-                }
-            }
-        }
+        mergeAnnotations(originalTopClass, psiTopClass);
 
         // merge implements
         try {
@@ -97,6 +83,9 @@ public class JavaSourceFileMerger implements SourceFileMerger {
         for (PsiField field : psiTopClass.getFields()) {
             if (!nameToField.containsKey(field.getName())) {
                 mergeFieldAndTryKeepOrder(field, psiTopClass, originalTopClass);
+            } else {
+                PsiField originalField = nameToField.get(field.getName());
+                mergeAnnotations(originalField, field);
             }
         }
 
@@ -106,6 +95,31 @@ public class JavaSourceFileMerger implements SourceFileMerger {
         for (PsiMethod method : psiTopClass.getMethods()) {
             if (!nameToMethod.containsKey(method.getName())) {
                 originalTopClass.add(method);
+            }
+        }
+    }
+
+    /**
+     * merge source annotations to original
+     *
+     * @param original original
+     * @param source target
+     */
+    private void mergeAnnotations(PsiJvmModifiersOwner original, PsiJvmModifiersOwner source) {
+        Map<String, PsiAnnotation> nameToAnnotation = Arrays
+            .stream(original.getAnnotations())
+            .collect(toMap(PsiAnnotation::getQualifiedName, Function.identity()));
+        for (PsiAnnotation annotation : source.getAnnotations()) {
+            if (!nameToAnnotation.containsKey(annotation.getQualifiedName())) {
+                PsiModifierList modifierList = original.getModifierList();
+                if (modifierList != null && annotation.getQualifiedName() != null) {
+                    PsiAnnotation psiAnnotation = modifierList
+                        .addAnnotation(annotation.getQualifiedName());
+                    for (JvmAnnotationAttribute attribute : annotation.getAttributes()) {
+                        psiAnnotation.setDeclaredAttributeValue(attribute.getAttributeName(),
+                            annotation.findAttributeValue(attribute.getAttributeName()));
+                    }
+                }
             }
         }
     }
