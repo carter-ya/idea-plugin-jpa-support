@@ -170,6 +170,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String username = databaseSettings.getTextUsername().getText().trim();
     String password = new String(databaseSettings.getTextPassword().getPassword()).trim();
     String database = databaseSettings.getTextDatabase().getText().trim();
+    String schema = databaseSettings.getTextSchema().getText().trim();
     String connectionUrl = databaseSettings.getTextConnectionUrl().getText().trim();
     String driverPath = databaseSettings.getTextDriverPath().getText().trim();
     String driverClass = databaseSettings.getTextDriverClass().getText().trim();
@@ -231,7 +232,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
           try {
             indicator.setText("Retrieve table schemas...");
             indicator.setIndeterminate(true);
-            tableSchemasFuture.complete(findDatabaseSchemas(database));
+            tableSchemasFuture.complete(findDatabaseSchemas(database, schema));
             indicator.setText("Retrieve table schemas succeed.");
           } catch (Exception error) {
             tableSchemasFuture.completeExceptionally(error);
@@ -269,7 +270,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     classLoaderRef.set(null);
   }
 
-  private List<TableSchema> findDatabaseSchemas(String database) throws SQLException {
+  private List<TableSchema> findDatabaseSchemas(String database, String schema)
+      throws SQLException {
     DataSource datasource = ((SimpleFastJdbc) Holder.getFastJdbc()).getDatasource();
     try (Connection connection = datasource.getConnection()) {
       List<String> warnings = new ArrayList<>();
@@ -278,6 +280,9 @@ public class DatabaseSettingsDialog extends DialogWrapper {
           context, connection.getMetaData(), new JavaTypeResolverDefaultImpl(), warnings);
       TableConfiguration tc = new TableConfiguration(context);
       tc.setCatalog(database);
+      if (StringUtils.isNotBlank(schema)) {
+        tc.setSchema(schema);
+      }
       return introspector.introspectTables(tc)
           .stream()
           .map(MybatisGeneratorTableSchema::new)
@@ -358,19 +363,25 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         return;
       }
       if (StringUtils.isBlank(databaseSettings.getTextConnectionUrl().getText())) {
-        databaseSettings.getTextConnectionUrl().setText(jdbcConfig.getUrl());
+        databaseSettings.getTextConnectionUrl()
+            .setText(StringUtils.trimToEmpty(jdbcConfig.getUrl()));
       }
       if (StringUtils.isBlank(databaseSettings.getTextHost().getText())) {
-        databaseSettings.getTextHost().setText(jdbcConfig.getHost());
+        databaseSettings.getTextHost().setText(StringUtils.trimToEmpty(jdbcConfig.getHost()));
       }
       if (StringUtils.isBlank(databaseSettings.getTextPort().getText())) {
         databaseSettings.getTextPort().setText(jdbcConfig.getPort() + "");
       }
       if (StringUtils.isBlank(databaseSettings.getTextUsername().getText())) {
-        databaseSettings.getTextUsername().setText(jdbcConfig.getUsername());
+        databaseSettings.getTextUsername()
+            .setText(StringUtils.trimToEmpty(jdbcConfig.getUsername()));
       }
       if (StringUtils.isBlank(databaseSettings.getTextDatabase().getText())) {
-        databaseSettings.getTextDatabase().setText(jdbcConfig.getDatabase());
+        databaseSettings.getTextDatabase()
+            .setText(StringUtils.trimToEmpty(jdbcConfig.getDatabase()));
+      }
+      if (StringUtils.isBlank(databaseSettings.getTextSchema().getText())) {
+        databaseSettings.getTextSchema().setText(StringUtils.trimToEmpty(jdbcConfig.getSchema()));
       }
     }
   }
@@ -426,6 +437,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       databaseSettings.getTextUsername().setText("");
       databaseSettings.getTextPassword().setText("");
       databaseSettings.getTextDatabase().setText("");
+      databaseSettings.getTextSchema().setText("");
       databaseSettings.getTextConnectionUrl().setText("");
       databaseSettings.getTextPreviewConnectionUrl().setText("");
     }

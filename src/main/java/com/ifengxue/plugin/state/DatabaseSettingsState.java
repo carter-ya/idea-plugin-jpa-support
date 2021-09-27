@@ -19,6 +19,7 @@ public class DatabaseSettingsState implements PersistentStateComponent<DatabaseS
   private int port = 3306;
   private String username = "root";
   private String database = "";
+  private String schema = "";
   private String url = "";
   private String language = LocaleContextHolder.getCurrentLocale().toLanguageTag();
   private String driverPath = "";

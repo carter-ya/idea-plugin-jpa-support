@@ -33,12 +33,14 @@ public class DatabaseSettings {
   private TextFieldWithBrowseButton textDriverPath;
   private ExpandableTextField textDriverClass;
   private ExpandableTextField textPreviewConnectionUrl;
+  private JTextField textSchema;
 
   public void setData(DatabaseSettingsState data) {
     textHost.setText(data.getHost());
     textPort.setText(data.getPort() + "");
     textUsername.setText(data.getUsername());
     textDatabase.setText(data.getDatabase());
+    textSchema.setText(data.getSchema());
     textConnectionUrl.setText(data.getUrl());
     chkBoxRequireSavePassword.setSelected(data.isRequireSavePassword());
     textDriverPath.setText(data.getDriverPath());
@@ -67,6 +69,7 @@ public class DatabaseSettings {
     }
     data.setUsername(textUsername.getText());
     data.setDatabase(textDatabase.getText());
+    data.setSchema(textSchema.getText());
     data.setUrl(textConnectionUrl.getText());
     data.setLanguage(((LocaleItem) Objects.requireNonNull(cbxSelectLanguage.getSelectedItem())).getLanguageTag());
     data.setRequireSavePassword(chkBoxRequireSavePassword.isSelected());

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.ifengxue.plugin.component.DatabaseSettings">
-  <grid id="27dc6" binding="rootComponent" layout-manager="GridLayoutManager" row-count="11" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="rootComponent" layout-manager="GridLayoutManager" row-count="12" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="399"/>
+      <xy x="20" y="20" width="500" height="434"/>
     </constraints>
     <properties/>
     <border type="none" title-resource-bundle="bundles/ui_i18n" title-key="set_up_database_connection"/>
@@ -49,6 +49,7 @@
         </constraints>
         <properties>
           <text value="Database:"/>
+          <toolTipText value="Alias name is Catalog"/>
         </properties>
       </component>
       <component id="52fce" class="javax.swing.JTextField" binding="textDatabase">
@@ -105,7 +106,7 @@
       </component>
       <component id="c1fe4" class="javax.swing.JLabel" binding="lblSelectLanguage">
         <constraints>
-          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text resource-bundle="bundles/ui_i18n" key="select_language"/>
@@ -113,7 +114,7 @@
       </component>
       <component id="bcded" class="javax.swing.JComboBox" binding="cbxSelectLanguage">
         <constraints>
-          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <model/>
@@ -122,7 +123,7 @@
       </component>
       <component id="d97b9" class="javax.swing.JCheckBox" binding="chkBoxRequireSavePassword">
         <constraints>
-          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <selected value="false"/>
@@ -191,6 +192,24 @@
         </constraints>
         <properties>
           <editable value="false"/>
+        </properties>
+      </component>
+      <component id="23323" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Schema(Optional):"/>
+        </properties>
+      </component>
+      <component id="c542f" class="javax.swing.JTextField" binding="textSchema">
+        <constraints>
+          <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <toolTipText resource-bundle="bundles/ui_i18n" key="set_database_schema_tips"/>
         </properties>
       </component>
     </children>
