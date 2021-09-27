@@ -57,7 +57,7 @@ intellij {
         localPath = localIdePath
         printf('use local path: %s', localIdePath)
     } else {
-        version '2020.2.4'
+        version '2021.1.2'
         printf('use remote version: %s', version)
     }
     updateSinceUntilBuild false

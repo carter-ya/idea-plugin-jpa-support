@@ -64,6 +64,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -97,6 +98,7 @@ public class SelectTablesDialog extends DialogWrapper {
 
     // sequence
     AtomicInteger seq = new AtomicInteger(1);
+    tables.sort(Comparator.comparing(Table::getTableName));
     tables.forEach(table -> table.setSequence(seq.getAndIncrement()));
 
     JTable table = new JBTable();
@@ -185,8 +187,16 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       initialValueRef.set(regex);
       Pattern pattern = Pattern.compile(regex);
+      Table firstSelectTable = null;
       for (Table t : tables) {
-        t.setSelected(pattern.matcher(t.getTableName()).matches());
+        boolean matches = pattern.matcher(t.getTableName()).matches();
+        if (matches && firstSelectTable == null) {
+          firstSelectTable = t;
+        }
+        t.setSelected(matches);
+      }
+      if (firstSelectTable != null) {
+        table.scrollRectToVisible(table.getCellRect(firstSelectTable.getSequence() - 1, 1, true));
       }
       table.updateUI();
       updateSelected.run();
