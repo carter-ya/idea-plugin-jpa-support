@@ -356,6 +356,11 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       onChange();
     }
 
+    @Override
+    public void documentChanged(com.intellij.openapi.editor.event.@NotNull DocumentEvent event) {
+      onChange();
+    }
+
     private void onChange() {
       JdbcConfigUtil jdbcConfigUtil = Holder.getJdbcConfigUtil();
       String driverClass = StringUtils.trimToEmpty(databaseSettings.getTextDriverClass().getText());
@@ -402,6 +407,11 @@ public class DatabaseSettingsDialog extends DialogWrapper {
 
     @Override
     public void changedUpdate(DocumentEvent e) {
+      onChange();
+    }
+
+    @Override
+    public void documentChanged(com.intellij.openapi.editor.event.@NotNull DocumentEvent event) {
       onChange();
     }
 
