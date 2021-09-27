@@ -57,6 +57,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.ui.DoubleClickListener;
+import com.intellij.ui.TableSpeedSearch;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import java.awt.event.MouseEvent;
@@ -103,6 +104,7 @@ public class SelectTablesDialog extends DialogWrapper {
 
     JTable table = new JBTable();
     new TableFactory().decorateTable(table, Table.class, tables);
+    new TableSpeedSearch(table);
     JPanel tablePanel = ToolbarDecorator.createDecorator(table)
         .setEditAction(anActionButton -> new ColumnFieldMappingEditorDialog(project, true,
             tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet())
