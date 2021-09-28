@@ -110,6 +110,15 @@ patchPluginXml {
         <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
     """
     changeNotes """
+      <h2>2.0.8-RC3</h2>
+      <ol>
+        <li>Sort alphabetically when generating the selection table</li>
+        <li>Supports automatic positioning to the first matching item during regular selection</li>
+        <li>Allows to quickly search and locate items in the selection table</li>
+        <li>Allows to further filter the database tables by configuring the schema</li>
+        <li>Support auto-completion when entering database driver class</li>
+        <li>Optimize the merge rule: try to merge the missing part even if the field already exists</li>
+      </ol>
       <h2>2.0.8-RC2</h2>
       <ol>
           <li>Optimize the problem that the componets cannot be fully displayed on some screens</li>
