@@ -61,6 +61,6 @@ public class ${simpleName} {
 
     private ${entitySimpleName} requireOne($primaryKeyDataType id) {
         return ${repositoryVariableName}.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Resource not found: " + id));
+            .orElseThrow(() -> new java.util.NoSuchElementException("Resource not found: " + id));
     }
 }

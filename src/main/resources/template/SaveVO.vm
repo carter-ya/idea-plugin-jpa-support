@@ -12,6 +12,15 @@ import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 #end
+#if($existsJavaxValidation)
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+#elseif($existsJakartaValidation)
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+#end
 
 
 #if($useLombok)
@@ -33,13 +42,13 @@ public class ${table.entityName}${tablesConfig.voSuffixName} #if($serializable) 
         */
         #end
         #if(!$column.isNullable())
-        @javax.validation.constraints.NotNull(message = "$column.fieldName can not null")
+        @NotNull(message = "$column.fieldName can not null")
         #end
         #if($column.isNotBlank())
-        @javax.validation.constraints.NotBlank(message = "$column.fieldName can not blank")
+        @NotBlank(message = "$column.fieldName can not blank")
         #end
         #if($column.isNotEmpty())
-        @javax.validation.constraints.NotEmpty(message = "$column.fieldName can not empty")
+        @NotEmpty(message = "$column.fieldName can not empty")
         #end
         #if($useSwaggerUI && !$column.columnComment.isEmpty())
         @ApiModelProperty("$column.columnComment")
