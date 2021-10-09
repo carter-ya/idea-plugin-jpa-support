@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.util;
 
+import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.intellij.jam.JavaLibraryUtils;
@@ -54,12 +55,14 @@ public enum VelocityUtil {
 
         ctx.put("LocaleContextHolder", new LocaleContextHolder());
 
-        boolean existsJavaxValidation = JavaLibraryUtils
-            .hasLibraryClass(Holder.getOrDefaultProject(), "javax.validation.Valid");
-        ctx.put("existsJavaxValidation", existsJavaxValidation);
+        if (System.getProperty(Constants.IN_TEST_ENVIRONMENT) == null) {
+            boolean existsJavaxValidation = JavaLibraryUtils
+                .hasLibraryClass(Holder.getOrDefaultProject(), "javax.validation.Valid");
+            ctx.put("existsJavaxValidation", existsJavaxValidation);
 
-        boolean existsJakartaValidation = JavaLibraryUtils
-            .hasLibraryClass(Holder.getOrDefaultProject(), "jakarta.validation.Valid");
-        ctx.put("existsJakartaValidation", existsJakartaValidation);
+            boolean existsJakartaValidation = JavaLibraryUtils
+                .hasLibraryClass(Holder.getOrDefaultProject(), "jakarta.validation.Valid");
+            ctx.put("existsJakartaValidation", existsJakartaValidation);
+        }
     }
 }

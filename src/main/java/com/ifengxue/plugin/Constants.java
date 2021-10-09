@@ -18,4 +18,8 @@ public interface Constants {
   String DTO_TEMPLATE_ID = "template/DTO.vm";
 
   String MYBATIS_GENERATOR_CONFIG_TEMPLATE_ID = "template/MybatisGenerateConfig.vm";
+
+  // For Test
+
+  String IN_TEST_ENVIRONMENT = "InTestEnvironment";
 }
