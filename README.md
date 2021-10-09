@@ -43,6 +43,8 @@
 
 ![Custom type mapping](doc/type_mapping.png)
 
+## 相关文章(Related articles)
+1. [使用教程视频-英文 -（Use Tutorial Video-English） YouTube](https://www.youtube.com/watch?v=CynidTePOys)
 
 ## 感谢赞助(Sponsor)
 <a href="https://jb.gg/OpenSource" alt="JetBrains" target="_blank"><img src="doc/jetbrains.png" width="100" alt="JetBrains" /></a>
