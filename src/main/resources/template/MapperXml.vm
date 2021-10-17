@@ -5,7 +5,7 @@
   <resultMap id="BaseResultMap" type="${tablesConfig.entityPackageName}.${table.entityName}">
     <!--@JPA.Support generated on ${DATE} ${TIME}.-->
     <!--@Table ${table.tableName}-->
-      #foreach($column in $table.columns)
+      #foreach($column in $table.allColumns)
           #if($column.primary)
             <id column="${column.columnName}" #if($column.jdbcTypeName) jdbcType="${column.jdbcTypeName}" #end property="${column.fieldName}"/>
           #else
@@ -15,6 +15,6 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@JPA.Support generated on ${DATE} ${TIME}.-->
-    ${table.columnNameJoining(', ', '`')}
+    ${table.columnNameJoining(${table.allColumns}, ', ', '`')}
   </sql>
 </mapper>
