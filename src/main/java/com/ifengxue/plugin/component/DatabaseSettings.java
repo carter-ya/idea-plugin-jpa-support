@@ -5,6 +5,9 @@ import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
 import com.ifengxue.plugin.state.DatabaseSettingsState;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.refactoring.ui.ClassNameReferenceEditor;
+import com.intellij.ui.ReferenceEditorWithBrowseButton;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import java.util.Locale;
 import java.util.Objects;
@@ -31,14 +34,21 @@ public class DatabaseSettings {
   private JComboBox<LocaleItem> cbxSelectLanguage;
   private JCheckBox chkBoxRequireSavePassword;
   private TextFieldWithBrowseButton textDriverPath;
-  private ExpandableTextField textDriverClass;
+  private ReferenceEditorWithBrowseButton textDriverClass;
   private ExpandableTextField textPreviewConnectionUrl;
+  private JTextField textSchema;
+
+  private void createUIComponents() {
+    textDriverClass = new ClassNameReferenceEditor(Holder.getOrDefaultProject(), null,
+        GlobalSearchScope.everythingScope(Holder.getOrDefaultProject()));
+  }
 
   public void setData(DatabaseSettingsState data) {
     textHost.setText(data.getHost());
     textPort.setText(data.getPort() + "");
     textUsername.setText(data.getUsername());
     textDatabase.setText(data.getDatabase());
+    textSchema.setText(data.getSchema());
     textConnectionUrl.setText(data.getUrl());
     chkBoxRequireSavePassword.setSelected(data.isRequireSavePassword());
     textDriverPath.setText(data.getDriverPath());
@@ -67,6 +77,7 @@ public class DatabaseSettings {
     }
     data.setUsername(textUsername.getText());
     data.setDatabase(textDatabase.getText());
+    data.setSchema(textSchema.getText());
     data.setUrl(textConnectionUrl.getText());
     data.setLanguage(((LocaleItem) Objects.requireNonNull(cbxSelectLanguage.getSelectedItem())).getLanguageTag());
     data.setRequireSavePassword(chkBoxRequireSavePassword.isSelected());

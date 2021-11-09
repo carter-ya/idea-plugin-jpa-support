@@ -22,6 +22,7 @@ import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.TableSpeedSearch;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import java.awt.event.ActionEvent;
@@ -54,6 +55,7 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
 
     JBTable jbTable = new JBTable();
     new TableFactory().decorateTable(jbTable, Column.class, this.table.getColumns());
+    new TableSpeedSearch(jbTable);
     JPanel tablePanel = ToolbarDecorator.createDecorator(jbTable).createPanel();
     columnFieldMappingEditor.getTablePanel().add(tablePanel);
     columnFieldMappingEditor.setData(table);

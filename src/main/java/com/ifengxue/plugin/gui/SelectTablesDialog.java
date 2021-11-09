@@ -57,6 +57,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions;
 import com.intellij.ui.DoubleClickListener;
+import com.intellij.ui.TableSpeedSearch;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import java.awt.event.MouseEvent;
@@ -64,6 +65,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -97,10 +99,12 @@ public class SelectTablesDialog extends DialogWrapper {
 
     // sequence
     AtomicInteger seq = new AtomicInteger(1);
+    tables.sort(Comparator.comparing(Table::getTableName));
     tables.forEach(table -> table.setSequence(seq.getAndIncrement()));
 
     JTable table = new JBTable();
     new TableFactory().decorateTable(table, Table.class, tables);
+    new TableSpeedSearch(table);
     JPanel tablePanel = ToolbarDecorator.createDecorator(table)
         .setEditAction(anActionButton -> new ColumnFieldMappingEditorDialog(project, true,
             tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet())
@@ -185,8 +189,16 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       initialValueRef.set(regex);
       Pattern pattern = Pattern.compile(regex);
+      Table firstSelectTable = null;
       for (Table t : tables) {
-        t.setSelected(pattern.matcher(t.getTableName()).matches());
+        boolean matches = pattern.matcher(t.getTableName()).matches();
+        if (matches && firstSelectTable == null) {
+          firstSelectTable = t;
+        }
+        t.setSelected(matches);
+      }
+      if (firstSelectTable != null) {
+        table.scrollRectToVisible(table.getCellRect(firstSelectTable.getSequence() - 1, 1, true));
       }
       table.updateUI();
       updateSelected.run();
@@ -352,7 +364,10 @@ public class SelectTablesDialog extends DialogWrapper {
         if (table.getColumns() == null) {
           table.setColumns(findColumns(table));
         }
-        List<Column> columns = table.getColumns()
+        List<Column> allColumns = table.getColumns();
+        table.setAllColumns(allColumns);
+        
+        List<Column> columns = allColumns
             .stream()
             .filter(Column::isSelected)
             .collect(toList());

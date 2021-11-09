@@ -74,12 +74,12 @@ public class ${simpleName} {
             page.getCurrent(), page.getSize(), page.getTotal()
         );
         targetPage.setPages(page.getPages());
-        targetPage.hitCount(page.hitCount());
+        targetPage.hitCount(page.isHitCount());
         targetPage.setRecords(
             page.getRecords()
                 .stream()
                 .map(this::to${tablesConfig.dtoSuffixName})
-                .collect(toList());
+                .collect(toList())
         );
         return targetPage;
     }
@@ -92,6 +92,6 @@ public class ${simpleName} {
 
     private ${entitySimpleName} requireOne($primaryKeyDataType id) {
         return Optional.ofNullable(${repositoryVariableName}.selectById(id))
-            .orElseThrow(() -> new NoSuchElementException("Resource not found: " + id));
+            .orElseThrow(() -> new java.util.NoSuchElementException("Resource not found: " + id));
     }
 }

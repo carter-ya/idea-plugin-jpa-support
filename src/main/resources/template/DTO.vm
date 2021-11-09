@@ -1,5 +1,5 @@
-#if($StringUtils.isNotBlank($tablesConfig.voPackageName))
-package $tablesConfig.voPackageName;
+#if($StringUtils.isNotBlank($tablesConfig.dtoPackageName))
+package $tablesConfig.dtoPackageName;
 
 #end
 #set($useLombok = $tablesConfig.isUseLombok())

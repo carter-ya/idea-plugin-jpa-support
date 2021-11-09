@@ -100,6 +100,7 @@
                 <properties>
                   <selected value="true"/>
                   <text resource-bundle="bundles/ui_i18n" key="duplicate_action_merge_button"/>
+                  <toolTipText resource-bundle="bundles/ui_i18n" key="merge_tips"/>
                 </properties>
               </component>
             </children>

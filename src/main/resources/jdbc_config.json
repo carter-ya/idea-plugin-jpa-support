@@ -6,6 +6,7 @@
     "port": 3306,
     "username": "root",
     "database": "",
+    "schema": "",
     "url": "jdbc:mysql://{host}:{port}/{database}?useSSL=false&useUnicode=true&characterEncoding=UTF-8"
   },
   {
@@ -19,6 +20,7 @@
     "port": 5432,
     "username": "postgres",
     "database": "postgres",
+    "schema": "public",
     "url": "jdbc:postgresql://{host}:{port}/{database}"
   },
   {
@@ -27,6 +29,7 @@
     "host": "localhost",
     "port": 1433,
     "username": "sa",
+    "schema": "",
     "url": "jdbc:sqlserver://{host}\\{instance}:{port};database={database}"
   },
   {
@@ -35,6 +38,7 @@
     "host": "localhost",
     "port": 3306,
     "username": "root",
+    "schema": "",
     "url": "jdbc:mariadb://{host}:{port}/{database}?useSSL=false&useUnicode=true&characterEncoding=UTF-8"
   }
 ]

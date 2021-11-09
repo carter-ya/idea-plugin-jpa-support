@@ -11,7 +11,7 @@ package $tablesConfig.voPackageName;
 @lombok.Data
 #end
 #if($useSwaggerUI)
-@io.swagger.annotations.ApiModel("$LocaleContextHolder.format("controller_update") $table.comment")
+@io.swagger.annotations.ApiModel("$LocaleContextHolder.format("controller_update") $table.tableComment")
 #end
 #if($useLombok)
 @lombok.EqualsAndHashCode(callSuper = false)

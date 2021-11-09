@@ -72,7 +72,7 @@ public class ${simpleName} {
         Page<${entitySimpleName}> page = (Page<${entitySimpleName}>) ${repositoryVariableName}.selectByExample(example);
 
         Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> targetPage = new Page<>(
-            page.getPageNum(), page.getPageSize(), page.isCount(), page.getReasonable())
+            page.getPageNum(), page.getPageSize(), page.isCount(), page.getReasonable()
         );
         targetPage.setTotal(page.getTotal());
         targetPage.setPages(page.getPages());
@@ -93,6 +93,6 @@ public class ${simpleName} {
 
     private ${entitySimpleName} requireOne($primaryKeyDataType id) {
         return Optional.ofNullable(${repositoryVariableName}.selectByPrimaryKey(id))
-            .orElseThrow(() -> new NoSuchElementException("Resource not found: " + id));
+            .orElseThrow(() -> new java.util.NoSuchElementException("Resource not found: " + id));
     }
 }

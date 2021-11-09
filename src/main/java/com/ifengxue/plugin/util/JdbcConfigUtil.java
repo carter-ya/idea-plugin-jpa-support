@@ -74,6 +74,7 @@ public class JdbcConfigUtil {
     private int port;
     private String username;
     private String database;
+    private String schema;
     private String url;
     private String ref;
   }

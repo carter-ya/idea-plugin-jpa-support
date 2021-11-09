@@ -85,14 +85,22 @@ public class Table implements Selectable {
    */
   private int primaryKeyCount;
 
+  /**
+   * selected columns
+   */
   private List<Column> columns;
 
   /**
-   * Service 名称
+   * all columns (contains selected columns)
+   */
+  private List<Column> allColumns;
+
+  /**
+   * Service name
    */
   private String serviceName;
   /**
-   * Controller 名称
+   * Controller name
    */
   private String controllerName;
 
@@ -157,17 +165,19 @@ public class Table implements Selectable {
    *
    * @param delimiter delimiter
    */
-  public String columnNameJoining(String delimiter) {
-    return columnNameJoining(delimiter, "");
+  public String columnNameJoining(List<Column> columns, String delimiter) {
+    return columnNameJoining(columns, delimiter, "");
   }
 
   /**
    * joining column name
    *
+   * @param columns columns
    * @param delimiter delimiter
    * @param reservedWordWrapper reserved word wrapper, eg <code>`</code>
    */
-  public String columnNameJoining(String delimiter, String reservedWordWrapper) {
+  public String columnNameJoining(List<Column> columns, String delimiter,
+      String reservedWordWrapper) {
     return columns.stream()
         .map(c -> c.isReservedWord() ? reservedWordWrapper + c.getColumnName() + reservedWordWrapper
             : c.getColumnName())

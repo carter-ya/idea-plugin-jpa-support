@@ -40,6 +40,7 @@ public class SourceParserTest {
         return null;
       }
     };
+    System.setProperty(Constants.IN_TEST_ENVIRONMENT, "true");
   }
 
   public void initParser() {
