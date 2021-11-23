@@ -18,7 +18,7 @@ public final class LocaleContextHolder {
         new LocaleItem(Locale.CHINESE, "简体中文")
     };
     try {
-      resourceBundle = ResourceBundle.getBundle("/bundles/ui_i18n", currentLocale);
+      resourceBundle = ResourceBundle.getBundle("bundles/ui_i18n", currentLocale);
     } catch (Exception e) {
       LOGGER.warn("Can't get bundle", e);
       try {
@@ -36,7 +36,7 @@ public final class LocaleContextHolder {
   public static synchronized void setCurrentLocale(Locale locale) {
     currentLocale = locale;
     Locale.setDefault(locale);
-    resourceBundle = ResourceBundle.getBundle("/bundles/ui_i18n", locale);
+    resourceBundle = ResourceBundle.getBundle("bundles/ui_i18n", locale);
     LOGGER.info("set current locale " + locale.toLanguageTag());
   }
 
