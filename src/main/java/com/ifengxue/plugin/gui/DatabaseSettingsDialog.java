@@ -117,12 +117,15 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       Path m2Path = Paths.get(System.getProperty("user.home"), ".m2", "repository");
       VirtualFile root = LocalFileSystem.getInstance().findFileByIoFile(m2Path.toFile());
       if (root != null) {
-        descriptor.withRoots(root);
+        descriptor.withRoots(root, LocalFileSystem.getInstance().findFileByPath("/"));
+      } else {
+        descriptor.withRoots(LocalFileSystem.getInstance().findFileByPath("/"));
       }
     } catch (Exception ignored) {
     }
     databaseSettings.getTextDriverPath()
-        .addBrowseFolderListener("Choose Database Driver", "Choose database driver", project, descriptor);
+        .addBrowseFolderListener("Choose Database Driver", "Choose database driver", project,
+            descriptor);
     return new JBScrollPane(databaseSettings.getRootComponent());
   }
 

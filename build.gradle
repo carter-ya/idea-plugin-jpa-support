@@ -57,7 +57,7 @@ intellij {
         localPath = localIdePath
         printf('use local path: %s', localIdePath)
     } else {
-        version '2021.1.2'
+        version '2021.2.3'
         printf('use remote version: %s', version)
     }
     updateSinceUntilBuild false
@@ -73,7 +73,7 @@ test {
 }
 
 patchPluginXml {
-    version '2.0.8'
+    version '2.0.9'
     description """
         <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
         <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
@@ -110,6 +110,10 @@ patchPluginXml {
         <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
     """
     changeNotes """
+      <h2>2.0.9</h2>
+      <ol>
+        <li>Some bug fixes</li>
+      </ol>
       <h2>2.0.8</h2>
       <ol>
         <li>Some bug fixes and optimizations</li>

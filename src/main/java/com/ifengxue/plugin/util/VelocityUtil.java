@@ -3,7 +3,6 @@ package com.ifengxue.plugin.util;
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
-import com.intellij.jam.JavaLibraryUtils;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
