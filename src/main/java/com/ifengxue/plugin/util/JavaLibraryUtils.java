@@ -8,7 +8,6 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.CachedValueProvider.Result;
 import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.uast.UastModificationTracker;
 import com.intellij.util.containers.ConcurrentFactoryMap;
 import java.util.Collections;
 import java.util.Map;
@@ -29,7 +28,6 @@ public class JavaLibraryUtils {
         return getLibraryClassMap(project).getOrDefault(classFqn, false);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private static Map<String, Boolean> getLibraryClassMap(@NotNull Project project) {
         if (DumbService.isDumb(project)) {
             return Collections.emptyMap();
@@ -38,12 +36,10 @@ public class JavaLibraryUtils {
             ConcurrentMap<String, Boolean> map = ConcurrentFactoryMap.createMap((classFqn) ->
                 JavaPsiFacade.getInstance(project)
                     .findClass(classFqn, GlobalSearchScope.allScope(project)) != null);
-            return Result.create(map, UastModificationTracker.getInstance(project),
-                ProjectRootManager.getInstance(project));
+            return Result.createSingleDependency(map, ProjectRootManager.getInstance(project));
         });
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private static Map<String, Boolean> getLibraryClassMap(@NotNull Module module) {
         if (DumbService.isDumb(module.getProject())) {
             return Collections.emptyMap();
@@ -52,8 +48,7 @@ public class JavaLibraryUtils {
             ConcurrentMap<String, Boolean> map = ConcurrentFactoryMap.createMap(
                 classFqn -> JavaPsiFacade.getInstance(module.getProject()).findClass(classFqn,
                     GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module)) != null);
-            return Result.create(map,
-                UastModificationTracker.getInstance(module.getProject()),
+            return Result.createSingleDependency(map,
                 ProjectRootManager.getInstance(module.getProject()));
         });
     }
