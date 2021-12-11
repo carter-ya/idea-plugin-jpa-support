@@ -73,9 +73,9 @@ test {
 }
 
 patchPluginXml {
-    version '2.0.9'
+    version '2.0.10'
     description """
-        <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA.</p>
+        <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA/Tk Mybatis/MyBatis Plus.</p>
         <p>Support internationalization. Currently supported languages are English, 简体中文.</p>
         <p>Support all databases.</p>
         <p>Support generate source code from Database plugin</p>
@@ -110,6 +110,11 @@ patchPluginXml {
         <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
     """
     changeNotes """
+      <h2>2.0.10</h2>
+      <ol>
+        <li>Fix the problem of incorrect template: MyBatis-Plus</li>
+        <li>Fix the issue that may trigger "Slow EDT Operations"</li>
+      </ol>
       <h2>2.0.9</h2>
       <ol>
         <li>Some bug fixes</li>
