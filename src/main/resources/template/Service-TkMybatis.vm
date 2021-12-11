@@ -43,7 +43,7 @@ public class ${simpleName} {
     public void delete($primaryKeyDataType id) {
         int affectRows = ${repositoryVariableName}.deleteByPrimaryKey(id);
         if (affectRows == 0) {
-            throw new OptimisticLockException("Can't delete entity:" + id);
+            throw new org.springframework.dao.OptimisticLockingFailureException("Can't delete entity:" + id);
         }
     }
 
@@ -52,7 +52,7 @@ public class ${simpleName} {
         BeanUtils.copyProperties(${tablesConfig.voSuffixVariableName}, bean);
         int affectRows = ${repositoryVariableName}.updateByPrimaryKeySelective(bean);
         if (affectRows == 0) {
-            throw new OptimisticLockException("Can't update entity:" + id);
+            throw new org.springframework.dao.OptimisticLockingFailureException("Can't update entity:" + id);
         }
     }
 
