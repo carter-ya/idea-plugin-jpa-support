@@ -136,6 +136,7 @@ public class StringHelper {
         return LocalDate.class;
       case "java.sql.Time":
         return LocalTime.class;
+      case "java.util.Date":
       case "java.sql.Timestamp":
         return LocalDateTime.class;
       default:
