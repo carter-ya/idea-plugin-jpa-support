@@ -232,6 +232,10 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
             generatorSettings.getTextEntityPackageParentPath());
       }
     }
+    if (generatorSettings.getTextFileExtension().getText().trim().isEmpty()) {
+      return new ValidationInfo("Must set file extension",
+          generatorSettings.getTextFileExtension());
+    }
     if (generatorSettings.getChkBoxGenerateRepository().isSelected()) {
       if (generatorSettings.getRepositoryPackageReferenceEditorCombo().getText().trim().isEmpty()) {
         return new ValidationInfo("Must set repository package",

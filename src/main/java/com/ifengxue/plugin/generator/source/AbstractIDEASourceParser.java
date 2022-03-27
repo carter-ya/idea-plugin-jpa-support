@@ -10,7 +10,8 @@ public abstract class AbstractIDEASourceParser extends AbstractSourceParser {
     @Override
     public String parse(GeneratorConfig config, Table table) {
         return parse(config, table,
-            () -> TemplateManager.getInstance().loadTemplate(getTemplateId()));
+            () -> TemplateManager.getInstance()
+                .loadTemplate(config.getFileExtension(), getTemplateId()));
     }
 
     @Override

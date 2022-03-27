@@ -1,6 +1,7 @@
 package com.ifengxue.plugin.gui;
 
 import com.ifengxue.plugin.Constants;
+import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.TemplateManager;
 import com.ifengxue.plugin.component.ColumnFieldMappingEditor;
 import com.ifengxue.plugin.entity.Column;
@@ -91,10 +92,14 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createLeftSideActions() {
+    AutoGeneratorSettingsState settingsState = ServiceManager.getService(
+        Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+    ModuleSettings moduleSettings = settingsState
+        .getModuleSettings(settingsState.getModuleName());
     return new Action[]{
         new PreviewAction(LocaleContextHolder.format("preview_controller"), () -> {
           String template = TemplateManager.getInstance()
-              .loadTemplate(Constants.CONTROLLER_TEMPLATE_ID);
+              .loadTemplate(moduleSettings.getFileExtension(), Constants.CONTROLLER_TEMPLATE_ID);
           String sourceCode = TestTemplateHelper.evaluateToString(
               ControllerSourceParser.class, table, template, JavaFileType.INSTANCE);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
@@ -103,16 +108,14 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
           dialog.show();
         }),
         new PreviewAction(LocaleContextHolder.format("preview_service"), () -> {
-          AutoGeneratorSettingsState state = ServiceManager
-              .getService(project, AutoGeneratorSettingsState.class);
-          ModuleSettings moduleSettings = state.getModuleSettings(state.getModuleName());
           String templateId = Constants.JPA_SERVICE_TEMPLATE_ID;
           if (moduleSettings.isRepositoryTypeMybatisPlus()) {
             templateId = Constants.MYBATIS_PLUS_SERVICE_TEMPLATE_ID;
           } else if (moduleSettings.isRepositoryTypeTkMybatis()) {
             templateId = Constants.TK_MYBATIS_SERVICE_TEMPLATE_ID;
           }
-          String template = TemplateManager.getInstance().loadTemplate(templateId);
+          String template = TemplateManager.getInstance()
+              .loadTemplate(moduleSettings.getFileExtension(), templateId);
           String sourceCode = TestTemplateHelper.evaluateToString(
               ServiceSourceParser.class, table, template, JavaFileType.INSTANCE);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
@@ -122,7 +125,7 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
         }),
         new PreviewAction(LocaleContextHolder.format("preview_mapper_xml"), () -> {
           String template = TemplateManager.getInstance()
-              .loadTemplate(Constants.MAPPER_XML_TEMPLATE_ID);
+              .loadTemplate(moduleSettings.getFileExtension(), Constants.MAPPER_XML_TEMPLATE_ID);
           String sourceCode = TestTemplateHelper.evaluateToString(
               MapperXmlSourceParser.class, table, template, XmlFileType.INSTANCE);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
@@ -132,7 +135,7 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
         }),
         new PreviewAction(LocaleContextHolder.format("preview_bean"), () -> {
           String template = TemplateManager.getInstance()
-              .loadTemplate(Constants.JPA_ENTITY_TEMPLATE_ID);
+              .loadTemplate(moduleSettings.getFileExtension(), Constants.JPA_ENTITY_TEMPLATE_ID);
           String sourceCode = TestTemplateHelper.evaluateToString(
               EntitySourceParserV2.class, table, template, JavaFileType.INSTANCE);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
@@ -142,7 +145,8 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
         }),
         new PreviewAction(LocaleContextHolder.format("preview_repository"), () -> {
           String template = TemplateManager.getInstance()
-              .loadTemplate(Constants.JPA_REPOSITORY_TEMPLATE_ID);
+              .loadTemplate(moduleSettings.getFileExtension(),
+                  Constants.JPA_REPOSITORY_TEMPLATE_ID);
           String sourceCode = TestTemplateHelper.evaluateToString(
               JpaRepositorySourceParser.class, table, template, JavaFileType.INSTANCE);
           SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(

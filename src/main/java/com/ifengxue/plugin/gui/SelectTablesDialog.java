@@ -458,7 +458,7 @@ public class SelectTablesDialog extends DialogWrapper {
         parser.setTemplateId(templateId);
         return parser;
       };
-      String fileExtension = ".java";
+      String fileExtension = "." + moduleSettings.getFileExtension();
       List<GeneratorTask> tasks = Arrays.asList(
           GeneratorTask.builder()
               .shouldRun(moduleSettings.isGenerateEntity())
