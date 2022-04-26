@@ -40,7 +40,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.8.1'
-    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.26'
+    testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.29'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
