@@ -37,7 +37,7 @@ dependencies {
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compile group: 'org.mybatis.generator', name: 'mybatis-generator-core', version: '1.4.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.4'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.8.1'
     testCompile group: 'mysql', name: 'mysql-connector-java', version: '8.0.26'
