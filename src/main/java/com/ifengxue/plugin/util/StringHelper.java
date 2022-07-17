@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 字符串工具类
@@ -199,16 +200,19 @@ public class StringHelper {
   }
 
   /**
-   * 解析列名 <br>
-   * column_name -> columnName <br>
-   * _column_name_ -> columnName <br>
-   * COLUMN_NAME -> columnName <br>
-   * ColumnName -> columnName <br>
+   * parse column name to field name <br>
+   * <ul>
+   *     <li>column_name -> columnName</li>
+   *     <li>_column_name_ -> columnName</li>
+   *     <li>COLUMN_NAME -> columnName</li>
+   *     <li>ColumnName -> columnName</li>
+   * </ul>
    */
   public static String parseFieldName(String columnName) {
     columnName = columnName.replaceAll("\\s+", "_");
     if (!columnName.contains("_")) {
-      return Introspector.decapitalize(columnName);
+      return StringUtils.isAllUpperCase(columnName) ? columnName.toLowerCase()
+          : Introspector.decapitalize(columnName);
     }
     columnName = columnName.toLowerCase();
     if (columnName.startsWith("is_")) {
