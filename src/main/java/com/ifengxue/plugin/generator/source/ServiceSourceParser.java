@@ -24,7 +24,8 @@ public class ServiceSourceParser extends AbstractIDEASourceParser {
             templateId = getTemplateId();
         }
         return parse(config, table,
-            () -> TemplateManager.getInstance().loadTemplate(templateId));
+            () -> TemplateManager.getInstance()
+                .loadTemplate(config.getFileExtension(), templateId));
     }
 
     @Override

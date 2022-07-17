@@ -31,6 +31,8 @@ public class StringHelperTest {
     assertEquals("columnName", StringHelper.parseFieldName("Column Name"));
     assertEquals("columnName", StringHelper.parseFieldName("Column    Name"));
     assertEquals("columnName", StringHelper.parseFieldName("column  name"));
+    assertEquals("column", StringHelper.parseFieldName("COLUMN"));
+    assertEquals("columnname", StringHelper.parseFieldName("COLUMNNAME"));
   }
 
   @Test

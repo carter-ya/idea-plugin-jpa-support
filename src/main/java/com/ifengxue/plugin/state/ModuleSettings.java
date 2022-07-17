@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class ModuleSettings {
 
+    /**
+     * file extension
+     */
+    private String fileExtension = "java";
     private boolean generateEntity = true;
     /**
      * 实体包名

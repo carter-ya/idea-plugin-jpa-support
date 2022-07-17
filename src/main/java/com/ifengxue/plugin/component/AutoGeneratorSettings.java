@@ -77,6 +77,7 @@ public class AutoGeneratorSettings {
   private MyPackageNameReferenceEditorCombo mapperXmlReferenceEditorCombo;
   private ExpandableTextField textMapperXmlParentPath;
   private JCheckBox chkBoxGenerateMapperXml;
+  private ExpandableTextField textFileExtension;
 
   private Color originalForegroundColor;
 
@@ -117,6 +118,8 @@ public class AutoGeneratorSettings {
     textAddTableNamePrefix.setText(data.getAddEntityPrefix());
     textAddTableNameSuffix.setText(data.getAddEntitySuffix());
     if (moduleSettings != null) {
+      textFileExtension.setText(moduleSettings.getFileExtension());
+
       chkBoxGenerateEntity.setSelected(moduleSettings.isGenerateEntity());
       entityPackageReferenceEditorCombo.setText(moduleSettings.getEntityPackageName());
       textEntityPackageParentPath.setText(moduleSettings.getEntityParentDirectory());
@@ -188,6 +191,8 @@ public class AutoGeneratorSettings {
     data.setRemoveEntityPrefix(textRemoveTablePrefix.getText());
     data.setAddEntityPrefix(textAddTableNamePrefix.getText());
     data.setAddEntitySuffix(textAddTableNameSuffix.getText());
+
+    moduleData.setFileExtension(textFileExtension.getText());
 
     moduleData.setGenerateEntity(chkBoxGenerateEntity.isSelected());
     moduleData.setEntityPackageName(entityPackageReferenceEditorCombo.getText());
