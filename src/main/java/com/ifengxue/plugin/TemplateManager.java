@@ -1,5 +1,6 @@
 package com.ifengxue.plugin;
 
+import com.ifengxue.plugin.exception.TemplateNotFoundException;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -50,7 +51,8 @@ public class TemplateManager {
      * @param templateId template id
      * @see #SEARCH_PATH
      */
-    public String loadTemplate(String fileExtension, String templateId) {
+    public String loadTemplate(String fileExtension, String templateId)
+        throws TemplateNotFoundException {
         try {
             return loadTemplateInternal(fileExtension, templateId);
         } catch (IOException e) {
@@ -65,7 +67,7 @@ public class TemplateManager {
     }
 
     private String loadTemplateInternal(String fileExtension, String templateId)
-        throws IOException {
+        throws IOException, TemplateNotFoundException {
         if (templateId.endsWith(".vm")) {
             throw new IllegalStateException("templateId cannot ends with .vm");
         }
@@ -116,6 +118,9 @@ public class TemplateManager {
             }
         }
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(finalTemplateId)) {
+            if (input == null) {
+                throw new TemplateNotFoundException(finalTemplateId);
+            }
             byte[] buffer = new byte[input.available()];
             input.read(buffer);
             return new String(buffer, StandardCharsets.UTF_8);

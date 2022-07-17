@@ -9,6 +9,7 @@ import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
+import com.ifengxue.plugin.exception.TemplateNotFoundException;
 import com.ifengxue.plugin.generator.config.DriverConfig;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
@@ -435,6 +436,14 @@ public class SelectTablesDialog extends DialogWrapper {
                   project, task.filenameMapping.apply(table),
                   task.directory, task.packageName, sourceCode);
             }
+          } catch (TemplateNotFoundException e) {
+            Bus.notify(
+                new Notification(
+                    Constants.GROUP_ID, "Template Not found",
+                    "Generate source code error. " + e,
+                    NotificationType.WARNING), project
+            );
+            Logger.getInstance(getClass()).warn(e.getMessage(), e);
           } catch (Exception e) {
             Bus.notify(
                 new Notification(Constants.GROUP_ID, "Error", "Generate source code error. " + e,
