@@ -377,6 +377,7 @@ public class SelectTablesDialog extends DialogWrapper {
         // configure source code generator config
         GeneratorConfig generatorConfig = new GeneratorConfig();
         generatorConfig.setDriverConfig(new DriverConfig());
+        generatorConfig.setFileExtension(moduleSettings.getFileExtension());
         int lastIndex;
         String basePackageName = moduleSettings.getEntityPackageName();
         if ((lastIndex = basePackageName.lastIndexOf('.')) != -1) {
