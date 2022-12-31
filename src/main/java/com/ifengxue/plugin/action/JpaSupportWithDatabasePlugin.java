@@ -1,8 +1,5 @@
 package com.ifengxue.plugin.action;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.entity.ColumnSchema;
@@ -12,6 +9,7 @@ import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.gui.AutoGeneratorSettingsDialog;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.DatabasePluginUtil;
+import com.intellij.database.Dbms;
 import com.intellij.database.model.DasNamespace;
 import com.intellij.database.model.DasObject;
 import com.intellij.database.model.DasTable;
@@ -24,13 +22,16 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.JBIterable;
-import java.lang.reflect.Method;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import org.apache.commons.lang3.StringUtils;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Jpa Support with database plugin
@@ -97,26 +98,11 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
   }
 
   private void resolveDatabaseVendor(DbDataSource dataSource) {
-    String productName = "";
-    try {
-      Method method = dataSource.getClass().getMethod("getDatabaseProductName");
-      method.setAccessible(true);
-      productName = (String) method.invoke(dataSource);
-    } catch (Exception ignored) {
-      try {
-        Method method = dataSource.getDelegate().getClass().getMethod("getDatabaseProductName");
-        method.setAccessible(true);
-        productName = (String) method.invoke(dataSource.getDelegate());
-      } catch (Exception ignored2) {
-      }
-    }
-    if (StringUtils.isBlank(productName)) {
-      productName = dataSource.getName();
-    }
-    if (productName.startsWith("PostgreSQL")) {
-      Holder.registerDatabaseDrivers(DatabaseDrivers.POSTGRE_SQL);
-    } else if (productName.startsWith("MySQL")) {
+    Dbms dbms = dataSource.getDbms();
+    if (dbms.isMysql()) {
       Holder.registerDatabaseDrivers(DatabaseDrivers.MYSQL);
+    } else if (dbms.isPostgres()) {
+      Holder.registerDatabaseDrivers(DatabaseDrivers.POSTGRE_SQL);
     } else {
       Holder.registerDatabaseDrivers(DatabaseDrivers.UNKNOWN);
     }
