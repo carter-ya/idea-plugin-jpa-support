@@ -25,6 +25,7 @@ public class TablesConfig {
   private boolean useSwaggerUIComment;
   private boolean useJpaAnnotation;
   private boolean addSchemeNameToTableName;
+  private boolean useJakartaEE;
   private String indent;
   private String lineSeparator;
   private String removeTablePrefix;

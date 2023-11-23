@@ -15,9 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.SequenceGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 
@@ -52,6 +49,10 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
     boolean isUseJpaAnnotation = tablesConfig.isUseJpaAnnotation();
     context.put("useJpaAnnotation", isUseJpaAnnotation);
 
+    // is use Jakarta EE
+    boolean isUseJakartaEE = tablesConfig.isUseJakartaEE();
+    context.put("useJakartaEE", isUseJakartaEE);
+
     Set<String> classAnnotations = new HashSet<>();
     // is use lombok
     context.put("useLombok", tablesConfig.isUseLombok());
@@ -82,9 +83,9 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
 
     // configure JPA settings
     if (isUseJpaAnnotation) {
-      importClassList.add(javax.persistence.Entity.class.getName());
+      importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "Entity"));
       classAnnotations.add("Entity");
-      importClassList.add(javax.persistence.Table.class.getName());
+      importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "Table"));
     }
     String tableName = table.getTableName();
     if (tablesConfig.isAddSchemeNameToTableName()) {
@@ -101,28 +102,32 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
     // process table columns
     context.put("columns", table.getColumns());
     if (isUseJpaAnnotation && !table.getColumns().isEmpty()) {
-      importClassList.add(javax.persistence.Column.class.getName());
+      importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "Column"));
     }
     table.getColumns().forEach(column -> {
       column.setAnnotations(new ArrayList<>());
 
       if (isUseJpaAnnotation && column.isPrimary()) {
-        importClassList.add(javax.persistence.Id.class.getName());
-        Annotation columnAnnotation = new Annotation(javax.persistence.Id.class.getName(), false);
+        importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "Id"));
+        Annotation columnAnnotation = new Annotation(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "Id"),
+            false);
         column.getAnnotations().add(columnAnnotation.toString());
       }
       if (isUseJpaAnnotation && (column.isAutoIncrement() || column.isSequenceColumn())) {
-        Annotation columnAnnotation = new Annotation(GeneratedValue.class.getName(), false);
-        importClassList.add(GeneratedValue.class.getName());
-        importClassList.add(javax.persistence.GenerationType.class.getName());
+        Annotation columnAnnotation = new Annotation(
+            StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "GeneratedValue"), false);
+        importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "GeneratedValue"));
+        importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "GenerationType"));
         if (column.isSequenceColumn()) {
           columnAnnotation
               .addKeyValuePair(KeyValuePair.fromPlain("strategy", "GenerationType.SEQUENCE"));
           columnAnnotation.addKeyValuePair(
               KeyValuePair.from("generator", "//FIXME Please input your generator name"));
-          importClassList.add(javax.persistence.SequenceGenerator.class.getName());
+          importClassList.add(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "SequenceGenerator"));
 
-          Annotation generateAnnotation = new Annotation(SequenceGenerator.class.getName(), false);
+          Annotation generateAnnotation = new Annotation(
+              StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "SequenceGenerator"),
+              false);
           generateAnnotation.addKeyValuePair(
               KeyValuePair.from("name", "//FIXME Please input your generator name"));
           generateAnnotation
@@ -140,7 +145,8 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
       }
 
       // add column annotation
-      Annotation columnAnnotation = new Annotation(Column.class.getName(), false);
+      Annotation columnAnnotation = new Annotation(StringHelper.getJakartaEEClassNameOrNot(isUseJakartaEE, "Column"),
+          false);
       columnAnnotation.addKeyValuePair(KeyValuePair.from("name", column.getColumnName()));
       if (!column.isNullable()) {
         columnAnnotation.addKeyValuePair(KeyValuePair.from("nullable", false));
@@ -171,4 +177,5 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
   protected String getTemplateId() {
     return Constants.JPA_ENTITY_TEMPLATE_ID;
   }
+
 }

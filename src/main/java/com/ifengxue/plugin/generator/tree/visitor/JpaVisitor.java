@@ -8,6 +8,7 @@ import com.ifengxue.plugin.generator.tree.Annotation;
 import com.ifengxue.plugin.generator.tree.Element;
 import com.ifengxue.plugin.generator.tree.Element.KeyValuePair;
 import com.ifengxue.plugin.generator.tree.Field;
+import com.ifengxue.plugin.util.StringHelper;
 import java.util.NoSuchElementException;
 
 public class JpaVisitor extends VisitorSupport {
@@ -22,10 +23,12 @@ public class JpaVisitor extends VisitorSupport {
   @Override
   public void visit(com.ifengxue.plugin.generator.tree.Class aClass) {
     super.visit(aClass);
-    Annotation entityAnnotation = new Annotation("javax.persistence.Entity");
+    Annotation entityAnnotation = new Annotation(
+        StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "Entity"));
     anImport.addImportClass(entityAnnotation.getClassName());
     aClass.addAnnotation(entityAnnotation);
-    Annotation tableAnnotation = new Annotation("javax.persistence.Table");
+    Annotation tableAnnotation = new Annotation(
+        StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "Table"));
     tableAnnotation.addKeyValuePair(Element.KeyValuePair.newKeyAndStringValuePair("name", table.getTableName()));
     anImport.addImportClass(tableAnnotation.getClassName());
     aClass.addAnnotation(tableAnnotation);
@@ -51,12 +54,14 @@ public class JpaVisitor extends VisitorSupport {
       return;
     }
     if (field.isPrimaryKey()) {
-      Annotation idAnnotation = new Annotation("javax.persistence.Id");
+      Annotation idAnnotation = new Annotation(
+          StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "Id"));
       anImport.addImportClass(idAnnotation.getClassName());
       field.addChild(idAnnotation);
     }
     if (field.isAutoIncrement()) {
-      Annotation generatedAnnotation = new Annotation("javax.persistence.GeneratedValue");
+      Annotation generatedAnnotation = new Annotation(
+          StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "GeneratedValue"));
       switch (vendor) {
         case MYSQL:
         case SQL_SERVER:
@@ -74,11 +79,12 @@ public class JpaVisitor extends VisitorSupport {
           throw new IllegalStateException();
       }
       anImport.addImportClass(generatedAnnotation.getClassName());
-      anImport.addImportClass("javax.persistence.GenerationType");
+      anImport.addImportClass(StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "GenerationType"));
       field.addChild(generatedAnnotation);
 
       if (vendor == Vendor.ORACLE) {
-        Annotation sequenceAnnotation = new Annotation("javax.persistence.SequenceGenerator");
+        Annotation sequenceAnnotation = new Annotation(
+            StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "SequenceGenerator"));
         sequenceAnnotation
             .addKeyValuePair(Element.KeyValuePair.newKeyValuePair("name", "Please input your generator name"));
         sequenceAnnotation
@@ -91,7 +97,8 @@ public class JpaVisitor extends VisitorSupport {
         .filter(column -> column.getFieldName().equals(field.getFieldName()))
         .findAny()
         .orElseThrow(() -> new NoSuchElementException("field " + field.getFieldName() + " not found!"));
-    Annotation columnAnnotation = new Annotation("javax.persistence.Column");
+    Annotation columnAnnotation = new Annotation(
+        StringHelper.getJakartaEEClassNameOrNot(tablesConfig.isUseJakartaEE(), "Column"));
     anImport.addImportClass(columnAnnotation.getClassName());
     columnAnnotation
         .addKeyValuePair(Element.KeyValuePair.newKeyAndStringValuePair("name", matchColumn.getColumnName()));

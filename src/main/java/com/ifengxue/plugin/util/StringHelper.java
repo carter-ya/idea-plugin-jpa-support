@@ -423,4 +423,10 @@ public class StringHelper {
         .collect(Collectors.joining(lineSeparator));
   }
 
+  public static String getJakartaEEClassNameOrNot(boolean isUseJakartaEE, String classSimpleName) {
+    if (isUseJakartaEE) {
+      return "jakarta.persistence." + classSimpleName;
+    }
+    return "javax.persistence." + classSimpleName;
+  }
 }

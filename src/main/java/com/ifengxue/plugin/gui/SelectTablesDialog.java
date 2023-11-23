@@ -413,6 +413,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
             .setUseJpaAnnotation(autoGeneratorSettingsState.isGenerateJpaAnnotation())
             .setAddSchemeNameToTableName(autoGeneratorSettingsState.isAddSchemaNameToTableName())
+            .setUseJakartaEE(autoGeneratorSettingsState.isUseJakartaEE())
             .setUseJpa(moduleSettings.isRepositoryTypeJPA())
             .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())
             .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())

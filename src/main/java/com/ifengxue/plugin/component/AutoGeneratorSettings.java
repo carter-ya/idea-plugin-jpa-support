@@ -3,6 +3,8 @@ package com.ifengxue.plugin.component;
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
+import com.ifengxue.plugin.util.JavaLibraryUtils;
+import com.ifengxue.plugin.util.StringHelper;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import java.awt.Color;
@@ -78,7 +80,7 @@ public class AutoGeneratorSettings {
   private ExpandableTextField textMapperXmlParentPath;
   private JCheckBox chkBoxGenerateMapperXml;
   private ExpandableTextField textFileExtension;
-
+  private JCheckBox chkBoxUseJakartaEE;
   private Color originalForegroundColor;
 
   private void createUIComponents() {
@@ -168,6 +170,11 @@ public class AutoGeneratorSettings {
     chkBoxGenerateSwaggerUIComment.setSelected(data.isGenerateSwaggerUIComment());
     chkBoxGenerateJpaAnnotation.setSelected(data.isGenerateJpaAnnotation());
     chkBoxTableNameAddSchemaName.setSelected(data.isAddSchemaNameToTableName());
+    chkBoxUseJakartaEE.setSelected(data.isUseJakartaEE());
+    if (!data.isUseJakartaEE()) {
+      chkBoxUseJakartaEE.setSelected(JavaLibraryUtils.hasLibraryClass(Holder.getOrDefaultProject(),
+          StringHelper.getJakartaEEClassNameOrNot(true, "Entity")));
+    }
     textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
@@ -235,6 +242,7 @@ public class AutoGeneratorSettings {
     data.setGenerateSwaggerUIComment(chkBoxGenerateSwaggerUIComment.isSelected());
     data.setGenerateJpaAnnotation(chkBoxGenerateJpaAnnotation.isSelected());
     data.setAddSchemaNameToTableName(chkBoxTableNameAddSchemaName.isSelected());
+    data.setUseJakartaEE(chkBoxUseJakartaEE.isSelected());
     data.setRepositorySuffix(textRepositorySuffix.getText());
   }
 }

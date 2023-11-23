@@ -11,13 +11,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 #end
-#if($existsJavaxValidation)
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-#elseif($existsJakartaValidation)
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-#end
+import $stringHelper.getJakartaEEClassNameOrNot($useJakartaEE, "Valid");
+import $stringHelper.getJakartaEEClassNameOrNot($useJakartaEE, "NotNull");
 #if(!$tablesConfig.servicePackageName.isEmpty())
 import ${tablesConfig.servicePackageName}.${table.serviceName};
 #end

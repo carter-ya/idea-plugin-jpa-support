@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import javax.persistence.OptimisticLockException;
+import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "OptimisticLockException")};
 
 @Service
 public class ${simpleName} {

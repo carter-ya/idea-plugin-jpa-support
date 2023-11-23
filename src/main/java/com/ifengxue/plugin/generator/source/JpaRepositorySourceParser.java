@@ -34,6 +34,7 @@ public class JpaRepositorySourceParser extends AbstractIDEASourceParser {
             .map(StringHelper::getWrapperClass)
             .map(Class::getSimpleName)
             .orElse("Void"));
+    context.put("useJakartaEE", config.getTablesConfig().isUseJakartaEE());
     return evaluate(context, templateProvider);
   }
 
