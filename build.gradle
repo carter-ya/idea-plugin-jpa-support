@@ -73,7 +73,7 @@ test {
 }
 
 patchPluginXml {
-    version '2.1.0-RC3'
+    version '2.1.0'
     description """
         <p>Generate entity/repository class for JPA/Lombok/Spring Data JPA/Tk Mybatis/MyBatis Plus.</p>
         <p>Support internationalization. Currently supported languages are <a href="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/README.md">English</a>, <a href="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/README_zh.md">简体中文</a>.</p>
@@ -110,6 +110,11 @@ patchPluginXml {
         <img src="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/doc/select_and_generate.png?raw=true" alt="Use tips.">
     """
     changeNotes """
+      <h2>2.1.0</h2>
+      <ol>
+        <li>Fixed a bug that could prevent the recognition of primary key field after extends with a parent class</li>
+        <li>Support using <code>Jakarta EE</code> to replace <code>javax</code></li>
+      </ol>
       <h2>2.1.0-RC2</h2>
       <ol>
         <li>increase the compatibility of the database to resolve the database vendor</li>

@@ -110,6 +110,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 是否生成JPA注解
    */
   private boolean generateJpaAnnotation = true;
+  /**
+   * 是否使用JakartaEE
+   */
+  private boolean useJakartaEE = false;
 
   @Nullable
   @Override

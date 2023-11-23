@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.Page;
 import tk.mybatis.mapper.weekend.Weekend;
-import javax.persistence.OptimisticLockException;
+import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "OptimisticLockException")};
 
 @Service
 public class ${simpleName} {

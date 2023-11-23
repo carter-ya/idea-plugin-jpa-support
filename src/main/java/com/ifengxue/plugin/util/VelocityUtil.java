@@ -1,7 +1,5 @@
 package com.ifengxue.plugin.util;
 
-import com.ifengxue.plugin.Constants;
-import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -53,15 +51,5 @@ public enum VelocityUtil {
         ctx.put("StringUtils", stringUtils);
 
         ctx.put("LocaleContextHolder", new LocaleContextHolder());
-
-        if (System.getProperty(Constants.IN_TEST_ENVIRONMENT) == null) {
-            boolean existsJavaxValidation = JavaLibraryUtils
-                .hasLibraryClass(Holder.getOrDefaultProject(), "javax.validation.Valid");
-            ctx.put("existsJavaxValidation", existsJavaxValidation);
-
-            boolean existsJakartaValidation = JavaLibraryUtils
-                .hasLibraryClass(Holder.getOrDefaultProject(), "jakarta.validation.Valid");
-            ctx.put("existsJakartaValidation", existsJakartaValidation);
-        }
     }
 }

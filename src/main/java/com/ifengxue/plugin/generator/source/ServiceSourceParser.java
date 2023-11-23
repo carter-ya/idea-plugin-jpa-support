@@ -41,6 +41,7 @@ public class ServiceSourceParser extends AbstractIDEASourceParser {
             StringHelper.firstLetterLower(table.getRepositoryName()));
         context.put("primaryKeyDataType", table.getPrimaryKeyClassType().getSimpleName());
         context.put("entitySimpleName", table.getEntityName());
+        context.put("useJakartaEE", config.getTablesConfig().isUseJakartaEE());
         return evaluate(context, templateProvider);
     }
 

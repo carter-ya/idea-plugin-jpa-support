@@ -26,6 +26,7 @@ public class ControllerSourceParser extends AbstractIDEASourceParser {
         context.put("serviceName", table.getServiceName());
         context.put("serviceVariableName", StringHelper.firstLetterLower(table.getServiceName()));
         context.put("primaryKeyDataType", table.getPrimaryKeyClassType().getSimpleName());
+        context.put("useJakartaEE", config.getTablesConfig().isUseJakartaEE());
 
         context.put("save", LocaleContextHolder.format("controller_save"));
         context.put("delete", LocaleContextHolder.format("controller_delete"));
