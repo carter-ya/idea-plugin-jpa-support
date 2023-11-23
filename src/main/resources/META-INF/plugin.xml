@@ -77,7 +77,7 @@
        on how to target different products -->
 
   <id>com.ifengxue.plugin.jpa-support</id>
-  <idea-version since-build="211.*"/>
+  <idea-version since-build="211.*" until-build="231.*"/>
   <name>JPA Support</name>
 
   <vendor email="liukefeng2008@hotmail.com" url="https://github.com/carter-ya/idea-plugin-jpa-support">

@@ -31,7 +31,6 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.apache.velocity', name: 'velocity-engine-core', version: '2.3'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.2.Final'
