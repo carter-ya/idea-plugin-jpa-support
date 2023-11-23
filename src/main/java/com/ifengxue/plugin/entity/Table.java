@@ -126,7 +126,7 @@ public class Table implements Selectable {
   }
 
   public Column getPrimaryColumn() {
-    return columns.stream()
+    return allColumns.stream()
         .filter(Column::isPrimary)
         .findFirst()
         .orElse(null);
@@ -140,7 +140,7 @@ public class Table implements Selectable {
   }
 
   public Column findColumn(String fieldName) {
-    return columns.stream()
+    return allColumns.stream()
         .filter(c -> c.getFieldName().equalsIgnoreCase(fieldName))
         .findFirst()
         .orElse(null);
