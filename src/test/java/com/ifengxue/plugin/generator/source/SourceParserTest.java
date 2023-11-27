@@ -199,7 +199,7 @@ public class SourceParserTest {
   }
 
   public Table createTable() {
-    return new Table()
+    Table table = new Table()
         .setTableComment("表注释")
         .setTableName("t_table_name")
         .setTableSchema("test_db")
@@ -267,6 +267,8 @@ public class SourceParserTest {
                 .setPrimary(false)
         ))
         .setSelected(true);
+    table.setAllColumns(table.getColumns());
+    return table;
   }
 
   private String parse(String templateId) throws IOException {
