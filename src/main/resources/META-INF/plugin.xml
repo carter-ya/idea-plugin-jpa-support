@@ -1,6 +1,5 @@
 <idea-plugin>
   <actions>
-    <!-- Add your actions here -->
     <action class="com.ifengxue.plugin.action.JpaSupport" description="Create new JPA entities."
       id="JPASupport.NewEntities1" text="Generate JPA Entities">
       <add-to-group anchor="last" group-id="NewGroup1"/>
@@ -62,7 +61,6 @@
     ]]></description>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <!--  <idea-version since-build="171" until-build="191.*"/>-->
   <extensions defaultExtensionNs="com.intellij">
     <applicationConfigurable parentId="tools" instance="com.ifengxue.plugin.state.SettingsConfigurable"
         id="com.ifengxue.plugin.state.SettingsConfigurable" displayName="JPA Support"/>
