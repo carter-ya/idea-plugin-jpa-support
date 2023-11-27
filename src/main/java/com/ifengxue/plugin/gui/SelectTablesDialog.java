@@ -366,8 +366,10 @@ public class SelectTablesDialog extends DialogWrapper {
           table.setColumns(findColumns(table));
         }
         List<Column> allColumns = table.getColumns();
-        table.setAllColumns(allColumns);
-        
+        if (table.getAllColumns() == null) {
+          table.setAllColumns(allColumns);
+        }
+
         List<Column> columns = allColumns
             .stream()
             .filter(Column::isSelected)

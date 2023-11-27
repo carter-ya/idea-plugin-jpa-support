@@ -53,6 +53,10 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
     if (table.getColumns() == null) {
       table.setColumns(columnsMapping.apply(table));
     }
+    if (table.getAllColumns() == null) {
+      table.setAllColumns(table.getColumns());
+    }
+    table.setColumns(table.getColumns().stream().filter(Column::isSelected).toList());
 
     JBTable jbTable = new JBTable();
     new TableFactory().decorateTable(jbTable, Column.class, this.table.getColumns());

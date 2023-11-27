@@ -153,6 +153,7 @@ public enum TestTemplateHelper {
             .parseColumn(column, settingsState.getRemoveFieldPrefix(),
                 settingsState.getIfJavaKeywordAddSuffix(), true,
                 settingsState.isUseJava8DateType()));
+        table.setAllColumns(table.getColumns());
         return evaluateToString(clazz, table, template, fileType);
     }
 
@@ -177,7 +178,7 @@ public enum TestTemplateHelper {
         try {
             return clazz.newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("创建实例失败", e);
+            throw new IllegalStateException("create instance failed", e);
         }
     }
 }
