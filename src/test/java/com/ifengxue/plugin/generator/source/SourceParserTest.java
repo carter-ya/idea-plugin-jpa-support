@@ -13,7 +13,6 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.merge.XmlSourceFileMerger;
-import com.ifengxue.plugin.util.MyLogChute;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.junit.Test;
+import org.slf4j.helpers.NOPLogger;
 
 public class SourceParserTest {
 
@@ -44,7 +44,7 @@ public class SourceParserTest {
   }
 
   public void initParser() {
-    velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new MyLogChute());
+    velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, NOPLogger.NOP_LOGGER);
     String encoding = StandardCharsets.UTF_8.name();
     velocityEngine.addProperty("input.encoding", encoding);
     velocityEngine.addProperty("output.encoding", encoding);

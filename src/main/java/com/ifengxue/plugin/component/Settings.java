@@ -4,6 +4,7 @@ import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.util.Editors;
 import com.ifengxue.plugin.util.TypeUtil;
 import com.intellij.lang.Language;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.LanguageTextField;
@@ -34,16 +35,22 @@ public class Settings {
     private JRadioButton radioBtnFallbackType;
     private JPanel typeMappingTablePane;
 
+    private Editor sourceCodeEditor;
+
     private void createUIComponents() {
         sourceCodePane = ScrollPaneFactory.createScrollPane(txtSourceCode);
         Language velocityLanguage = Optional.ofNullable(Language.findLanguageByID("VTL"))
             .orElse(Language.findLanguageByID("TEXT"));
+        assert velocityLanguage != null;
         Project defaultProject = ProjectManager.getInstance().getDefaultProject();
+
         txtSourceCode = new LanguageTextField(velocityLanguage,
             defaultProject, "",
-            (value, language, project) -> Editors
-                .createSourceEditor(project, velocityLanguage, value, false)
-                .getDocument(), false);
+            (value, language, project) -> {
+                sourceCodeEditor = Editors
+                    .createSourceEditor(project, velocityLanguage, value, false);
+                return sourceCodeEditor.getDocument();
+            }, false);
         txtSourceCode.setEnabled(false);
         textFallbackType = TextFieldWithAutoCompletion
             .create(defaultProject, TypeUtil.getAllJavaDbType(), true, String.class.getName());
@@ -88,5 +95,11 @@ public class Settings {
             return true;
         }
         return false;
+    }
+
+    public void close() {
+        if (sourceCodeEditor != null) {
+            Editors.release(sourceCodeEditor);
+        }
     }
 }

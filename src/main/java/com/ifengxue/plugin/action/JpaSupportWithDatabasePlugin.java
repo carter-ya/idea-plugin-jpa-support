@@ -1,5 +1,8 @@
 package com.ifengxue.plugin.action;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
 import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.adapter.DatabaseDrivers;
 import com.ifengxue.plugin.entity.ColumnSchema;
@@ -22,16 +25,12 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.JBIterable;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Jpa Support with database plugin
@@ -56,8 +55,7 @@ public class JpaSupportWithDatabasePlugin extends AbstractPluginSupport {
           ObjectKind.MAT_VIEW
       );
       for (ObjectKind kind : kinds) {
-        JBIterable<DasTable> iterable = ((DasNamespace) parent)
-            .getDbChildren(DasTable.class, kind);
+        JBIterable<DasTable> iterable = ((DasNamespace) parent).getDasChildren(kind).filter(DasTable.class);
         for (DasTable dasTable : iterable) {
           allTables.add(dasTable);
         }
