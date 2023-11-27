@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
+import org.slf4j.helpers.NOPLogger;
 
 public enum VelocityUtil {
     ;
@@ -20,7 +21,7 @@ public enum VelocityUtil {
                     instance = new VelocityEngine();
                     // rewrite LogChute Avoid access denied exceptions (velocity.log)
                     // link: https://github.com/carter-ya/idea-plugin-jpa-support/issues/4
-                    instance.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new MyLogChute());
+                    instance.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, NOPLogger.NOP_LOGGER);
                     String encoding = StandardCharsets.UTF_8.name();
                     instance.addProperty("input.encoding", encoding);
                     instance.addProperty("output.encoding", encoding);

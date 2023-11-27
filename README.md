@@ -1,6 +1,36 @@
 - [English](README.md)
 - [中文文档](README_zh.md)
 
+# Plugin description
+
+<!-- Plugin description -->
+- Generate entity/repository class for JPA/Lombok/Spring Data JPA.
+- Generate entity/repository class for JPA/Lombok/Spring Data JPA.
+- Support internationalization. Currently supported languages are <a href="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/README.md">English</a>, <a href="https://github.com/carter-ya/idea-plugin-jpa-support/blob/master/README_zh.md">简体中文</a>.
+- Support all databases.
+- Support generate source code from Database plugin
+- Support custom generate code template
+   - Available template directory
+      - Module template directory: `{module}/.idea/JPA Support/template`
+      - Project template directory: `{project}/.idea/JPA Support/template`
+      - Home template directory: `{user.home}/.JPA Support/template`
+   - Available templates
+      - Controller.vm
+      - DTO.vm
+      - JpaEntity.vm
+      - JpaRepository.vm
+      - MapperXml.vm
+      - MybatisGenerateConfig.vm
+      - QueryVO.vm
+      - SaveVO.vm
+      - Service.vm
+      - Service-MybatisPlus.vm
+      - Service-TkMybatis.vm
+      - UpdateVO.vm
+- Support custom db type mapping
+- Mac: Command + N or Windows: Alt + Insert and select <b>Jpa Entities</b>
+<!-- Plugin description end -->
+
 # Guide
 
 ## Active Plugin

@@ -176,6 +176,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
 
     @Override
     public void disposeUIResources() {
+        settings.close();
         settings = null;
     }
 

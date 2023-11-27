@@ -26,8 +26,8 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
     setTableSchema(DasUtil.getSchema(dasColumn.getTable()));
     setTableName(dasColumn.getTableName());
     setOrdinalPosition(dasColumn.getPosition());
-    setDataType(dasColumn.getDataType().typeName);
-    setColumnType(dasColumn.getDataType().typeName);
+    setDataType(dasColumn.getDasType().toDataType().typeName);
+    setColumnType(dasColumn.getDasType().toDataType().typeName);
     setColumnComment(StringUtils.trimToEmpty(dasColumn.getComment()));
     String defaultVal = dasColumn.getDefault();
     if (defaultVal != null && defaultVal.startsWith("'") && defaultVal.endsWith("'")) {
@@ -69,7 +69,7 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
   @Override
   public int jdbcType() {
     Integer code = ColumnUtil.jdbcTypeNameToCode
-        .get(dasColumn.getDataType().typeName.toUpperCase());
+        .get(dasColumn.getDasType().toDataType().typeName.toUpperCase());
     if (code != null) {
       return code;
     }
@@ -80,7 +80,7 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
   @Override
   public String jdbcTypeName() {
     Integer code = ColumnUtil.jdbcTypeNameToCode
-        .get(dasColumn.getDataType().typeName.toUpperCase());
+        .get(dasColumn.getDasType().toDataType().typeName.toUpperCase());
     if (code != null) {
       IntrospectedColumn column = new IntrospectedColumn();
       column.setJdbcType(jdbcType());
@@ -94,8 +94,8 @@ public class DatabasePluginColumnSchema extends ColumnSchema implements ColumnSc
   public Class<?> javaTypeClass() {
     IntrospectedColumn column = new IntrospectedColumn();
     column.setJdbcType(jdbcType());
-    column.setLength(dasColumn.getDataType().getLength());
-    column.setScale(dasColumn.getDataType().getScale());
+    column.setLength(dasColumn.getDasType().toDataType().getLength());
+    column.setScale(dasColumn.getDasType().toDataType().getScale());
     FullyQualifiedJavaType type = javaTypeResolver.calculateJavaType(column);
     return Optional.ofNullable(type)
         .map(t -> {
