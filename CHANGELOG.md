@@ -2,6 +2,14 @@
 
 # JPA Support Changelog
 
+## [2.2.2]
+
+### Fixed
+- Ignore the problem that the default value cannot be resolved as BigDecimal
+
+### Added
+- Compatible with IDEA241
+
 ## [2.2.1]
 ### Added
 - Compatible with IDEA223
