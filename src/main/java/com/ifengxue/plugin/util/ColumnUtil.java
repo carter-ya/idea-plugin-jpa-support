@@ -3,6 +3,7 @@ package com.ifengxue.plugin.util;
 import com.ifengxue.plugin.entity.Column;
 import com.ifengxue.plugin.entity.ColumnSchema;
 import com.ifengxue.plugin.entity.ColumnSchemaExtension;
+import com.intellij.openapi.diagnostic.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -16,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ColumnUtil {
+
+  private static final Logger logger = Logger.getInstance(ColumnUtil.class);
 
   public static final Map<String, Integer> jdbcTypeNameToCode = new HashMap<>();
 
@@ -146,7 +149,13 @@ public class ColumnUtil {
         }
       }
       if (javaDataType == BigDecimal.class) {
-        BigDecimal amount = new BigDecimal(column.getDefaultValue());
+        BigDecimal amount;
+        try {
+          amount = new BigDecimal(column.getDefaultValue());
+        } catch (Exception e) {
+          amount = BigDecimal.ZERO;
+          logger.warn("can't parse '" + column.getDefaultValue() + "' to BigDecimal", e);
+        }
         if (amount.compareTo(BigDecimal.ZERO) == 0) {
           column.setDefaultValue("BigDecimal.ZERO");
         } else if (amount.compareTo(BigDecimal.ONE) == 0) {
