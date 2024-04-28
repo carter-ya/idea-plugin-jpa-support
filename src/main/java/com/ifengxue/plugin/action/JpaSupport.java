@@ -5,6 +5,7 @@ import com.ifengxue.plugin.gui.DatabaseSettingsDialog;
 import com.ifengxue.plugin.util.BusUtil;
 import com.ifengxue.plugin.util.JdbcConfigUtil;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -14,6 +15,12 @@ import org.jetbrains.annotations.NotNull;
 public class JpaSupport extends AbstractPluginSupport {
 
   private final Logger log = Logger.getInstance(JpaSupport.class);
+
+  @Override
+  public @NotNull ActionUpdateThread getActionUpdateThread() {
+    return ActionUpdateThread.BGT;
+  }
+  
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
     super.actionPerformed(e);
