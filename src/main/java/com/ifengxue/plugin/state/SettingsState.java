@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.state;
 
+import com.ifengxue.plugin.TemplateManager;
 import com.ifengxue.plugin.state.converter.ClassConverter;
 import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -10,10 +11,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import com.intellij.util.xmlb.annotations.Transient;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.sql.Time;
 import java.util.Date;
 import java.util.HashMap;
@@ -138,17 +136,6 @@ public class SettingsState implements PersistentStateComponent<SettingsState> {
     }
 
     public String forceLoadTemplate(String templateId) {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream(templateId)) {
-            if (input == null) {
-                log.warn("template " + templateId + " not exists.");
-                return "";
-            }
-            byte[] buffer = new byte[input.available()];
-            input.read(buffer);
-            return new String(buffer, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.warn("read template " + templateId + " error", e);
-            return "";
-        }
+        return TemplateManager.getInstance().loadTemplate(TemplateManager.DEFAULT_FILE_EXTENSION, templateId);
     }
 }
