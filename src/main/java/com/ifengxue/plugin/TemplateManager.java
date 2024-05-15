@@ -6,6 +6,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.io.IOException;
@@ -86,14 +87,14 @@ public class TemplateManager {
             return debugTemplateMapping.apply(finalTemplateId);
         }
 
-        AutoGeneratorSettingsState service = ServiceManager
-            .getService(Holder.getProject(), AutoGeneratorSettingsState.class);
-        VirtualFile projectDir = ProjectUtil.guessProjectDir(Holder.getProject());
+        Project project = Holder.getOrDefaultProject();
+        AutoGeneratorSettingsState service = ServiceManager.getService(project, AutoGeneratorSettingsState.class);
+        VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
         String projectPath = "";
         if (projectDir != null) {
             projectPath = StringUtils.trimToEmpty(projectDir.getCanonicalPath());
         }
-        Module module = ModuleManager.getInstance(Holder.getProject())
+        Module module = ModuleManager.getInstance(project)
             .findModuleByName(service.getModuleName());
         String modulePath = "";
         if (module != null) {
