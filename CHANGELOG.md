@@ -2,6 +2,11 @@
 
 # JPA Support Changelog
 
+## [2.2.4]
+
+### Added
+- Compatible with IDEA242
+
 ## [2.2.3]
 
 ### Fixed
