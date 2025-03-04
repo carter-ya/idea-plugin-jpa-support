@@ -413,6 +413,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseJava8DateType(autoGeneratorSettingsState.isUseJava8DateType())
             .setUseFluidProgrammingStyle(autoGeneratorSettingsState.isUseFluidProgrammingStyle())
             .setUseSwaggerUIComment(autoGeneratorSettingsState.isGenerateSwaggerUIComment())
+            .setUseOpenAPI3(autoGeneratorSettingsState.isUseOpenAPI3())
             .setUseJpaAnnotation(autoGeneratorSettingsState.isGenerateJpaAnnotation())
             .setAddSchemeNameToTableName(autoGeneratorSettingsState.isAddSchemaNameToTableName())
             .setUseJakartaEE(autoGeneratorSettingsState.isUseJakartaEE())

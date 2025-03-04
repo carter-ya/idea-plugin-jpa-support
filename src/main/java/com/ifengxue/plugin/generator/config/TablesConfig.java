@@ -23,6 +23,7 @@ public class TablesConfig {
   private boolean useJava8DateType;
   private boolean useFluidProgrammingStyle;
   private boolean useSwaggerUIComment;
+  private boolean useOpenAPI3;
   private boolean useJpaAnnotation;
   private boolean addSchemeNameToTableName;
   private boolean useJakartaEE;

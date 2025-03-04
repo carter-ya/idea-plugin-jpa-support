@@ -193,6 +193,7 @@ public class SourceParserTest {
                 .setUseLombok(true)
                 .setUseWrapper(true)
                 .setUseSwaggerUIComment(true)
+                .setUseOpenAPI3(true)
                 .setUseJpa(true)
         );
     return config;

@@ -74,8 +74,12 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
 
     // use Swagger UI 
     context.put("useSwaggerUIComment", tablesConfig.isUseSwaggerUIComment());
-    if (tablesConfig.isUseSwaggerUIComment()) {
-      if (StringUtils.isNotBlank(table.getTableComment())) {
+    context.put("useOpenAPI3", tablesConfig.isUseOpenAPI3());
+    if (tablesConfig.isUseSwaggerUIComment() && StringUtils.isNotBlank(table.getTableComment())) {
+      if (tablesConfig.isUseOpenAPI3()) {
+        importClassList.add("io.swagger.v3.oas.annotations.media.Schema");
+        classAnnotations.add("Schema(description = \"" + table.getTableComment() + "\")");
+      } else {
         importClassList.add("io.swagger.annotations.ApiModel");
         classAnnotations.add("ApiModel(\"" + table.getTableComment() + "\")");
       }
@@ -158,9 +162,15 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
       // add swagger annotation
       if (tablesConfig.isUseSwaggerUIComment() && StringUtils
           .isNotBlank(column.getColumnComment())) {
-        importClassList.add("io.swagger.annotations.ApiModelProperty");
-        columnAnnotation = new Annotation("io.swagger.annotations.ApiModelProperty", false);
-        columnAnnotation.addKeyValuePair(KeyValuePair.from("value", column.getColumnComment()));
+        if (tablesConfig.isUseOpenAPI3()) {
+          importClassList.add("io.swagger.v3.oas.annotations.media.Schema");
+          columnAnnotation = new Annotation("io.swagger.v3.oas.annotations.media.Schema", false);
+          columnAnnotation.addKeyValuePair(KeyValuePair.from("description", column.getColumnComment()));
+        } else {
+          importClassList.add("io.swagger.annotations.ApiModelProperty");
+          columnAnnotation = new Annotation("io.swagger.annotations.ApiModelProperty", false);
+          columnAnnotation.addKeyValuePair(KeyValuePair.from("value", column.getColumnComment()));
+        }
         column.getAnnotations().add(columnAnnotation.toString());
       }
 

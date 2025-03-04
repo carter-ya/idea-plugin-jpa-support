@@ -61,6 +61,7 @@ public enum TestTemplateHelper {
                     .setUseLombok(settingsState.isUseLombok())
                     .setUseFluidProgrammingStyle(settingsState.isUseFluidProgrammingStyle())
                     .setUseSwaggerUIComment(settingsState.isGenerateSwaggerUIComment())
+                    .setUseOpenAPI3(settingsState.isUseOpenAPI3())
                     .setUseWrapper(true)
                     .setUseJpa(moduleSettings.isRepositoryTypeJPA())
                     .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())

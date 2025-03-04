@@ -4,6 +4,7 @@ package $tablesConfig.dtoPackageName;
 #end
 #set($useLombok = $tablesConfig.isUseLombok())
 #set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useOpenAPI3 = $tablesConfig.isUseOpenAPI3())
 #set($serializable = $tablesConfig.isSerializable())
 
 
@@ -11,7 +12,11 @@ package $tablesConfig.dtoPackageName;
 @lombok.Data
 #end
 #if($useSwaggerUI)
+#if($useOpenAPI3)
+@io.swagger.v3.oas.annotations.media.Schema(description = "$table.tableComment")
+#else
 @io.swagger.annotations.ApiModel("$table.tableComment")
+#end
 #end
 public class ${table.entityName}${tablesConfig.dtoSuffixName} #if($serializable) implements java.io.Serializable #end {
     #if($serializable)
@@ -25,7 +30,11 @@ public class ${table.entityName}${tablesConfig.dtoSuffixName} #if($serializable)
          */
         #end
         #if($useSwaggerUI && !$column.columnComment.isEmpty())
+        #if($useOpenAPI3)
+        @io.swagger.v3.oas.annotations.media.Schema(description = "$column.columnComment")
+        #else
         @io.swagger.annotations.ApiModelProperty("$column.columnComment")
+        #end
         #end
         private $column.javaDataType.name $column.fieldName;
 

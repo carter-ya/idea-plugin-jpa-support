@@ -4,13 +4,18 @@ package $tablesConfig.voPackageName;
 #end
 #set($useLombok = $tablesConfig.isUseLombok())
 #set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useOpenAPI3 = $tablesConfig.isUseOpenAPI3())
 #set($serializable = $tablesConfig.isSerializable())
 #if($useLombok)
 import lombok.Data;
 #end
 #if($useSwaggerUI)
+#if($useOpenAPI3)
+import io.swagger.v3.oas.annotations.media.Schema;
+#else
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+#end
 #end
 import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "NotNull")};
 import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "NotBlank")};
@@ -21,7 +26,11 @@ import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "NotEmpty")};
 @Data
 #end
 #if($useSwaggerUI)
+#if($useOpenAPI3)
+@Schema(description = "$LocaleContextHolder.format("controller_save") $table.tableComment")
+#else
 @ApiModel("$LocaleContextHolder.format("controller_save") $table.tableComment")
+#end
 #end
 public class ${table.entityName}${tablesConfig.voSuffixName} #if($serializable) implements java.io.Serializable #end {
     #if($serializable)
@@ -45,7 +54,11 @@ public class ${table.entityName}${tablesConfig.voSuffixName} #if($serializable) 
         @NotEmpty(message = "$column.fieldName can not empty")
         #end
         #if($useSwaggerUI && !$column.columnComment.isEmpty())
+        #if($useOpenAPI3)
+        @Schema(description = "$column.columnComment")
+        #else
         @ApiModelProperty("$column.columnComment")
+        #end
         #end
         private $column.javaDataType.name $column.fieldName;
 
