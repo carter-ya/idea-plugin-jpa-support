@@ -4,6 +4,7 @@ package $tablesConfig.voPackageName;
 #end
 #set($useLombok = $tablesConfig.isUseLombok())
 #set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useOpenAPI3 = $tablesConfig.isUseOpenAPI3())
 #set($serializable = $tablesConfig.isSerializable())
 
 
@@ -11,12 +12,15 @@ package $tablesConfig.voPackageName;
 @lombok.Data
 #end
 #if($useSwaggerUI)
+#if($useOpenAPI3)
+@io.swagger.v3.oas.annotations.media.Schema(description = "$LocaleContextHolder.format("controller_query") $table.tableComment")
+#else
 @io.swagger.annotations.ApiModel("$LocaleContextHolder.format("controller_query") $table.tableComment")
+#end
 #end
 public class ${table.entityName}Query${tablesConfig.voSuffixName} #if($serializable) implements java.io.Serializable #end {
     #if($serializable)
     private static final long serialVersionUID = 1L;
-
     #end
     #foreach($column in $table.columns)
         #if($tablesConfig.isUseFieldComment() && !$column.columnComment.isEmpty())
@@ -26,7 +30,11 @@ public class ${table.entityName}Query${tablesConfig.voSuffixName} #if($serializa
          */
         #end
         #if($useSwaggerUI && !$column.columnComment.isEmpty())
+        #if($useOpenAPI3)
+        @io.swagger.v3.oas.annotations.media.Schema(description = "$column.columnComment")
+        #else
         @io.swagger.annotations.ApiModelProperty("$column.columnComment")
+        #end
         #end
         private $column.javaDataType.name $column.fieldName;
 

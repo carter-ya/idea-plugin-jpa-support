@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +53,7 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxUseFluidProgrammingStyle;
   private ExpandableTextField textRepositorySuffix;
   private JCheckBox chkBoxGenerateSwaggerUIComment;
+  private JCheckBox chkBoxUseOpenAPI3;
   private JCheckBox chkBoxTableNameAddSchemaName;
   private JCheckBox chkBoxGenerateJpaAnnotation;
   private JTabbedPane extensionPane;
@@ -82,6 +85,19 @@ public class AutoGeneratorSettings {
   private ExpandableTextField textFileExtension;
   private JCheckBox chkBoxUseJakartaEE;
   private Color originalForegroundColor;
+
+  public AutoGeneratorSettings() {
+    chkBoxGenerateSwaggerUIComment.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        if (!chkBoxGenerateSwaggerUIComment.isSelected()) {
+          chkBoxUseOpenAPI3.setEnabled(false);
+        } else {
+          chkBoxUseOpenAPI3.setEnabled(true);
+        }
+      }
+    });
+  }
 
   private void createUIComponents() {
     entityPackageReferenceEditorCombo = new MyPackageNameReferenceEditorCombo("",
@@ -168,6 +184,8 @@ public class AutoGeneratorSettings {
     chkBoxGenerateDatetimeDefaultValue.setSelected(data.isGenerateDatetimeDefaultValue());
     chkBoxUseFluidProgrammingStyle.setSelected(data.isUseFluidProgrammingStyle());
     chkBoxGenerateSwaggerUIComment.setSelected(data.isGenerateSwaggerUIComment());
+    chkBoxUseOpenAPI3.setSelected(data.isUseOpenAPI3());
+    chkBoxUseOpenAPI3.setEnabled(data.isGenerateSwaggerUIComment());
     chkBoxGenerateJpaAnnotation.setSelected(data.isGenerateJpaAnnotation());
     chkBoxTableNameAddSchemaName.setSelected(data.isAddSchemaNameToTableName());
     chkBoxUseJakartaEE.setSelected(data.isUseJakartaEE());
@@ -240,6 +258,7 @@ public class AutoGeneratorSettings {
     data.setGenerateDatetimeDefaultValue(chkBoxGenerateDatetimeDefaultValue.isSelected());
     data.setUseFluidProgrammingStyle(chkBoxUseFluidProgrammingStyle.isSelected());
     data.setGenerateSwaggerUIComment(chkBoxGenerateSwaggerUIComment.isSelected());
+    data.setUseOpenAPI3(chkBoxUseOpenAPI3.isEnabled() && chkBoxUseOpenAPI3.isSelected());
     data.setGenerateJpaAnnotation(chkBoxGenerateJpaAnnotation.isSelected());
     data.setAddSchemaNameToTableName(chkBoxTableNameAddSchemaName.isSelected());
     data.setUseJakartaEE(chkBoxUseJakartaEE.isSelected());

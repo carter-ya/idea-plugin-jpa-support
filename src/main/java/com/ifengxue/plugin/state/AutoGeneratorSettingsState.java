@@ -103,6 +103,10 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    */
   private boolean generateSwaggerUIComment = false;
   /**
+   * 是否使用OpenAPI 3.0
+   */
+  private boolean useOpenAPI3 = false;
+  /**
    * 添加schema name到表名
    */
   private boolean addSchemaNameToTableName = false;
