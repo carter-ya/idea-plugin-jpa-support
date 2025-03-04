@@ -57,8 +57,16 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
     // is use lombok
     context.put("useLombok", tablesConfig.isUseLombok());
     if (tablesConfig.isUseLombok()) {
-      importClassList.add("lombok.Data");
-      classAnnotations.add("Data");
+      importClassList.add("lombok.Getter");
+      classAnnotations.add("Getter");
+      importClassList.add("lombok.Setter");
+      classAnnotations.add("Setter");
+      importClassList.add("lombok.experimental.SuperBuilder");
+      classAnnotations.add("SuperBuilder");
+      importClassList.add("lombok.NoArgsConstructor");
+      classAnnotations.add("NoArgsConstructor");
+      importClassList.add("lombok.ToString");
+      classAnnotations.add("ToString");
 
       // use Fluid Programming Style
       if (tablesConfig.isUseFluidProgrammingStyle()) {
