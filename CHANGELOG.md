@@ -2,6 +2,12 @@
 
 # JPA Support Changelog
 
+## [2.3.1]
+
+- Compatible with IDEA251
+- Support OpenAPI 3.0 thanks @VantStark
+- Replace `Data` annotation with `Getter+Setter+SuperBuilder+NoArgsConstructor` thanks @VantStark
+
 ## [2.2.5]
 
 ### Added
