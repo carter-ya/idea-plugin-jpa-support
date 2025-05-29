@@ -2,6 +2,12 @@
 
 # JPA Support Changelog
 
+## [Unreleased]
+
+### Added
+- Add plugin icon
+
+
 ## [2.3.1]
 
 - Compatible with IDEA251
