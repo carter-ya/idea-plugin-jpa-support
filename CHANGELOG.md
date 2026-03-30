@@ -2,7 +2,7 @@
 
 # JPA Support Changelog
 
-## [Unreleased]
+## [2.4.0]
 
 ### Added
 - Add Kotlin templates for `JpaEntity`, `JpaRepository`, `Controller`, `Service`, `DTO`, `SaveVO`, `UpdateVO`, and `QueryVO`
