@@ -1,0 +1,87 @@
+#if(!$package.isEmpty())
+package $package
+
+#end
+#if(!$tablesConfig.repositoryPackageName.isEmpty())
+import ${tablesConfig.repositoryPackageName}.${table.repositoryName}
+#end
+#if(!$tablesConfig.entityPackageName.isEmpty())
+import ${tablesConfig.entityPackageName}.${table.entityName}
+#end
+#if(!$tablesConfig.voPackageName.isEmpty())
+import ${tablesConfig.voPackageName}.${entitySimpleName}${tablesConfig.voSuffixName}
+import ${tablesConfig.voPackageName}.${entitySimpleName}Update${tablesConfig.voSuffixName}
+import ${tablesConfig.voPackageName}.${entitySimpleName}Query${tablesConfig.voSuffixName}
+#end
+#if(!$tablesConfig.dtoPackageName.isEmpty())
+import ${tablesConfig.dtoPackageName}.${entitySimpleName}${tablesConfig.dtoSuffixName}
+#end
+import org.springframework.beans.BeanUtils
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import com.baomidou.mybatisplus.core.metadata.IPage
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page
+import com.baomidou.mybatisplus.core.toolkit.Wrappers
+
+@Service
+class ${simpleName} {
+
+    @Autowired
+    lateinit var ${repositoryVariableName}: $repositoryName
+
+    fun save(${tablesConfig.voSuffixVariableName}: ${entitySimpleName}${tablesConfig.voSuffixName}): $primaryKeyDataType {
+        val bean = ${entitySimpleName}()
+        BeanUtils.copyProperties(${tablesConfig.voSuffixVariableName}, bean)
+        ${repositoryVariableName}.insert(bean)
+        return bean.${table.primaryColumn.getterMethodName}()
+    }
+
+    fun delete(id: $primaryKeyDataType) {
+        val affectRows = ${repositoryVariableName}.deleteById(id)
+        if (affectRows == 0) {
+            throw org.springframework.dao.OptimisticLockingFailureException("Can't delete entity: $id")
+        }
+    }
+
+    fun update(id: $primaryKeyDataType, ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Update${tablesConfig.voSuffixName}) {
+        val bean = requireOne(id)
+        BeanUtils.copyProperties(${tablesConfig.voSuffixVariableName}, bean)
+        val affectRows = ${repositoryVariableName}.updateById(bean)
+        if (affectRows == 0) {
+            throw org.springframework.dao.OptimisticLockingFailureException("Can't update entity: $id")
+        }
+    }
+
+    fun getById(id: $primaryKeyDataType): ${entitySimpleName}${tablesConfig.dtoSuffixName} {
+        val original = requireOne(id)
+        return to${tablesConfig.dtoSuffixName}(original)
+    }
+
+    fun query(${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Query${tablesConfig.voSuffixName}): IPage<${entitySimpleName}${tablesConfig.dtoSuffixName}> {
+        val page = ${repositoryVariableName}.selectPage(
+            Page(${tablesConfig.voSuffixVariableName}.getPageNum(), ${tablesConfig.voSuffixVariableName}.getPageSize()),
+            Wrappers.lambdaQuery(${entitySimpleName}::class.java)
+            #foreach($column in $table.columns)
+                .eq(${tablesConfig.voSuffixVariableName}.${column.getterMethodName}() != null#if($column.javaDataType.name == 'java.lang.String') && ${tablesConfig.voSuffixVariableName}.${column.getterMethodName}()!!.isNotEmpty()#end, ${entitySimpleName}::${column.getterMethodName}, ${tablesConfig.voSuffixVariableName}.${column.getterMethodName}())
+            #end
+        )
+
+        val targetPage = Page<${entitySimpleName}${tablesConfig.dtoSuffixName}>(
+            page.current, page.size, page.total
+        )
+        targetPage.pages = page.pages
+        targetPage.records = page.records.map { to${tablesConfig.dtoSuffixName}(it) }
+        return targetPage
+    }
+
+    private fun to${tablesConfig.dtoSuffixName}(original: ${entitySimpleName}): ${entitySimpleName}${tablesConfig.dtoSuffixName} {
+        val bean = ${entitySimpleName}${tablesConfig.dtoSuffixName}()
+        BeanUtils.copyProperties(original, bean)
+        return bean
+    }
+
+    private fun requireOne(id: $primaryKeyDataType): ${entitySimpleName} {
+        return ${repositoryVariableName}.selectById(id)
+            ?: throw NoSuchElementException("Resource not found: $id")
+    }
+}

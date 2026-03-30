@@ -1,0 +1,106 @@
+#if(!$package.isEmpty())
+package $package
+
+#end
+#set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useJPA = $tablesConfig.isUseJpa())
+#set($useMybatisPlus = $tablesConfig.isUseMybatisPlus())
+#set($useTkMybatis = $tablesConfig.isUseTkMybatis())
+#if($useSwaggerUI)
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
+#end
+import $stringHelper.getJakartaEEClassNameOrNot($useJakartaEE, "Valid")
+import $stringHelper.getJakartaEEClassNameOrNot($useJakartaEE, "NotNull")
+#if(!$tablesConfig.servicePackageName.isEmpty())
+import ${tablesConfig.servicePackageName}.${table.serviceName}
+#end
+#if(!$tablesConfig.voPackageName.isEmpty())
+import ${tablesConfig.voPackageName}.${entitySimpleName}${tablesConfig.voSuffixName}
+import ${tablesConfig.voPackageName}.${entitySimpleName}Update${tablesConfig.voSuffixName}
+import ${tablesConfig.voPackageName}.${entitySimpleName}Query${tablesConfig.voSuffixName}
+#end
+#if(!$tablesConfig.dtoPackageName.isEmpty())
+import ${tablesConfig.dtoPackageName}.${entitySimpleName}${tablesConfig.dtoSuffixName}
+#end
+import org.springframework.beans.factory.annotation.Autowired
+#if($useJPA)
+import org.springframework.data.domain.Page
+#end
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+#if($useMybatisPlus)
+import com.baomidou.mybatisplus.core.metadata.IPage
+#end
+#if($useTkMybatis)
+import com.github.pagehelper.Page
+#end
+
+#if($useSwaggerUI)
+@Api(tags = ["$comment"])
+#end
+@Validated
+@RestController
+@RequestMapping("/$basePath")
+class ${simpleName} {
+
+    @Autowired
+    lateinit var ${serviceVariableName}: $serviceName
+
+    @PostMapping
+    #if($useSwaggerUI)
+    @ApiOperation("$save $comment")
+    #end
+    fun save(@Valid @RequestBody ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}${tablesConfig.voSuffixName}): String {
+        return ${serviceVariableName}.save(${tablesConfig.voSuffixVariableName}).toString()
+    }
+
+    @DeleteMapping("/{id}")
+    #if($useSwaggerUI)
+    @ApiOperation("$delete $comment")
+    #end
+    fun delete(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType) {
+        ${serviceVariableName}.delete(id)
+    }
+
+    @PutMapping("/{id}")
+    #if($useSwaggerUI)
+    @ApiOperation("$update $comment")
+    #end
+    fun update(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType,
+    @Valid @RequestBody ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Update${tablesConfig.voSuffixName}) {
+        ${serviceVariableName}.update(id, ${tablesConfig.voSuffixVariableName})
+    }
+
+    @GetMapping("/{id}")
+    #if($useSwaggerUI)
+    @ApiOperation("$getById $comment")
+    #end
+    fun getById(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType): ${entitySimpleName}${tablesConfig.dtoSuffixName} {
+        return ${serviceVariableName}.getById(id)
+    }
+
+    @GetMapping
+    #if($useSwaggerUI)
+    @ApiOperation("$query $comment")
+    #end
+    #if($useJPA)
+    fun query(@Valid ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Query${tablesConfig.voSuffixName}): Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> {
+    #end
+    #if($useMybatisPlus)
+    fun query(@Valid ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Query${tablesConfig.voSuffixName}): IPage<${entitySimpleName}${tablesConfig.dtoSuffixName}> {
+    #end
+    #if($useTkMybatis)
+    fun query(@Valid ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Query${tablesConfig.voSuffixName}): Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> {
+    #end
+        return ${serviceVariableName}.query(${tablesConfig.voSuffixVariableName})
+    }
+}

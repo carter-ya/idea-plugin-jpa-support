@@ -1,0 +1,60 @@
+#if($StringUtils.isNotBlank($tablesConfig.voPackageName))
+package $tablesConfig.voPackageName
+
+#end
+#set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useOpenAPI3 = $tablesConfig.isUseOpenAPI3())
+#set($serializable = $tablesConfig.isSerializable())
+#if($useSwaggerUI)
+#if($useOpenAPI3)
+import io.swagger.v3.oas.annotations.media.Schema
+#else
+import io.swagger.annotations.ApiModel
+import io.swagger.annotations.ApiModelProperty
+#end
+#end
+import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "NotNull")}
+import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "NotBlank")}
+import ${stringHelper.getJakartaEEClassNameOrNot(${useJakartaEE}, "NotEmpty")}
+
+#if($useSwaggerUI)
+#if($useOpenAPI3)
+@Schema(description = "$LocaleContextHolder.format("controller_save") $table.tableComment")
+#else
+@ApiModel("$LocaleContextHolder.format("controller_save") $table.tableComment")
+#end
+#end
+class ${table.entityName}${tablesConfig.voSuffixName}#if($serializable) : java.io.Serializable#end {
+#if($serializable)
+
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+#end
+#foreach($column in $table.columns)
+#if($tablesConfig.isUseFieldComment() && !$column.columnComment.isEmpty())
+
+    /**
+     * $column.getColumnComment()
+     */
+#end
+#if(!$column.isNullable())
+    @NotNull(message = "$column.fieldName can not null")
+#end
+#if($column.isNotBlank())
+    @NotBlank(message = "$column.fieldName can not blank")
+#end
+#if($column.isNotEmpty())
+    @NotEmpty(message = "$column.fieldName can not empty")
+#end
+#if($useSwaggerUI && !$column.columnComment.isEmpty())
+#if($useOpenAPI3)
+    @Schema(description = "$column.columnComment")
+#else
+    @ApiModelProperty("$column.columnComment")
+#end
+#end
+    var $column.fieldName: $column.javaDataType.name#if($column.isNullable())?#end = #if($column.isNullable())null#elseif($tablesConfig.requireWriteDefaultValue($column))$column.getDefaultValue()#else null!!#end
+
+#end
+}

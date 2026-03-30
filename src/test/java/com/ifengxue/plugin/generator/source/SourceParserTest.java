@@ -13,6 +13,7 @@ import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig.ORM;
 import com.ifengxue.plugin.generator.config.Vendor;
 import com.ifengxue.plugin.generator.merge.XmlSourceFileMerger;
+import com.ifengxue.plugin.generator.source.JpaRepositorySourceParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -155,6 +156,120 @@ public class SourceParserTest {
   }
 
   @Test
+  public void entityKotlinSourceTest() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    String sourceCode = parseKotlin("template/JpaEntity.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void repositoryKotlinSourceTest() throws IOException {
+    sourceParser = new JpaRepositorySourceParser();
+    initParser();
+
+    String sourceCode = parseKotlin("template/JpaRepository.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void controllerKotlinSourceTest() throws IOException {
+    sourceParser = new ControllerSourceParser();
+    initParser();
+
+    String sourceCode = parseKotlin("template/Controller.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void serviceKotlinSourceTest() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    String sourceCode = parseKotlin("template/Service.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void serviceMybatisPlusKotlinSourceTest() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    String sourceCode = parseKotlin("template/Service-MybatisPlus.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void serviceTkMybatisKotlinSourceTest() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    String sourceCode = parseKotlin("template/Service-TkMybatis.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void saveVOKotlinSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.SAVE_VO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parseKotlin("template/SaveVO.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void updateVOKotlinSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.UPDATE_VO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parseKotlin("template/UpdateVO.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void queryVOKotlinSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.QUERY_VO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parseKotlin("template/QueryVO.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
+  public void dtoKotlinSourceTest() throws IOException {
+    sourceParser = new SimpleBeanSourceParser();
+    ((TemplateIdSetter) sourceParser).setTemplateId(Constants.DTO_TEMPLATE_ID);
+    initParser();
+
+    String sourceCode = parseKotlin("template/DTO.kt.vm");
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    System.out.println(sourceCode);
+  }
+
+  @Test
   public void xmlSourceFileMerger() {
     new XmlSourceFileMerger().tryMerge(createGeneratorConfig(), createTable(), null, null);
   }
@@ -276,6 +391,12 @@ public class SourceParserTest {
     GeneratorConfig config = createGeneratorConfig();
     Table table = createTable();
     return sourceParser.parse(config, table, loadTemplate(templateId));
+  }
+
+  private String parseKotlin(String templateResourcePath) throws IOException {
+    GeneratorConfig config = createGeneratorConfig();
+    Table table = createTable();
+    return sourceParser.parse(config, table, loadTemplate(templateResourcePath));
   }
 
   private static String loadTemplate(String templateId) throws IOException {

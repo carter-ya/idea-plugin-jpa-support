@@ -15,7 +15,10 @@ public final class LocaleContextHolder {
   static {
     LOCALE_ITEMS = new LocaleItem[]{
         new LocaleItem(Locale.US, "English"),
-        new LocaleItem(Locale.CHINESE, "简体中文")
+        new LocaleItem(Locale.CHINESE, "简体中文"),
+        new LocaleItem(Locale.TRADITIONAL_CHINESE, "繁體中文"),
+        new LocaleItem(Locale.JAPANESE, "日本語"),
+        new LocaleItem(Locale.KOREAN, "한국어")
     };
     try {
       resourceBundle = ResourceBundle.getBundle("bundles/ui_i18n", currentLocale);
