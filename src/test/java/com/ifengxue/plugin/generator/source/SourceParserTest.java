@@ -269,6 +269,7 @@ public class SourceParserTest {
     System.out.println(sourceCode);
   }
 
+
   @Test
   public void xmlSourceFileMerger() {
     new XmlSourceFileMerger().tryMerge(createGeneratorConfig(), createTable(), null, null);
