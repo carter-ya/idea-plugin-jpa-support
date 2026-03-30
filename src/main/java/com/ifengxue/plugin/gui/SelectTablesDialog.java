@@ -66,7 +66,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -98,14 +97,17 @@ public class SelectTablesDialog extends DialogWrapper {
     init();
     setTitle(LocaleContextHolder.format("select_database_tables"));
 
-    // sequence
-    AtomicInteger seq = new AtomicInteger(1);
-    tables.sort(Comparator.comparing(Table::getTableName));
-    tables.forEach(table -> table.setSequence(seq.getAndIncrement()));
+    long dialogPreparationStartNanos = System.nanoTime();
+    SelectTablesPreparation.TableViewPreparationResult tableViewPreparationResult =
+        SelectTablesPreparation.prepareTableView(tables);
 
     JTable table = new JBTable();
+    long decorateTableStartNanos = System.nanoTime();
     new TableFactory().decorateTable(table, Table.class, tables);
+    long decorateTableElapsedMillis = SelectTablesPreparation.elapsedMillis(decorateTableStartNanos);
+    long speedSearchStartNanos = System.nanoTime();
     new TableSpeedSearch(table);
+    long speedSearchElapsedMillis = SelectTablesPreparation.elapsedMillis(speedSearchStartNanos);
     JPanel tablePanel = ToolbarDecorator.createDecorator(table)
         .setEditAction(anActionButton -> new ColumnFieldMappingEditorDialog(project, true,
             tables.get(table.getSelectedRow()), SelectTablesDialog.this::findColumns).showAndGet())
@@ -131,7 +133,8 @@ public class SelectTablesDialog extends DialogWrapper {
           .count();
       selectTables.getLblSelectCount().setText(selected + " of " + tables.size());
     };
-    updateSelected.run();
+    selectTables.getLblSelectCount().setText(
+        tableViewPreparationResult.getSelectedCount() + " of " + tables.size());
 
     table.getModel().addTableModelListener((e) -> updateSelected.run());
 
@@ -214,6 +217,16 @@ public class SelectTablesDialog extends DialogWrapper {
       }
       new GeneratorRunner(tables, new DuplicateActionType()).run();
     });
+
+    long dialogPreparationElapsedMillis = SelectTablesPreparation.elapsedMillis(dialogPreparationStartNanos);
+    log.info("SelectTables perf: dialogInit.finish"
+        + " size=" + tables.size()
+        + " selected=" + tableViewPreparationResult.getSelectedCount()
+        + " prepareRowsMs=" + tableViewPreparationResult.getElapsedMillis()
+        + " decorateTableMs=" + decorateTableElapsedMillis
+        + " speedSearchMs=" + speedSearchElapsedMillis
+        + " dialogInitMs=" + dialogPreparationElapsedMillis
+        + " thread=" + Thread.currentThread().getName());
   }
 
   /**

@@ -37,6 +37,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("mysql:mysql-connector-java:8.0.26")
+    testImplementation("org.postgresql:postgresql:42.7.7")
 }
 
 java {

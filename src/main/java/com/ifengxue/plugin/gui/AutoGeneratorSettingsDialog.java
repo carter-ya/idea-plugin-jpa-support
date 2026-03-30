@@ -5,7 +5,6 @@ import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.component.AutoGeneratorSettings;
 import com.ifengxue.plugin.component.MyPackageNameReferenceEditorCombo;
 import com.ifengxue.plugin.entity.ColumnSchema;
-import com.ifengxue.plugin.entity.Selectable;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
@@ -36,7 +35,6 @@ import com.intellij.ui.components.JBScrollPane;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -331,6 +329,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
     // read attributes
     generatorSettings.getData(autoGeneratorSettingsState, moduleSettings);
     List<TableSchema> tableSchemaList;
+    long waitFutureStartNanos = System.nanoTime();
     try {
       tableSchemaList = tableSchemasFuture.get();
     } catch (InterruptedException e) {
@@ -347,33 +346,35 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
               message, NotificationType.ERROR)));
       return;
     }
-    List<Table> tableList = new ArrayList<>(tableSchemaList.size());
+    long waitFutureElapsedMillis = SelectTablesPreparation.elapsedMillis(waitFutureStartNanos);
+    log.info("SelectTables perf: retrieveTableSchemas.await"
+        + " costMs=" + waitFutureElapsedMillis
+        + " size=" + tableSchemaList.size()
+        + " thread=" + Thread.currentThread().getName());
+    long buildTableListStartNanos = System.nanoTime();
     String entityDirectory = Paths.get(moduleSettings.getEntityParentDirectory(),
         StringHelper.packageNameToFolder(moduleSettings.getEntityPackageName()))
         .toAbsolutePath().toString();
     VirtualFile entityDirectoryVF = LocalFileSystem.getInstance().findFileByPath(entityDirectory);
-    for (TableSchema tableSchema : tableSchemaList) {
-      String tableName = autoGeneratorSettingsState.removeTablePrefix(tableSchema.getTableName());
-      String entityName = StringHelper.parseEntityName(tableName);
-      entityName = autoGeneratorSettingsState.concatPrefixAndSuffix(entityName);
-      // If the path contains a file with the same name, it is not selected by default
-      boolean selected =
-          entityDirectoryVF == null || entityDirectoryVF.findChild(entityName + ".java") == null;
-      if (tableSchema instanceof Selectable) {
-        selected = ((Selectable) tableSchema).isSelected();
-      }
-      if (selected) {
-        // support flyway
-        if (tableName.equals("flyway_schema_history")) {
-          selected = false;
-        }
-      }
-      String repositoryName = entityName + autoGeneratorSettingsState.getRepositorySuffix();
-      tableList.add(Table.from(tableSchema, entityName, repositoryName, selected));
-    }
+    Set<String> existingEntityFiles = SelectTablesPreparation.collectExistingEntityFiles(entityDirectoryVF);
+    SelectTablesPreparation.TableListBuildResult tableListBuildResult =
+        SelectTablesPreparation.buildTableList(
+            tableSchemaList,
+            existingEntityFiles,
+            autoGeneratorSettingsState::removeTablePrefix,
+            autoGeneratorSettingsState::concatPrefixAndSuffix,
+            autoGeneratorSettingsState.getRepositorySuffix()
+        );
+    long buildTableListElapsedMillis = SelectTablesPreparation.elapsedMillis(buildTableListStartNanos);
+    log.info("SelectTables perf: buildTableList.finish"
+        + " size=" + tableSchemaList.size()
+        + " existingEntityFiles=" + tableListBuildResult.getExistingEntityFileCount()
+        + " selected=" + tableListBuildResult.getSelectedCount()
+        + " costMs=" + buildTableListElapsedMillis
+        + " thread=" + Thread.currentThread().getName());
     ApplicationManager.getApplication().invokeLater(() -> {
       dispose();
-      SelectTablesDialog.show(tableList, mapping);
+      SelectTablesDialog.show(tableListBuildResult.getTables(), mapping);
     });
   }
 

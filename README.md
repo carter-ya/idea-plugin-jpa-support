@@ -77,6 +77,10 @@
 
 ![Custom type mapping](doc/type_mapping.png)
 
+## Local test database
+
+For reproducing large-table-count issues and validating type-mapping edge cases, see [docs/performance-test-database.md](docs/performance-test-database.md).
+
 ## Related articles
 
 1. [Use Tutorial Video YouTube](https://www.youtube.com/watch?v=CynidTePOys)

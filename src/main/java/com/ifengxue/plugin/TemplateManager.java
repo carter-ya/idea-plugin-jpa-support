@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
@@ -26,6 +27,10 @@ public class TemplateManager {
     private static final Logger log = Logger.getInstance(TemplateManager.class);
     private static final TemplateManager INSTANCE = new TemplateManager();
     private static final List<String> SEARCH_PATH = new ArrayList<>();
+    private static final List<String> FIXED_EXTENSION_TEMPLATE_IDS = Arrays.asList(
+        Constants.MAPPER_XML_TEMPLATE_ID,
+        Constants.MYBATIS_GENERATOR_CONFIG_TEMPLATE_ID
+    );
     public static final String DEFAULT_FILE_EXTENSION = "java";
     /**
      * only used for debug
@@ -77,7 +82,7 @@ public class TemplateManager {
         // e.g. Service.kt.vm or Service.vm
         fileExtension = fileExtension.toLowerCase();
         String finalTemplateId = templateId;
-        if (!DEFAULT_FILE_EXTENSION.equals(fileExtension)) {
+        if (shouldAppendFileExtension(fileExtension, templateId)) {
             finalTemplateId += "." + fileExtension;
         }
         finalTemplateId += ".vm";
@@ -126,6 +131,11 @@ public class TemplateManager {
             input.read(buffer);
             return new String(buffer, StandardCharsets.UTF_8);
         }
+    }
+
+    private boolean shouldAppendFileExtension(String fileExtension, String templateId) {
+        return !DEFAULT_FILE_EXTENSION.equals(fileExtension)
+            && !FIXED_EXTENSION_TEMPLATE_IDS.contains(templateId);
     }
 
 }
