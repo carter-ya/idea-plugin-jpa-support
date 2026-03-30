@@ -2,6 +2,16 @@
 
 # JPA Support Changelog
 
+## [Unreleased]
+
+### Added
+- Add Kotlin templates for `JpaEntity`, `JpaRepository`, `Controller`, `Service`, `DTO`, `SaveVO`, `UpdateVO`, and `QueryVO`
+- Add Kotlin templates for `Service-MybatisPlus` and `Service-TkMybatis`
+- Add UI translations for Traditional Chinese, Japanese, and Korean
+
+### Changed
+- Remove the IntelliJ upper build limit to improve compatibility with newer IDEA versions
+
 ## [2.3.3]
 
 ### Added

@@ -1,0 +1,40 @@
+#if($StringUtils.isNotBlank($tablesConfig.dtoPackageName))
+package $tablesConfig.dtoPackageName
+
+#end
+#set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($useOpenAPI3 = $tablesConfig.isUseOpenAPI3())
+#set($serializable = $tablesConfig.isSerializable())
+
+
+#if($useSwaggerUI)
+#if($useOpenAPI3)
+@io.swagger.v3.oas.annotations.media.Schema(description = "$table.tableComment")
+#else
+@io.swagger.annotations.ApiModel("$table.tableComment")
+#end
+#end
+class ${table.entityName}${tablesConfig.dtoSuffixName}#if($serializable) : java.io.Serializable#end {
+    #if($serializable)
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+    #end
+    #foreach($column in $table.columns)
+        #if($tablesConfig.isUseFieldComment() && !$column.columnComment.isEmpty())
+
+        /**
+         * $column.getColumnComment()
+         */
+        #end
+        #if($useSwaggerUI && !$column.columnComment.isEmpty())
+        #if($useOpenAPI3)
+        @io.swagger.v3.oas.annotations.media.Schema(description = "$column.columnComment")
+        #else
+        @io.swagger.annotations.ApiModelProperty("$column.columnComment")
+        #end
+        #end
+        var $column.fieldName: $column.javaDataType.name? = null
+
+    #end
+}

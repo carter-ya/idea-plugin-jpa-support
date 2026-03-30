@@ -1,0 +1,19 @@
+#if($StringUtils.isNotBlank($tablesConfig.voPackageName))
+package $tablesConfig.voPackageName
+
+#end
+#set($useSwaggerUI = $tablesConfig.isUseSwaggerUIComment())
+#set($serializable = $tablesConfig.isSerializable())
+
+
+#if($useSwaggerUI)
+@io.swagger.annotations.ApiModel("$LocaleContextHolder.format("controller_update") $table.tableComment")
+#end
+class ${table.entityName}Update${tablesConfig.voSuffixName} : ${table.entityName}${tablesConfig.voSuffixName}()#if($serializable), java.io.Serializable#end {
+    #if($serializable)
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+
+    #end
+}
