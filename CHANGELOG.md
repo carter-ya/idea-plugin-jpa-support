@@ -2,15 +2,22 @@
 
 # JPA Support Changelog
 
-## [2.4.0]
+## [2.4.1]
 
 ### Added
 - Add Kotlin templates for `JpaEntity`, `JpaRepository`, `Controller`, `Service`, `DTO`, `SaveVO`, `UpdateVO`, and `QueryVO`
 - Add Kotlin templates for `Service-MybatisPlus` and `Service-TkMybatis`
 - Add UI translations for Traditional Chinese, Japanese, and Korean
+- Add Docker-based MySQL and PostgreSQL performance test databases with 2000+ tables and edge-case schemas
+- Add PostgreSQL metadata smoke test and large-table preparation benchmarks
 
 ### Changed
 - Remove the IntelliJ upper build limit to improve compatibility with newer IDEA versions
+- Optimize database table loading to lazily load column metadata, which greatly improves the select-table dialog responsiveness on large schemas
+
+### Fixed
+- Fix Kotlin template preview/loading for `MapperXml` and other extension-independent templates
+- Fix source preview editor disposal to avoid IDEA object-tree leak reports
 
 ## [2.3.3]
 
