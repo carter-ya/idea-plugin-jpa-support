@@ -35,6 +35,9 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.20")
 
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.19.8"))
+    testImplementation("org.testcontainers:mysql")
+    testImplementation("org.testcontainers:postgresql")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("mysql:mysql-connector-java:8.0.26")
     testImplementation("org.postgresql:postgresql:42.7.7")

@@ -5,9 +5,9 @@ import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.action.JpaSupport;
 import com.ifengxue.plugin.adapter.DriverDelegate;
 import com.ifengxue.plugin.entity.ColumnSchema;
-import com.ifengxue.plugin.entity.JdbcMetadataColumnSchema;
 import com.ifengxue.plugin.entity.JdbcMetadataTableSchema;
 import com.ifengxue.plugin.component.DatabaseSettings;
+import com.ifengxue.plugin.entity.MybatisGeneratorTableSchema;
 import com.ifengxue.plugin.entity.TableSchema;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.i18n.LocaleItem;
@@ -55,9 +55,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
@@ -68,6 +66,12 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.ModelType;
+import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.internal.db.DatabaseIntrospector;
+import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
 public class DatabaseSettingsDialog extends DialogWrapper {
 
   public static AtomicReference<ClassLoader> classLoaderRef = new AtomicReference<>(JpaSupport.class.getClassLoader());
@@ -268,7 +272,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         dispose();
         // show dialog
         AutoGeneratorSettingsDialog.show(tableSchemasFuture,
-            tableSchema -> findTableColumnsUnchecked((JdbcMetadataTableSchema) tableSchema));
+            tableSchema -> findTableColumnsUnchecked(tableSchema));
       });
     });
   }
@@ -323,7 +327,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     }
   }
 
-  private List<ColumnSchema> findTableColumnsUnchecked(JdbcMetadataTableSchema tableSchema) {
+  private List<ColumnSchema> findTableColumnsUnchecked(TableSchema tableSchema) {
     try {
       return findTableColumns(tableSchema);
     } catch (SQLException e) {
@@ -331,46 +335,32 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     }
   }
 
-  private List<ColumnSchema> findTableColumns(JdbcMetadataTableSchema tableSchema) throws SQLException {
+  private List<ColumnSchema> findTableColumns(TableSchema tableSchema) throws SQLException {
     long columnQueryStartNanos = System.nanoTime();
     DataSource datasource = ((SimpleFastJdbc) Holder.getFastJdbc()).getDatasource();
     try (Connection connection = datasource.getConnection()) {
-      DatabaseMetaData metadata = connection.getMetaData();
-      String catalog = StringUtils.defaultIfBlank(tableSchema.getTableCatalog(), null);
-      String schema = StringUtils.defaultIfBlank(tableSchema.getTableSchema(), null);
-      String tableName = tableSchema.getTableName();
-      Set<String> primaryKeys = new HashSet<>();
-      try (ResultSet primaryKeyResultSet = metadata.getPrimaryKeys(catalog, schema, tableName)) {
-        while (primaryKeyResultSet.next()) {
-          primaryKeys.add(primaryKeyResultSet.getString("COLUMN_NAME"));
-        }
+      List<String> warnings = new ArrayList<>();
+      Context context = new Context(ModelType.FLAT);
+      JavaTypeResolverDefaultImpl typeResolver = new JavaTypeResolverDefaultImpl();
+      DatabaseIntrospector introspector = new DatabaseIntrospector(
+          context, connection.getMetaData(), typeResolver, warnings);
+      TableConfiguration tc = new TableConfiguration(context);
+      tc.setCatalog(StringUtils.defaultIfBlank(tableSchema.getTableCatalog(), null));
+      tc.setSchema(StringUtils.defaultIfBlank(tableSchema.getTableSchema(), null));
+      tc.setTableName(tableSchema.getTableName());
+      List<IntrospectedTable> tables = introspector.introspectTables(tc);
+      if (tables.isEmpty()) {
+        long columnQueryElapsedMillis = (System.nanoTime() - columnQueryStartNanos) / 1_000_000L;
+        log.info("SelectTables perf: loadTableColumns.finish"
+            + " table=" + tableSchema.getTableName()
+            + " schema=" + StringUtils.defaultString(tableSchema.getTableSchema())
+            + " size=0"
+            + " costMs=" + columnQueryElapsedMillis
+            + " thread=" + Thread.currentThread().getName());
+        return java.util.Collections.emptyList();
       }
-
-      List<ColumnSchema> columnSchemas = new ArrayList<>();
-      try (ResultSet resultSet = metadata.getColumns(catalog, schema, tableName, "%")) {
-        while (resultSet.next()) {
-          JdbcMetadataColumnSchema columnSchema = new JdbcMetadataColumnSchema();
-          String columnName = resultSet.getString("COLUMN_NAME");
-          columnSchema.setColumnName(columnName);
-          columnSchema.setTableSchema(StringUtils.defaultIfBlank(resultSet.getString("TABLE_SCHEM"), tableSchema.getTableSchema()));
-          columnSchema.setTableName(resultSet.getString("TABLE_NAME"));
-          columnSchema.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
-          columnSchema.setDataType(StringUtils.defaultString(resultSet.getString("TYPE_NAME")));
-          columnSchema.setColumnType(columnSchema.getDataType());
-          columnSchema.setColumnComment(StringUtils.defaultString(resultSet.getString("REMARKS")));
-          columnSchema.setColumnDefault(resultSet.getString("COLUMN_DEF"));
-          columnSchema.setJdbcType(resultSet.getInt("DATA_TYPE"));
-          columnSchema.setJdbcTypeName(resultSet.getString("TYPE_NAME"));
-          columnSchema.setNullable(resultSet.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
-          columnSchema.setIsNullable(columnSchema.nullable() ? "YES" : "NO");
-          columnSchema.setPrimary(primaryKeys.contains(columnName));
-          columnSchema.setColumnKey(columnSchema.primary() ? "PRI" : "");
-          columnSchema.setAutoIncrement("YES".equalsIgnoreCase(getResultSetString(resultSet, "IS_AUTOINCREMENT")));
-          columnSchema.setGeneratedColumn("YES".equalsIgnoreCase(getResultSetString(resultSet, "IS_GENERATEDCOLUMN")));
-          columnSchemas.add(columnSchema);
-        }
-      }
-
+      MybatisGeneratorTableSchema mgTableSchema = new MybatisGeneratorTableSchema(tables.get(0));
+      List<ColumnSchema> columnSchemas = mgTableSchema.toColumnSchemas();
       long columnQueryElapsedMillis = (System.nanoTime() - columnQueryStartNanos) / 1_000_000L;
       log.info("SelectTables perf: loadTableColumns.finish"
           + " table=" + tableSchema.getTableName()
@@ -379,14 +369,6 @@ public class DatabaseSettingsDialog extends DialogWrapper {
           + " costMs=" + columnQueryElapsedMillis
           + " thread=" + Thread.currentThread().getName());
       return columnSchemas;
-    }
-  }
-
-  private String getResultSetString(ResultSet resultSet, String columnLabel) {
-    try {
-      return resultSet.getString(columnLabel);
-    } catch (SQLException ignored) {
-      return null;
     }
   }
 
