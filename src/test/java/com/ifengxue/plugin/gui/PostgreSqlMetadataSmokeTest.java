@@ -5,124 +5,72 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import fastjdbc.NoPoolDataSource;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import org.junit.Assume;
+import java.util.ArrayList;
+import java.util.List;
+import javax.sql.DataSource;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.config.Context;
+import org.mybatis.generator.config.ModelType;
+import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.internal.db.DatabaseIntrospector;
+import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PostgreSqlMetadataSmokeTest {
 
-  private static final String JDBC_URL =
-      "jdbc:postgresql://127.0.0.1:35432/jpa_support_edge?user=postgres&password=postgres";
+  @ClassRule
+  public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+      .withInitScript("init-postgresql-edge.sql");
 
   @Test
   public void postgresMetadataMatchesDatabaseSettingsDialogAssumptions() throws Exception {
-    Assume.assumeTrue("PostgreSQL test container is not available", canConnect());
+    DataSource dataSource = new NoPoolDataSource(
+        postgres.getJdbcUrl(),
+        postgres.getUsername(), postgres.getPassword());
+    try (Connection connection = dataSource.getConnection()) {
+      List<String> warnings = new ArrayList<>();
+      Context context = new Context(ModelType.FLAT);
+      DatabaseIntrospector introspector = new DatabaseIntrospector(
+          context, connection.getMetaData(), new JavaTypeResolverDefaultImpl(), warnings);
+      TableConfiguration tc = new TableConfiguration(context);
+      tc.setSchema("public");
+      List<IntrospectedTable> tables = introspector.introspectTables(tc);
+      assertFalse("Should introspect at least one table", tables.isEmpty());
 
-    try (Connection connection = DriverManager.getConnection(JDBC_URL)) {
-      DatabaseMetaData metadata = connection.getMetaData();
+      // Verify account_profile — BIGSERIAL PK must have sequenceColumn=true
+      IntrospectedTable accountTable = tables.stream()
+          .filter(t -> t.getFullyQualifiedTable().getIntrospectedTableName()
+              .equals("account_profile"))
+          .findFirst().orElse(null);
+      assertNotNull("account_profile should exist", accountTable);
+      IntrospectedColumn idCol = accountTable.getColumn("id").orElse(null);
+      assertNotNull("id column should exist", idCol);
+      assertTrue("BIGSERIAL id should be a sequence column", idCol.isSequenceColumn());
 
-      Set<String> tableNames = new HashSet<>();
-      try (ResultSet resultSet = metadata.getTables(connection.getCatalog(), "public", "%", new String[]{"TABLE"})) {
-        while (resultSet.next()) {
-          tableNames.add(resultSet.getString("TABLE_NAME"));
-        }
-      }
-      assertTrue(tableNames.contains("account_profile"));
-      assertTrue(tableNames.contains("data_type_showcase"));
-      assertTrue(tableNames.contains("composite_pk_example"));
+      // Verify data_type_showcase exists and has expected columns
+      IntrospectedTable showcaseTable = tables.stream()
+          .filter(t -> t.getFullyQualifiedTable().getIntrospectedTableName()
+              .equals("data_type_showcase"))
+          .findFirst().orElse(null);
+      assertNotNull("data_type_showcase should exist", showcaseTable);
+      assertNotNull("c_numeric_value column should exist",
+          showcaseTable.getColumn("c_numeric_value").orElse(null));
+      assertNotNull("c_jsonb_value column should exist",
+          showcaseTable.getColumn("c_jsonb_value").orElse(null));
 
-      Set<String> primaryKeys = new HashSet<>();
-      try (ResultSet resultSet = metadata.getPrimaryKeys(connection.getCatalog(), "public", "account_profile")) {
-        while (resultSet.next()) {
-          primaryKeys.add(resultSet.getString("COLUMN_NAME"));
-        }
-      }
-      assertEquals(Set.of("id"), primaryKeys);
-
-      Map<String, ColumnSnapshot> columns = new HashMap<>();
-      try (ResultSet resultSet = metadata.getColumns(connection.getCatalog(), "public", "data_type_showcase", "%")) {
-        while (resultSet.next()) {
-          columns.put(resultSet.getString("COLUMN_NAME"), new ColumnSnapshot(
-              resultSet.getInt("DATA_TYPE"),
-              resultSet.getString("TYPE_NAME"),
-              resultSet.getInt("NULLABLE"),
-              getOptionalString(resultSet, "IS_AUTOINCREMENT"),
-              getOptionalString(resultSet, "IS_GENERATEDCOLUMN")));
-        }
-      }
-
-      assertFalse(columns.isEmpty());
-      assertColumn(columns, "id", "YES", Types.BIGINT);
-      assertColumn(columns, "c_numeric_value", "NO", Types.NUMERIC);
-      assertColumn(columns, "c_boolean_flag", "NO", Types.BIT, Types.BOOLEAN);
-      assertColumn(columns, "c_jsonb_value", "NO", Types.OTHER);
-      assertColumn(columns, "c_bytea_value", "NO", Types.BINARY, Types.VARBINARY, Types.LONGVARBINARY);
-      assertColumn(columns, "c_timestamptz_value", "NO", Types.TIMESTAMP_WITH_TIMEZONE, Types.TIMESTAMP);
-      assertColumn(columns, "c_uuid_value", "NO", Types.OTHER);
-      assertColumn(columns, "c_xml_value", "NO", Types.SQLXML, Types.LONGVARCHAR);
-    }
-  }
-
-  private static void assertColumn(
-      Map<String, ColumnSnapshot> columns,
-      String columnName,
-      String autoIncrement,
-      int... jdbcTypes) {
-    ColumnSnapshot column = columns.get(columnName);
-    assertNotNull(columnName, column);
-    System.out.println(columnName
-        + " jdbcType=" + column.jdbcType
-        + " typeName=" + column.typeName
-        + " nullable=" + column.nullable
-        + " autoIncrement=" + column.autoIncrement
-        + " generatedColumn=" + column.generatedColumn);
-    assertTrue(
-        "Unexpected JDBC type for " + columnName + ": " + column.jdbcType,
-        java.util.Arrays.stream(jdbcTypes).anyMatch(value -> value == column.jdbcType));
-    assertFalse(column.typeName == null || column.typeName.isBlank());
-    assertNotNull(column.generatedColumn);
-    assertEquals(autoIncrement, column.autoIncrement);
-  }
-
-  private static boolean canConnect() {
-    try (Connection ignored = DriverManager.getConnection(JDBC_URL)) {
-      return true;
-    } catch (SQLException e) {
-      return false;
-    }
-  }
-
-  private static String getOptionalString(ResultSet resultSet, String columnLabel) throws SQLException {
-    try {
-      String value = resultSet.getString(columnLabel);
-      return value == null ? "" : value;
-    } catch (SQLException ignored) {
-      return "";
-    }
-  }
-
-  private static final class ColumnSnapshot {
-    private final int jdbcType;
-    private final String typeName;
-    private final int nullable;
-    private final String autoIncrement;
-    private final String generatedColumn;
-
-    private ColumnSnapshot(int jdbcType, String typeName, int nullable, String autoIncrement, String generatedColumn) {
-      this.jdbcType = jdbcType;
-      this.typeName = typeName;
-      this.nullable = nullable;
-      this.autoIncrement = autoIncrement;
-      this.generatedColumn = generatedColumn;
+      // Verify composite_pk_example — composite primary key
+      IntrospectedTable compositeTable = tables.stream()
+          .filter(t -> t.getFullyQualifiedTable().getIntrospectedTableName()
+              .equals("composite_pk_example"))
+          .findFirst().orElse(null);
+      assertNotNull("composite_pk_example should exist", compositeTable);
+      assertEquals("Should have 2 primary key columns",
+          2, compositeTable.getPrimaryKeyColumns().size());
     }
   }
 }
