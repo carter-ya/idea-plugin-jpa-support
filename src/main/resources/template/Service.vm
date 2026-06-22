@@ -49,7 +49,7 @@ public class ${simpleName} {
         return to${tablesConfig.dtoSuffixName}(original);
     }
 
-    public Page<${entitySimpleName}DTO> query(${entitySimpleName}Query${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
+    public Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> query(${entitySimpleName}Query${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
         throw new UnsupportedOperationException();
     }
 

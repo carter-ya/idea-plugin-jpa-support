@@ -95,7 +95,7 @@ return $column.getFieldName();
 public String toString() {
 return "$simpleName{" +
 #foreach($column in $columns)
-    "$column.getFieldName()=" + $column.getFieldName() + '\'' +
+    "$column.getFieldName()='" + $column.getFieldName() + '\''#if($foreach.hasNext) + ", "#end +
 #end
     '}';
 }

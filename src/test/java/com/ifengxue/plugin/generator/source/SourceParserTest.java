@@ -2,6 +2,7 @@ package com.ifengxue.plugin.generator.source;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 import com.ifengxue.plugin.Constants;
 import com.ifengxue.plugin.TemplateManager;
@@ -71,6 +72,9 @@ public class SourceParserTest {
     String sourceCode = parse(Constants.CONTROLLER_TEMPLATE_ID);
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
+    // Bug 2: generated code must not contain "import import" (duplicate import keyword)
+    assertFalse("Controller generated code should not contain duplicate 'import import'",
+        sourceCode.contains("import import"));
     System.out.println(sourceCode);
   }
 
@@ -82,6 +86,11 @@ public class SourceParserTest {
     String sourceCode = parse(Constants.JPA_SERVICE_TEMPLATE_ID);
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
+    // Bug 3: query() return type must use dtoSuffixName ("Response") not hardcoded "DTO"
+    assertFalse("Service query() should not use hardcoded 'DTO' in return type",
+        sourceCode.contains("Page<TableNameDTO>"));
+    assertTrue("Service query() should use dtoSuffixName 'Response' in return type",
+        sourceCode.contains("Page<TableNameResponse>"));
     System.out.println(sourceCode);
   }
 
@@ -93,6 +102,9 @@ public class SourceParserTest {
     String sourceCode = parse(Constants.MYBATIS_PLUS_SERVICE_TEMPLATE_ID);
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
+    // Bug 5: generated code must not contain unused OptimisticLockException import
+    assertFalse("MybatisPlus service should not contain unused OptimisticLockException import",
+        sourceCode.contains("OptimisticLockException"));
     System.out.println(sourceCode);
   }
 
@@ -104,6 +116,9 @@ public class SourceParserTest {
     String sourceCode = parse(Constants.TK_MYBATIS_SERVICE_TEMPLATE_ID);
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
+    // Bug 5: generated code must not contain unused OptimisticLockException import
+    assertFalse("TkMybatis service should not contain unused OptimisticLockException import",
+        sourceCode.contains("OptimisticLockException"));
     System.out.println(sourceCode);
   }
 
@@ -207,6 +222,9 @@ public class SourceParserTest {
     String sourceCode = parseKotlin("template/Service-MybatisPlus.kt.vm");
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
+    // Bug 5: must not contain unused OptimisticLockException
+    assertFalse("MybatisPlus.kt service should not contain unused OptimisticLockException import",
+        sourceCode.contains("OptimisticLockException"));
     System.out.println(sourceCode);
   }
 
@@ -218,6 +236,9 @@ public class SourceParserTest {
     String sourceCode = parseKotlin("template/Service-TkMybatis.kt.vm");
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
+    // Bug 5: must not contain unused OptimisticLockException
+    assertFalse("TkMybatis.kt service should not contain unused OptimisticLockException import",
+        sourceCode.contains("OptimisticLockException"));
     System.out.println(sourceCode);
   }
 
@@ -269,6 +290,111 @@ public class SourceParserTest {
     System.out.println(sourceCode);
   }
 
+  // Bug 1: JpaEntity.vm toString() format verification — fields separated by ", " with leading quote
+  @Test
+  public void entityToStringWhenLombokDisabled() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseLombok(false)
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    // toString should generate field1='value1', field2='value2' format with comma separator
+    // The generated Java code should contain the ", " comma-space separator pattern
+    // between fields inside the toString method body
+    assertTrue("toString should contain comma separator \", \" between fields",
+        sourceCode.contains("\", \""));
+    // The generated toString should use single-quote around each value:
+    // each field should appear as fieldName='" (equals, single-quote, double-quote)
+    assertTrue("toString field should use '=\" pattern (equals-quote before value)",
+        sourceCode.contains("='\""));
+    System.out.println(sourceCode);
+  }
+
+  // Bug 4: Controller.vm @ApiParam should be guarded by $useSwaggerUI, not $useLombok
+  @Test
+  public void controllerApiParamWithSwaggerUINoLombok() throws IOException {
+    sourceParser = new ControllerSourceParser();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseLombok(false)
+            .setUseSwaggerUIComment(true)
+        );
+    String sourceCode = parseWithConfig(Constants.CONTROLLER_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    // Bug 4: when useSwaggerUI=true and useLombok=false, @ApiParam should still be generated
+    assertTrue("@ApiParam should be generated when useSwaggerUI=true even if useLombok=false",
+        sourceCode.contains("@ApiParam(\"id\")"));
+    System.out.println(sourceCode);
+  }
+
+  // Bug 4 (Kotlin variant): Controller.kt.vm @ApiParam guard
+  @Test
+  public void controllerKotlinApiParamWithSwaggerUINoLombok() throws IOException {
+    sourceParser = new ControllerSourceParser();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseLombok(false)
+            .setUseSwaggerUIComment(true)
+        );
+    String sourceCode = parseKotlinWithConfig("template/Controller.kt.vm", config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    // Bug 4 Kotlin: when useSwaggerUI=true and useLombok=false, @ApiParam should still be generated
+    assertTrue("@ApiParam should be generated in Kotlin when useSwaggerUI=true even if useLombok=false",
+        sourceCode.contains("@ApiParam(\"id\")"));
+    System.out.println(sourceCode);
+  }
+
+  // Bug 3 (Kotlin variant): Service.kt.vm query() must use dtoSuffixName not hardcoded DTO
+  @Test
+  public void serviceKotlinQueryReturnsDtoSuffix() throws IOException {
+    sourceParser = new ServiceSourceParser();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setDtoSuffixName("Response")
+        );
+    String sourceCode = parseKotlinWithConfig("template/Service.kt.vm", config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    // Bug 3 Kotlin: query() return type must not use hardcoded "DTO"
+    assertFalse("Service.kt query() should not use hardcoded 'DTO' in return type",
+        sourceCode.contains("Page<TableNameDTO>"));
+    assertTrue("Service.kt query() should use dtoSuffixName 'Response' in return type",
+        sourceCode.contains("Page<TableNameResponse>"));
+    System.out.println(sourceCode);
+  }
+
+  // Bug 6: MapperXml.vm must not have nested ${} syntax on the columnNameJoining line
+  @Test
+  public void mapperXmlSourceTest() throws IOException {
+    sourceParser = new MapperXmlSourceParser();
+    initParser();
+
+    String sourceCode = parseWithConfig(Constants.MAPPER_XML_TEMPLATE_ID, createGeneratorConfig());
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    // Bug 6: the generated XML should not contain nested ${} which would cause parse errors;
+    // the fact that we successfully generated code already proves the fix.
+    // Additionally verify the <sql> block contains the column list.
+    assertTrue("MapperXml should contain Base_Column_List sql block",
+        sourceCode.contains("Base_Column_List"));
+    // Verify the generated output does not contain raw Velocity nested ${} artifacts
+    assertFalse("MapperXml generated code should not contain nested Velocity ${}",
+        sourceCode.contains("${table.allColumns}"));
+    System.out.println(sourceCode);
+  }
 
   @Test
   public void xmlSourceFileMerger() {
@@ -394,10 +520,58 @@ public class SourceParserTest {
     return sourceParser.parse(config, table, loadTemplate(templateId));
   }
 
+  private String parseWithConfig(String templateId, GeneratorConfig config) throws IOException {
+    Table table = createTable();
+    return sourceParser.parse(config, table, loadTemplate(templateId));
+  }
+
   private String parseKotlin(String templateResourcePath) throws IOException {
     GeneratorConfig config = createGeneratorConfig();
     Table table = createTable();
     return sourceParser.parse(config, table, loadTemplate(templateResourcePath));
+  }
+
+  private String parseKotlinWithConfig(String templateResourcePath, GeneratorConfig config)
+      throws IOException {
+    Table table = createTable();
+    return sourceParser.parse(config, table, loadTemplate(templateResourcePath));
+  }
+
+  private GeneratorConfig createGeneratorConfigWithSettings() {
+    return new GeneratorConfig()
+        .setDriverConfig(new DriverConfig().setVendor(Vendor.MYSQL))
+        .setPluginConfigs(Collections.emptyList());
+  }
+
+  private TablesConfig createBaseTablesConfig() {
+    return new TablesConfig()
+        .setBasePackageName("org.example")
+        .setEntityPackageName("org.example.domain")
+        .setControllerPackageName("org.example.controller")
+        .setServicePackageName("org.example.service")
+        .setVoSuffixName("Request")
+        .setVoPackageName("org.example.vo")
+        .setDtoSuffixName("Response")
+        .setDtoPackageName("org.example.dto")
+        .setExtendsEntityName("org.example.domain.AbstractEntity")
+        .setIndent("  ")
+        .setLineSeparator("\n")
+        .setOrm(ORM.JPA)
+        .setRemoveFieldPrefix("f_")
+        .setRemoveTablePrefix("t_")
+        .setRepositoryPackageName("org.example.repo")
+        .setSerializable(true)
+        .setUseClassComment(true)
+        .setUseFieldComment(true)
+        .setUseMethodComment(true)
+        .setUseDefaultValue(true)
+        .setUseDefaultDatetimeValue(false)
+        .setUseJava8DateType(true)
+        .setUseLombok(true)
+        .setUseWrapper(true)
+        .setUseSwaggerUIComment(true)
+        .setUseOpenAPI3(true)
+        .setUseJpa(true);
   }
 
   private static String loadTemplate(String templateId) throws IOException {

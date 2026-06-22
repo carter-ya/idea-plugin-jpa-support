@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 #end
 #if($useTkMybatis)
-import import com.github.pagehelper.Page;
+import com.github.pagehelper.Page;
 #end
 
 #if($useSwaggerUI)
@@ -67,7 +67,7 @@ public class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$delete $comment")
     #end
-    public void delete(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
+    public void delete(@Valid @NotNull #if($useSwaggerUI)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
         ${serviceVariableName}.delete(id);
     }
 
@@ -75,7 +75,7 @@ public class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$update $comment")
     #end
-    public void update(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id,
+    public void update(@Valid @NotNull #if($useSwaggerUI)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id,
     @Valid @RequestBody ${entitySimpleName}Update${tablesConfig.voSuffixName} ${tablesConfig.voSuffixVariableName}) {
         ${serviceVariableName}.update(id, ${tablesConfig.voSuffixVariableName});
     }
@@ -84,7 +84,7 @@ public class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$getById $comment")
     #end
-    public ${entitySimpleName}${tablesConfig.dtoSuffixName} getById(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
+    public ${entitySimpleName}${tablesConfig.dtoSuffixName} getById(@Valid @NotNull #if($useSwaggerUI)@ApiParam("id")#end @PathVariable("id") $primaryKeyDataType id) {
         return ${serviceVariableName}.getById(id);
     }
 
