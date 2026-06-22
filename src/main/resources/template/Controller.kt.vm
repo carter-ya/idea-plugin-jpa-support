@@ -67,7 +67,7 @@ class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$delete $comment")
     #end
-    fun delete(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType) {
+    fun delete(@Valid @NotNull #if($useSwaggerUI)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType) {
         ${serviceVariableName}.delete(id)
     }
 
@@ -75,7 +75,7 @@ class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$update $comment")
     #end
-    fun update(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType,
+    fun update(@Valid @NotNull #if($useSwaggerUI)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType,
     @Valid @RequestBody ${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Update${tablesConfig.voSuffixName}) {
         ${serviceVariableName}.update(id, ${tablesConfig.voSuffixVariableName})
     }
@@ -84,7 +84,7 @@ class ${simpleName} {
     #if($useSwaggerUI)
     @ApiOperation("$getById $comment")
     #end
-    fun getById(@Valid @NotNull #if($useLombok)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType): ${entitySimpleName}${tablesConfig.dtoSuffixName} {
+    fun getById(@Valid @NotNull #if($useSwaggerUI)@ApiParam("id")#end @PathVariable("id") id: $primaryKeyDataType): ${entitySimpleName}${tablesConfig.dtoSuffixName} {
         return ${serviceVariableName}.getById(id)
     }
 

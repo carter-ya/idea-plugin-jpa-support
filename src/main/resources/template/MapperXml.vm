@@ -15,6 +15,6 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@JPA.Support generated on ${DATE} ${TIME}.-->
-    ${table.columnNameJoining(${table.allColumns}, ', ', '`')}
+    ${table.columnNameJoining($table.allColumns, ', ', '`')}
   </sql>
 </mapper>

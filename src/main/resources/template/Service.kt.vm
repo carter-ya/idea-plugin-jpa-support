@@ -49,7 +49,7 @@ class ${simpleName} {
         return to${tablesConfig.dtoSuffixName}(original)
     }
 
-    fun query(${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Query${tablesConfig.voSuffixName}): Page<${entitySimpleName}DTO> {
+    fun query(${tablesConfig.voSuffixVariableName}: ${entitySimpleName}Query${tablesConfig.voSuffixName}): Page<${entitySimpleName}${tablesConfig.dtoSuffixName}> {
         throw UnsupportedOperationException()
     }
 
