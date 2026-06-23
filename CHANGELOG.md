@@ -5,14 +5,10 @@
 ## [2.4.1]
 
 ### Added
-- Add Kotlin templates for `JpaEntity`, `JpaRepository`, `Controller`, `Service`, `DTO`, `SaveVO`, `UpdateVO`, and `QueryVO`
-- Add Kotlin templates for `Service-MybatisPlus` and `Service-TkMybatis`
-- Add UI translations for Traditional Chinese, Japanese, and Korean
 - Add testcontainers-based MySQL and PostgreSQL database tests with edge-case schemas
 - Add PostgreSQL metadata smoke test and large-table preparation benchmarks
 
 ### Changed
-- Remove the IntelliJ upper build limit to improve compatibility with newer IDEA versions
 - Optimize database table loading to lazily load column metadata, which greatly improves the select-table dialog responsiveness on large schemas
 
 ### Fixed
@@ -20,6 +16,16 @@
 - Fix source preview editor disposal to avoid IDEA object-tree leak reports
 - Fix 6 Velocity template bugs: toString() format, duplicate import keyword, hardcoded DTO suffix in query(), @ApiParam guarded by wrong variable, unused OptimisticLockException import, nested ${} reference in MapperXml
 - Roll back column metadata loading to MyBatis Generator DatabaseIntrospector to restore sequence column detection and Java type resolution precision
+
+## [2.4.0]
+
+### Added
+- Add Kotlin templates for `JpaEntity`, `JpaRepository`, `Controller`, `Service`, `DTO`, `SaveVO`, `UpdateVO`, and `QueryVO`
+- Add Kotlin templates for `Service-MybatisPlus` and `Service-TkMybatis`
+- Add UI translations for Traditional Chinese, Japanese, and Korean
+
+### Changed
+- Remove the IntelliJ upper build limit to improve compatibility with newer IDEA versions
 
 ## [2.3.3]
 
