@@ -1,5 +1,6 @@
 package com.ifengxue.plugin.generator.source;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
@@ -21,6 +22,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import java.util.Collections;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
@@ -290,7 +292,7 @@ public class SourceParserTest {
     System.out.println(sourceCode);
   }
 
-  // Bug 1: JpaEntity.vm toString() format verification — fields separated by ", " with leading quote
+  // Bug 1: JpaEntity.vm toString() format verification — 4-layer structural validation
   @Test
   public void entityToStringWhenLombokDisabled() throws IOException {
     sourceParser = new EntitySourceParserV2();
@@ -303,16 +305,33 @@ public class SourceParserTest {
     String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
     assertNotNull(sourceCode);
     assertFalse(sourceCode.isEmpty());
-    // toString should generate field1='value1', field2='value2' format with comma separator
-    // The generated Java code should contain the ", " comma-space separator pattern
-    // between fields inside the toString method body
-    assertTrue("toString should contain comma separator \", \" between fields",
-        sourceCode.contains("\", \""));
-    // The generated toString should use single-quote around each value:
-    // each field should appear as fieldName='" (equals, single-quote, double-quote)
-    assertTrue("toString field should use '=\" pattern (equals-quote before value)",
-        sourceCode.contains("='\""));
     System.out.println(sourceCode);
+
+    // Layer 1: verify method structure completeness
+    assertTrue("toString should contain @Override annotation",
+        sourceCode.contains("@Override"));
+    assertTrue("toString should contain method signature 'public String toString() {'",
+        sourceCode.contains("public String toString() {"));
+    assertTrue("toString should contain return with '\"TableName{\" +'",
+        sourceCode.contains("\"TableName{\" +"));
+
+    // Layer 2: verify every field appears as fieldName='\" pattern in toString
+    for (Column column : createTable().getColumns()) {
+      String fieldPattern = "\"" + column.getFieldName() + "='\"";
+      assertTrue("toString is missing field pattern '" + fieldPattern
+              + "' for field '" + column.getFieldName() + "'",
+          sourceCode.contains(fieldPattern));
+    }
+
+    // Layer 3: verify separator count = n-1 (4 for 5 fields), ensuring no trailing comma
+    String separator = "+ \", \" +";
+    int separatorCount = sourceCode.split(Pattern.quote(separator), -1).length - 1;
+    assertEquals("toString should have exactly 4 ' + \", \" +' separators (n-1 for 5 fields)",
+        4, separatorCount);
+
+    // Layer 4: verify closing syntax '}'; exists for method body completeness
+    assertTrue("toString should contain closing '\\'}\\';' for method body completeness",
+        sourceCode.contains("'}'"));
   }
 
   // Bug 4: Controller.vm @ApiParam should be guarded by $useSwaggerUI, not $useLombok
