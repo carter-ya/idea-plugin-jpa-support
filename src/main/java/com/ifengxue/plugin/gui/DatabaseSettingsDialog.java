@@ -239,13 +239,13 @@ public class DatabaseSettingsDialog extends DialogWrapper {
           try {
             indicator.setText("Retrieve table schemas...");
             indicator.setIndeterminate(true);
-            log.info("SelectTables perf: retrieveTableSchemas.start"
+            log.debug("SelectTables perf: retrieveTableSchemas.start"
                 + " database=" + database
                 + " schema=" + StringUtils.defaultString(schema)
                 + " thread=" + Thread.currentThread().getName());
             List<TableSchema> tableSchemas = findDatabaseSchemas(database, schema);
             long retrieveElapsedMillis = (System.nanoTime() - retrieveStartNanos) / 1_000_000L;
-            log.info("SelectTables perf: retrieveTableSchemas.finish"
+            log.debug("SelectTables perf: retrieveTableSchemas.finish"
                 + " database=" + database
                 + " schema=" + StringUtils.defaultString(schema)
                 + " size=" + tableSchemas.size()
@@ -255,7 +255,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
             indicator.setText("Retrieve table schemas succeed.");
           } catch (Exception error) {
             long retrieveElapsedMillis = (System.nanoTime() - retrieveStartNanos) / 1_000_000L;
-            log.warn("SelectTables perf: retrieveTableSchemas.error"
+            log.debug("SelectTables perf: retrieveTableSchemas.error"
                 + " database=" + database
                 + " schema=" + StringUtils.defaultString(schema)
                 + " costMs=" + retrieveElapsedMillis
@@ -317,7 +317,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         }
       }
       long tableQueryElapsedMillis = (System.nanoTime() - tableQueryStartNanos) / 1_000_000L;
-      log.info("SelectTables perf: loadTableList.finish"
+      log.debug("SelectTables perf: loadTableList.finish"
           + " database=" + database
           + " schema=" + StringUtils.defaultString(schema)
           + " size=" + tableSchemas.size()
@@ -351,7 +351,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       List<IntrospectedTable> tables = introspector.introspectTables(tc);
       if (tables.isEmpty()) {
         long columnQueryElapsedMillis = (System.nanoTime() - columnQueryStartNanos) / 1_000_000L;
-        log.info("SelectTables perf: loadTableColumns.finish"
+        log.debug("SelectTables perf: loadTableColumns.finish"
             + " table=" + tableSchema.getTableName()
             + " schema=" + StringUtils.defaultString(tableSchema.getTableSchema())
             + " size=0"
@@ -362,7 +362,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       MybatisGeneratorTableSchema mgTableSchema = new MybatisGeneratorTableSchema(tables.get(0));
       List<ColumnSchema> columnSchemas = mgTableSchema.toColumnSchemas();
       long columnQueryElapsedMillis = (System.nanoTime() - columnQueryStartNanos) / 1_000_000L;
-      log.info("SelectTables perf: loadTableColumns.finish"
+      log.debug("SelectTables perf: loadTableColumns.finish"
           + " table=" + tableSchema.getTableName()
           + " schema=" + StringUtils.defaultString(tableSchema.getTableSchema())
           + " size=" + columnSchemas.size()

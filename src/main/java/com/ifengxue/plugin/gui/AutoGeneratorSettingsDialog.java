@@ -347,7 +347,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
       return;
     }
     long waitFutureElapsedMillis = SelectTablesPreparation.elapsedMillis(waitFutureStartNanos);
-    log.info("SelectTables perf: retrieveTableSchemas.await"
+    log.debug("SelectTables perf: retrieveTableSchemas.await"
         + " costMs=" + waitFutureElapsedMillis
         + " size=" + tableSchemaList.size()
         + " thread=" + Thread.currentThread().getName());
@@ -366,7 +366,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
             autoGeneratorSettingsState.getRepositorySuffix()
         );
     long buildTableListElapsedMillis = SelectTablesPreparation.elapsedMillis(buildTableListStartNanos);
-    log.info("SelectTables perf: buildTableList.finish"
+    log.debug("SelectTables perf: buildTableList.finish"
         + " size=" + tableSchemaList.size()
         + " existingEntityFiles=" + tableListBuildResult.getExistingEntityFileCount()
         + " selected=" + tableListBuildResult.getSelectedCount()
