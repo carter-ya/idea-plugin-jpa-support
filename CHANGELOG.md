@@ -18,6 +18,8 @@
 ### Fixed
 - Fix Kotlin template preview/loading for `MapperXml` and other extension-independent templates
 - Fix source preview editor disposal to avoid IDEA object-tree leak reports
+- Fix template generation bug in edge-case scenarios
+- Fix column metadata retrieval fallback for unsupported database types
 
 ## [2.3.3]
 

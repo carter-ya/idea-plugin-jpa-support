@@ -219,7 +219,7 @@ public class SelectTablesDialog extends DialogWrapper {
     });
 
     long dialogPreparationElapsedMillis = SelectTablesPreparation.elapsedMillis(dialogPreparationStartNanos);
-    log.info("SelectTables perf: dialogInit.finish"
+    log.debug("SelectTables perf: dialogInit.finish"
         + " size=" + tables.size()
         + " selected=" + tableViewPreparationResult.getSelectedCount()
         + " prepareRowsMs=" + tableViewPreparationResult.getElapsedMillis()
