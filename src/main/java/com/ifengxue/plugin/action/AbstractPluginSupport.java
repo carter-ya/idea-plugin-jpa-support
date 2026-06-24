@@ -8,7 +8,6 @@ import com.ifengxue.plugin.state.DatabaseSettingsState;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.components.ServiceManager;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -37,8 +36,7 @@ public abstract class AbstractPluginSupport extends AnAction {
    * 初始化I18n
    */
   private void initI18n() {
-    DatabaseSettingsState databaseSettingsState = ServiceManager
-        .getService(Holder.getProject(), DatabaseSettingsState.class);
+    DatabaseSettingsState databaseSettingsState = Holder.getProject().getService(DatabaseSettingsState.class);
     // 选择语言
     Locale locale = Locale.forLanguageTag(databaseSettingsState.getLanguage());
     int localeSelectIndex = -1;

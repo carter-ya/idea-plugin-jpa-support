@@ -20,7 +20,6 @@ import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.lang.java.JavaLanguage;
 import com.intellij.lang.xml.XMLLanguage;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.TableSpeedSearch;
@@ -96,8 +95,7 @@ public class ColumnFieldMappingEditorDialog extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createLeftSideActions() {
-    AutoGeneratorSettingsState settingsState = ServiceManager.getService(
-        Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+    AutoGeneratorSettingsState settingsState = Holder.getOrDefaultProject().getService(AutoGeneratorSettingsState.class);
     ModuleSettings moduleSettings = settingsState
         .getModuleSettings(settingsState.getModuleName());
     return new Action[]{

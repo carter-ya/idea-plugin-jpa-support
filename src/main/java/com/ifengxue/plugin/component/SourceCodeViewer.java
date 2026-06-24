@@ -5,7 +5,6 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.ScrollPaneFactory;
 import javax.swing.JPanel;
@@ -21,8 +20,7 @@ public class SourceCodeViewer implements Disposable {
     private Editor editor;
 
     public SourceCodeViewer(Language language) {
-        Project defaultProject = ProjectManager.getInstance().getDefaultProject();
-        txtSourceCode = new LanguageTextField(language, defaultProject, "",
+        txtSourceCode = new LanguageTextField(language, null, "",
             (value, lang, project) -> {
                 releaseEditor();
                 editor = Editors.createSourceEditor(project, language, value, false);

@@ -22,7 +22,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -107,7 +106,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         return;
       }
       LocaleContextHolder.setCurrentLocale(((LocaleItem) itemEvent.getItem()).getLocale());
-      databaseSettings.getData(ServiceManager.getService(project, DatabaseSettingsState.class));
+      databaseSettings.getData(project.getService(DatabaseSettingsState.class));
     });
   }
 
@@ -383,7 +382,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
   }
 
   private void saveTextField(String host, String port, String username, String password) {
-    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(project, DatabaseSettingsState.class);
+    DatabaseSettingsState databaseSettingsState = project.getService(DatabaseSettingsState.class);
     databaseSettings.getData(databaseSettingsState);
     // save password if needed
     if (databaseSettingsState.isRequireSavePassword()) {
@@ -403,7 +402,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     setOKButtonText(LocaleContextHolder.format("button_next_step"));
     setCancelButtonText(LocaleContextHolder.format("button_cancel"));
 
-    DatabaseSettingsState databaseSettingsState = ServiceManager.getService(project, DatabaseSettingsState.class);
+    DatabaseSettingsState databaseSettingsState = project.getService(DatabaseSettingsState.class);
     databaseSettings.setData(databaseSettingsState);
 
     if (databaseSettingsState.isRequireSavePassword()) {

@@ -17,7 +17,6 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -69,13 +68,12 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
 
     this.tableSchemasFuture = tableSchemasFuture;
     this.mapping = mapping;
-    this.autoGeneratorSettingsState = ServiceManager
-        .getService(project, AutoGeneratorSettingsState.class);
+    this.autoGeneratorSettingsState = project.getService(AutoGeneratorSettingsState.class);
     init();
     setTitle(LocaleContextHolder.format("auto_generation_settings"));
 
     // select module
-    Module[] modules = ModuleManager.getInstance(project).getModules();
+    Module[] modules = project.getService(ModuleManager.class).getModules();
     Module selectedModule = modules[0];
     for (Module module : modules) {
       generatorSettings.getCbxModule().addItem(module.getName());
@@ -214,7 +212,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected ValidationInfo doValidate() {
-    Module module = ModuleManager.getInstance(Holder.getProject())
+    Module module = Holder.getProject().getService(ModuleManager.class)
         .findModuleByName(
             (String) Objects.requireNonNull(generatorSettings.getCbxModule().getSelectedItem()));
     if (module == null) {
@@ -457,7 +455,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   }
 
   private Optional<Module> findModule(String moduleName) {
-    return Optional.ofNullable(ModuleManager.getInstance(Holder.getProject())
+    return Optional.ofNullable(Holder.getProject().getService(ModuleManager.class)
         .findModuleByName(moduleName));
   }
 

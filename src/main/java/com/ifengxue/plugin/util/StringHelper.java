@@ -2,7 +2,7 @@ package com.ifengxue.plugin.util;
 
 import com.ifengxue.plugin.state.SettingsState;
 import com.ifengxue.plugin.state.wrapper.ClassWrapper;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import java.beans.Introspector;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -147,7 +147,7 @@ public class StringHelper {
 
   private static Class<?> parseJavaDataType(@Nullable Class<?> fallbackJavaDataType, String jdbcTypeName,
       String dbDataType, String columnName, boolean useWrapper) {
-    SettingsState settingsState = ServiceManager.getService(SettingsState.class);
+    SettingsState settingsState = ApplicationManager.getApplication().getService(SettingsState.class);
     ClassWrapper classWrapper = settingsState.getOrResetDbTypeToJavaType().get(dbDataType);
     if (classWrapper == null) {
       classWrapper = settingsState.getOrResetDbTypeToJavaType().get(jdbcTypeName);

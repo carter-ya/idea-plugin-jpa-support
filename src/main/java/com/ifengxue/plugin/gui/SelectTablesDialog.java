@@ -41,8 +41,9 @@ import com.intellij.notification.Notifications.Bus;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.util.ThrowableRunnable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -233,8 +234,8 @@ public class SelectTablesDialog extends DialogWrapper {
    * find columns
    */
   private List<Column> findColumns(Table table) {
-    AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
-        .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+    AutoGeneratorSettingsState autoGeneratorSettingsState = Holder.getOrDefaultProject()
+        .getService(AutoGeneratorSettingsState.class);
     List<ColumnSchema> columnSchemas = mapping.apply(table.getRawTableSchema());
     if (columnSchemas == null) {
       return Collections.emptyList();
@@ -316,14 +317,14 @@ public class SelectTablesDialog extends DialogWrapper {
       Project project = event.getProject();
       assert project != null;
 
-      AutoGeneratorSettingsState autoGeneratorSettingsState = ServiceManager
-          .getService(Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+      AutoGeneratorSettingsState autoGeneratorSettingsState = Holder.getOrDefaultProject()
+          .getService(AutoGeneratorSettingsState.class);
       ModuleSettings moduleSettings = autoGeneratorSettingsState.getModuleSettings();
 
       List<GeneratorTask> tasks = buildTask(moduleSettings);
 
       CountDownLatch isReadForWrite = new CountDownLatch(1);
-      ApplicationManager.getApplication().runWriteAction(() -> {
+      WriteAction.run((ThrowableRunnable<RuntimeException>) () -> {
         Object[][] directoryAndPackageNames = {
             {
                 moduleSettings.isGenerateEntity(),

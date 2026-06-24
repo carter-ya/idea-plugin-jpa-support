@@ -2,7 +2,6 @@ package com.ifengxue.plugin;
 
 import com.ifengxue.plugin.exception.TemplateNotFoundException;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -93,14 +92,13 @@ public class TemplateManager {
         }
 
         Project project = Holder.getOrDefaultProject();
-        AutoGeneratorSettingsState service = ServiceManager.getService(project, AutoGeneratorSettingsState.class);
+        AutoGeneratorSettingsState service = project.getService(AutoGeneratorSettingsState.class);
         VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
         String projectPath = "";
         if (projectDir != null) {
             projectPath = StringUtils.trimToEmpty(projectDir.getCanonicalPath());
         }
-        Module module = ModuleManager.getInstance(project)
-            .findModuleByName(service.getModuleName());
+        Module module = project.getService(ModuleManager.class).findModuleByName(service.getModuleName());
         String modulePath = "";
         if (module != null) {
             VirtualFile moduleDir = ProjectUtil.guessModuleDir(module);
