@@ -184,7 +184,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
         .tryParseUrl(driverClass, host, port, username, password, database, connectionUrl);
 
     unloadDrivers();
-    WriteCommandAction.runWriteCommandAction(project, () -> {
+    WriteCommandAction.writeCommandAction(project).run(() -> {
       try {
         try {
           classLoaderRef.set(new URLClassLoader(

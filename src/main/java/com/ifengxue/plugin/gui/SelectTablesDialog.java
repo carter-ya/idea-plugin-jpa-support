@@ -436,7 +436,7 @@ public class SelectTablesDialog extends DialogWrapper {
             .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())
         );
         generatorConfig.setPluginConfigs(Collections.emptyList());
-        WriteCommandAction.runWriteCommandAction(project, () -> {
+        WriteCommandAction.writeCommandAction(project).run(() -> {
           try {
             isReadForWrite.await();
 
