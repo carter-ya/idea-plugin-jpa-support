@@ -113,8 +113,10 @@ public class DatabaseSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected JComponent createCenterPanel() {
-    FileChooserDescriptor descriptor = new FileChooserDescriptor(false, false, true, true, false, false);
-    descriptor.withShowHiddenFiles(true);
+    FileChooserDescriptor descriptor = new FileChooserDescriptor()
+        .withChooseJars(true)
+        .withChooseJarsAsFiles(true)
+        .withShowHiddenFiles(true);
     try {
       Path m2Path = Paths.get(System.getProperty("user.home"), ".m2", "repository");
       VirtualFile root = LocalFileSystem.getInstance().findFileByIoFile(m2Path.toFile());
