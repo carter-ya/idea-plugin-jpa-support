@@ -212,7 +212,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected ValidationInfo doValidate() {
-    Module module = Holder.getProject().getService(ModuleManager.class)
+    Module module = Holder.getOrDefaultProject().getService(ModuleManager.class)
         .findModuleByName(
             (String) Objects.requireNonNull(generatorSettings.getCbxModule().getSelectedItem()));
     if (module == null) {
@@ -455,7 +455,7 @@ public class AutoGeneratorSettingsDialog extends DialogWrapper {
   }
 
   private Optional<Module> findModule(String moduleName) {
-    return Optional.ofNullable(Holder.getProject().getService(ModuleManager.class)
+    return Optional.ofNullable(Holder.getOrDefaultProject().getService(ModuleManager.class)
         .findModuleByName(moduleName));
   }
 

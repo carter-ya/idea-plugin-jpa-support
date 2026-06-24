@@ -62,8 +62,8 @@ public class JavaSourceFileMerger implements SourceFileMerger {
                 PsiClass resolvePsiClass = implementsListType.resolve();
                 if (resolvePsiClass != null && !nameToClassType
                     .containsKey(resolvePsiClass.getQualifiedName())) {
-                    PsiJavaCodeReferenceElement implementsReference = ServiceManager
-                        .getService(Holder.getOrDefaultProject(), PsiElementFactory.class)
+                    PsiJavaCodeReferenceElement implementsReference = Holder.getOrDefaultProject()
+                        .getService(PsiElementFactory.class)
                         .createReferenceFromText(
                             Objects.requireNonNull(resolvePsiClass.getQualifiedName()),
                             originalTopClass);

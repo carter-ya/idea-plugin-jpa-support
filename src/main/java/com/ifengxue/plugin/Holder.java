@@ -5,6 +5,7 @@ import com.ifengxue.plugin.util.JdbcConfigUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import fastjdbc.FastJdbc;
 import java.io.IOException;
 import java.util.Objects;
@@ -28,8 +29,10 @@ public class Holder {
     return project;
   }
 
+  @SuppressWarnings("deprecation")
   public static synchronized Project getOrDefaultProject() {
-    return getProject();
+    Project project = getProject();
+    return project != null ? project : ProjectManager.getInstance().getDefaultProject();
   }
 
   public static synchronized void registerEvent(AnActionEvent event) {

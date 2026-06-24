@@ -36,7 +36,7 @@ public abstract class AbstractPluginSupport extends AnAction {
    * 初始化I18n
    */
   private void initI18n() {
-    DatabaseSettingsState databaseSettingsState = Holder.getProject().getService(DatabaseSettingsState.class);
+    DatabaseSettingsState databaseSettingsState = Holder.getOrDefaultProject().getService(DatabaseSettingsState.class);
     // 选择语言
     Locale locale = Locale.forLanguageTag(databaseSettingsState.getLanguage());
     int localeSelectIndex = -1;
