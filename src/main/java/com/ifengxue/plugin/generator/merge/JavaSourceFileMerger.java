@@ -6,7 +6,6 @@ import com.ifengxue.plugin.Holder;
 import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
