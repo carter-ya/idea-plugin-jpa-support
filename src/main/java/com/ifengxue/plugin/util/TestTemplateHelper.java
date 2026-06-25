@@ -176,7 +176,7 @@ public enum TestTemplateHelper {
 
     private static AbstractSourceParser newInstance(Class<? extends AbstractSourceParser> clazz) {
         try {
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("create instance failed", e);
         }
