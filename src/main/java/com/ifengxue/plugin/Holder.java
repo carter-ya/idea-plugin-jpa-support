@@ -29,9 +29,10 @@ public class Holder {
     return project;
   }
 
+  @SuppressWarnings("deprecation")
   public static synchronized Project getOrDefaultProject() {
-    return Optional.ofNullable(getProject())
-        .orElseGet(() -> ProjectManager.getInstance().getDefaultProject());
+    Project project = getProject();
+    return project != null ? project : ProjectManager.getInstance().getDefaultProject();
   }
 
   public static synchronized void registerEvent(AnActionEvent event) {

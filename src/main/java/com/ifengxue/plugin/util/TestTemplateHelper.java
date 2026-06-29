@@ -13,7 +13,6 @@ import com.ifengxue.plugin.generator.source.EvaluateSourceCodeException;
 import com.ifengxue.plugin.generator.tree.Element.Indent;
 import com.ifengxue.plugin.state.AutoGeneratorSettingsState;
 import com.ifengxue.plugin.state.ModuleSettings;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileTypes.FileType;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,8 +24,8 @@ public enum TestTemplateHelper {
 
     public static Object evaluate(Class<? extends AbstractSourceParser> clazz, Table table,
         String template, FileType fileType) {
-        AutoGeneratorSettingsState settingsState = ServiceManager.getService(
-            Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+        AutoGeneratorSettingsState settingsState = Holder.getOrDefaultProject()
+            .getService(AutoGeneratorSettingsState.class);
         ModuleSettings moduleSettings = settingsState
             .getModuleSettings(settingsState.getModuleName());
         GeneratorConfig config = new GeneratorConfig();
@@ -78,8 +77,8 @@ public enum TestTemplateHelper {
 
     public static String evaluateToString(Class<? extends AbstractSourceParser> clazz,
         String template, FileType fileType) {
-        AutoGeneratorSettingsState settingsState = ServiceManager.getService(
-            Holder.getOrDefaultProject(), AutoGeneratorSettingsState.class);
+        AutoGeneratorSettingsState settingsState = Holder.getOrDefaultProject()
+            .getService(AutoGeneratorSettingsState.class);
         Table table = new Table();
         table
             .setTableComment("Example Table Comment")
@@ -177,7 +176,7 @@ public enum TestTemplateHelper {
 
     private static AbstractSourceParser newInstance(Class<? extends AbstractSourceParser> clazz) {
         try {
-            return clazz.newInstance();
+            return clazz.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("create instance failed", e);
         }

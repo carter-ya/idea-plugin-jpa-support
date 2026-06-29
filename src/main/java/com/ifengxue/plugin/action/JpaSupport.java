@@ -8,7 +8,9 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.util.ThrowableRunnable;
 import java.io.InputStream;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +26,7 @@ public class JpaSupport extends AbstractPluginSupport {
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
     super.actionPerformed(e);
-    ApplicationManager.getApplication().runReadAction(() -> {
+    ReadAction.run((ThrowableRunnable<RuntimeException>) () -> {
       try (InputStream in = getClass().getClassLoader().getResourceAsStream("jdbc_config.json")) {
         JdbcConfigUtil jdbcConfigUtil = new JdbcConfigUtil(in);
         Holder.registerJdbcConfigUtil(jdbcConfigUtil);

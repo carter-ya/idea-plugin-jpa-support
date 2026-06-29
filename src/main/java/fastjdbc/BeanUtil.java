@@ -28,23 +28,15 @@ public final class BeanUtil {
    * @param <T> 泛型
    */
   public static <T> T instantiate(Class<T> clazz) {
-    T dest;
     try {
-      dest = clazz.newInstance();
-    } catch (InstantiationException e) {
-      throw new RuntimeException(clazz.getName() + " may be abstract class", e);
-    } catch (IllegalAccessException e) {
-      try {
-        Constructor<T> constructor = clazz.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        dest = constructor.newInstance();
-      } catch (NoSuchMethodException e1) {
-        throw new RuntimeException(clazz.getName() + " have none parameter constructor", e1);
-      } catch (ReflectiveOperationException e1) {
-        throw new RuntimeException(clazz.getName() + " instance error.", e1);
-      }
+      Constructor<T> constructor = clazz.getDeclaredConstructor();
+      constructor.setAccessible(true);
+      return constructor.newInstance();
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(clazz.getName() + " have none parameter constructor", e);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(clazz.getName() + " instance error.", e);
     }
-    return dest;
   }
 
   public static PropertyDescriptor[] findPropertyDescriptors(Object obj) {

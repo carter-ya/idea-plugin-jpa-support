@@ -15,12 +15,11 @@ import com.ifengxue.plugin.state.wrapper.ClassWrapper;
 import com.ifengxue.plugin.util.TestTemplateHelper;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.lang.java.JavaLanguage;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.xmlb.annotations.Transient;
@@ -62,7 +61,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
     @Override
     @SuppressWarnings("unchecked")
     public void reset() {
-        settingsState = ServiceManager.getService(SettingsState.class);
+        settingsState = ApplicationManager.getApplication().getService(SettingsState.class);
 
         JTabbedPane tabbedPane = settings.getTabbedPane();
         tabbedPane.setTitleAt(0, LocaleContextHolder.format("source_code_template_tip"));
@@ -101,7 +100,7 @@ public class SettingsConfigurable implements SearchableConfigurable {
         });
         settings.getBtnTestTemplate().addActionListener(event -> {
             SourceCodeViewerDialog dialog = new SourceCodeViewerDialog(
-                ProjectManager.getInstance().getDefaultProject(),
+                null,
                 JavaLanguage.INSTANCE, false);
             dialog.setSourceCode(
                 TestTemplateHelper.evaluateToString(settings.getCbxSelectCodeTemplate()

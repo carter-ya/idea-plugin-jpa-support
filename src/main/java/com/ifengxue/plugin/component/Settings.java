@@ -6,7 +6,6 @@ import com.ifengxue.plugin.util.TypeUtil;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TextFieldWithAutoCompletion;
@@ -42,10 +41,8 @@ public class Settings {
         Language velocityLanguage = Optional.ofNullable(Language.findLanguageByID("VTL"))
             .orElse(Language.findLanguageByID("TEXT"));
         assert velocityLanguage != null;
-        Project defaultProject = ProjectManager.getInstance().getDefaultProject();
-
         txtSourceCode = new LanguageTextField(velocityLanguage,
-            defaultProject, "",
+            null, "",
             (value, language, project) -> {
                 sourceCodeEditor = Editors
                     .createSourceEditor(project, velocityLanguage, value, false);
@@ -53,7 +50,7 @@ public class Settings {
             }, false);
         txtSourceCode.setEnabled(false);
         textFallbackType = TextFieldWithAutoCompletion
-            .create(defaultProject, TypeUtil.getAllJavaDbType(), true, String.class.getName());
+            .create(null, TypeUtil.getAllJavaDbType(), true, String.class.getName());
     }
 
     public void setData(SettingsState data) {

@@ -2,6 +2,18 @@
 
 # JPA Support Changelog
 
+## [Unreleased]
+
+### Changed
+- Migrate `ServiceManager.getService` → `project.getService`
+- Migrate `ModuleManager.getInstance` → `project.getService`
+- Migrate `runReadAction`/`runWriteAction` → `ReadAction`/`WriteAction`
+- Migrate `WriteCommandAction.runWriteCommandAction` → `writeCommandAction.run`
+- Migrate `FileChooserDescriptor` boolean constructor → builder pattern
+- Migrate `DocumentAdapter` → `DocumentListener`
+- Migrate `Class.newInstance()` → `getDeclaredConstructor().newInstance()`
+- Remove hardcoded `since-build` from `plugin.xml`
+
 ## [2.4.1]
 
 ### Added
