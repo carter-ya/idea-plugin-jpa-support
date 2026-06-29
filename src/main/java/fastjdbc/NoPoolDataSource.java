@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Properties;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
@@ -13,21 +14,37 @@ public class NoPoolDataSource implements DataSource {
   private final String url;
   private final String username;
   private final String password;
+  private final Properties connectionProperties;
 
   public NoPoolDataSource(String url, String username, String password) {
+    this(url, username, password, null);
+  }
+
+  public NoPoolDataSource(String url, String username, String password, Properties connectionProperties) {
     this.url = url;
     this.username = username;
     this.password = password;
+    this.connectionProperties = connectionProperties;
   }
 
   @Override
   public Connection getConnection() throws SQLException {
-    return DriverManager.getConnection(url, username, password);
+    return DriverManager.getConnection(url, buildConnectionInfo(username, password));
   }
 
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
-    return DriverManager.getConnection(url, username, password);
+    return DriverManager.getConnection(url, buildConnectionInfo(username, password));
+  }
+
+  private Properties buildConnectionInfo(String user, String pass) {
+    Properties info = new Properties();
+    info.setProperty("user", user);
+    info.setProperty("password", pass);
+    if (connectionProperties != null) {
+      info.putAll(connectionProperties);
+    }
+    return info;
   }
 
   @Override

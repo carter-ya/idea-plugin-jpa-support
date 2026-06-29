@@ -38,6 +38,7 @@ import com.intellij.ui.components.JBScrollPane;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
+import java.util.Properties;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -181,6 +182,11 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String connectionUrl = databaseSettings.getTextConnectionUrl().getText().trim();
     String driverPath = databaseSettings.getTextDriverPath().getText().trim();
     String driverClass = databaseSettings.getTextDriverClass().getText().trim();
+    Properties connectionProps = null;
+    if (driverClass.toLowerCase().contains("oracle")) {
+      connectionProps = new Properties();
+      connectionProps.setProperty("remarksReporting", "true");
+    }
     saveTextField(host, port, username, password);
     String connectionUrlRef = Holder.getJdbcConfigUtil()
         .tryParseUrl(driverClass, host, port, username, password, database, connectionUrl);
@@ -216,7 +222,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
       // 尝试获取连接
       try (Connection ignored = DriverManager.getConnection(connectionUrlRef, username, password)) {
         FastJdbc fastJdbc = new SimpleFastJdbc(
-            new NoPoolDataSource(connectionUrlRef, username, password));
+            new NoPoolDataSource(connectionUrlRef, username, password, connectionProps));
         Holder.registerFastJdbc(fastJdbc);
       } catch (SQLException se) {
         ApplicationManager.getApplication().invokeLater(() -> {
