@@ -40,5 +40,15 @@
     "username": "root",
     "schema": "",
     "url": "jdbc:mariadb://{host}:{port}/{database}?useSSL=false&useUnicode=true&characterEncoding=UTF-8"
+  },
+  {
+    "vendor": "Oracle",
+    "driver": "oracle.jdbc.OracleDriver",
+    "host": "localhost",
+    "port": 1521,
+    "username": "system",
+    "database": "orcl",
+    "schema": "",
+    "url": "jdbc:oracle:thin:@//{host}:{port}/{database}"
   }
 ]
