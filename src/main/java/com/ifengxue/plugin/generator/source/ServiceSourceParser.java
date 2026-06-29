@@ -6,6 +6,7 @@ import com.ifengxue.plugin.entity.Table;
 import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.util.StringHelper;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
@@ -39,7 +40,11 @@ public class ServiceSourceParser extends AbstractIDEASourceParser {
         context.put("repositoryName", table.getRepositoryName());
         context.put("repositoryVariableName",
             StringHelper.firstLetterLower(table.getRepositoryName()));
-        context.put("primaryKeyDataType", table.getPrimaryKeyClassType().getSimpleName());
+        context.put("primaryKeyDataType",
+            Optional.ofNullable(table.getPrimaryKeyClassType())
+                .map(StringHelper::getWrapperClass)
+                .map(Class::getSimpleName)
+                .orElse("Void"));
         context.put("entitySimpleName", table.getEntityName());
         context.put("useJakartaEE", config.getTablesConfig().isUseJakartaEE());
         return evaluate(context, templateProvider);

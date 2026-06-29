@@ -6,6 +6,7 @@ import com.ifengxue.plugin.generator.config.GeneratorConfig;
 import com.ifengxue.plugin.generator.config.TablesConfig;
 import com.ifengxue.plugin.i18n.LocaleContextHolder;
 import com.ifengxue.plugin.util.StringHelper;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.VelocityContext;
@@ -25,7 +26,11 @@ public class ControllerSourceParser extends AbstractIDEASourceParser {
         context.put("entitySimpleName", table.getEntityName());
         context.put("serviceName", table.getServiceName());
         context.put("serviceVariableName", StringHelper.firstLetterLower(table.getServiceName()));
-        context.put("primaryKeyDataType", table.getPrimaryKeyClassType().getSimpleName());
+        context.put("primaryKeyDataType",
+            Optional.ofNullable(table.getPrimaryKeyClassType())
+                .map(StringHelper::getWrapperClass)
+                .map(Class::getSimpleName)
+                .orElse("Void"));
         context.put("useJakartaEE", config.getTablesConfig().isUseJakartaEE());
 
         context.put("save", LocaleContextHolder.format("controller_save"));
