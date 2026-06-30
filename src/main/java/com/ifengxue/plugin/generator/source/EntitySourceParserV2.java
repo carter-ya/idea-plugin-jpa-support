@@ -182,6 +182,35 @@ public class EntitySourceParserV2 extends AbstractIDEASourceParser {
         column.getAnnotations().add(columnAnnotation.toString());
       }
 
+      // add timestamp annotations (Hibernate)
+      if (tablesConfig.isUseTimestampAnnotation() && isUseJpaAnnotation) {
+        String columnNameLower = column.getColumnName().trim().toLowerCase();
+        boolean matched = false;
+        // check creation patterns first (creation has priority)
+        if (StringUtils.isNotBlank(tablesConfig.getCreationTimestampPatterns())) {
+          for (String pattern : tablesConfig.getCreationTimestampPatterns().split(",")) {
+            if (columnNameLower.equals(pattern.trim().toLowerCase())) {
+              importClassList.add("org.hibernate.annotations.CreationTimestamp");
+              Annotation tsAnnotation = new Annotation("CreationTimestamp", false);
+              column.getAnnotations().add(tsAnnotation.toString());
+              matched = true;
+              break;
+            }
+          }
+        }
+        // check update patterns only if not already matched
+        if (!matched && StringUtils.isNotBlank(tablesConfig.getUpdateTimestampPatterns())) {
+          for (String pattern : tablesConfig.getUpdateTimestampPatterns().split(",")) {
+            if (columnNameLower.equals(pattern.trim().toLowerCase())) {
+              importClassList.add("org.hibernate.annotations.UpdateTimestamp");
+              Annotation tsAnnotation = new Annotation("UpdateTimestamp", false);
+              column.getAnnotations().add(tsAnnotation.toString());
+              break;
+            }
+          }
+        }
+      }
+
       column.getAnnotations().sort(Comparator.comparingInt(String::length));
     });
 

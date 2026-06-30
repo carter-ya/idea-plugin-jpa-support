@@ -27,6 +27,9 @@ public class TablesConfig {
   private boolean useJpaAnnotation;
   private boolean addSchemeNameToTableName;
   private boolean useJakartaEE;
+  private boolean useTimestampAnnotation;
+  private String creationTimestampPatterns;
+  private String updateTimestampPatterns;
   private String indent;
   private String lineSeparator;
   private String removeTablePrefix;

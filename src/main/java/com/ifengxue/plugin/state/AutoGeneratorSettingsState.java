@@ -118,6 +118,18 @@ public class AutoGeneratorSettingsState implements PersistentStateComponent<Auto
    * 是否使用JakartaEE
    */
   private boolean useJakartaEE = false;
+  /**
+   * 是否生成时间戳注解
+   */
+  private boolean generateTimestampAnnotation = true;
+  /**
+   * 创建时间戳列名模式
+   */
+  private String creationTimestampPatterns = "create_time,created_at,createTime,createdAt,gmt_create,gmtCreate";
+  /**
+   * 更新时间戳列名模式
+   */
+  private String updateTimestampPatterns = "update_time,updated_at,updateTime,updatedAt,gmt_modified,gmtModified";
 
   @Nullable
   @Override
