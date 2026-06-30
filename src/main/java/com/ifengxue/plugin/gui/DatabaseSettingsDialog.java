@@ -38,6 +38,7 @@ import com.intellij.ui.components.JBScrollPane;
 import fastjdbc.FastJdbc;
 import fastjdbc.NoPoolDataSource;
 import fastjdbc.SimpleFastJdbc;
+import fastjdbc.handler.RowHandler;
 import java.util.Properties;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -182,8 +183,9 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String connectionUrl = databaseSettings.getTextConnectionUrl().getText().trim();
     String driverPath = databaseSettings.getTextDriverPath().getText().trim();
     String driverClass = databaseSettings.getTextDriverClass().getText().trim();
+    boolean isOracle = driverClass.toLowerCase().contains("oracle");
     Properties connectionProps = null;
-    if (driverClass.toLowerCase().contains("oracle")) {
+    if (isOracle) {
       connectionProps = new Properties();
       connectionProps.setProperty("remarksReporting", "true");
     }
@@ -250,7 +252,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
                 + " database=" + database
                 + " schema=" + StringUtils.defaultString(schema)
                 + " thread=" + Thread.currentThread().getName());
-            List<TableSchema> tableSchemas = findDatabaseSchemas(database, schema);
+            List<TableSchema> tableSchemas = findDatabaseSchemas(database, schema, isOracle);
             long retrieveElapsedMillis = (System.nanoTime() - retrieveStartNanos) / 1_000_000L;
             log.debug("SelectTables perf: retrieveTableSchemas.finish"
                 + " database=" + database
@@ -302,9 +304,36 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     classLoaderRef.set(null);
   }
 
-  private List<TableSchema> findDatabaseSchemas(String database, String schema)
+  private List<TableSchema> findDatabaseSchemas(String database, String schema, boolean isOracle)
       throws SQLException {
     long tableQueryStartNanos = System.nanoTime();
+    if (isOracle) {
+      StringBuilder sqlBuilder = new StringBuilder();
+      sqlBuilder.append("SELECT OWNER AS TABLE_SCHEM, TABLE_NAME, COMMENTS AS REMARKS"
+          + " FROM ALL_TAB_COMMENTS WHERE TABLE_TYPE = 'TABLE'");
+      List<String> params = new ArrayList<>();
+      if (StringUtils.isNotBlank(schema)) {
+        sqlBuilder.append(" AND UPPER(OWNER) = UPPER(?)");
+        params.add(schema);
+      }
+      String sql = sqlBuilder.toString();
+      List<TableSchema> tableSchemas = Holder.getFastJdbc().find(sql,
+          (RowHandler<TableSchema>) (row, rowNum) -> {
+            JdbcMetadataTableSchema tableSchema = new JdbcMetadataTableSchema();
+            tableSchema.setTableSchema(row.getString("TABLE_SCHEM"));
+            tableSchema.setTableName(row.getString("TABLE_NAME"));
+            tableSchema.setTableComment(StringUtils.defaultString(row.getString("REMARKS")));
+            return tableSchema;
+          }, params.toArray());
+      long tableQueryElapsedMillis = (System.nanoTime() - tableQueryStartNanos) / 1_000_000L;
+      log.debug("SelectTables perf: loadTableList.finish"
+          + " database=" + database
+          + " schema=" + StringUtils.defaultString(schema)
+          + " size=" + tableSchemas.size()
+          + " costMs=" + tableQueryElapsedMillis
+          + " thread=" + Thread.currentThread().getName());
+      return tableSchemas;
+    }
     DataSource datasource = ((SimpleFastJdbc) Holder.getFastJdbc()).getDatasource();
     try (Connection connection = datasource.getConnection()) {
       DatabaseMetaData metadata = connection.getMetaData();
