@@ -108,7 +108,4 @@ Temporary Items
 # Gradle
 .gradle
 local.properties
-.cuneim/*
-!.cuneim/targets.json
-*/.cuneim/*
-!*/.cuneim/targets.json
+.cuneim/
