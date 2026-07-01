@@ -441,7 +441,6 @@ public class SourceParserTest {
         sourceCode.contains("@CreationTimestamp"));
     assertFalse("Should NOT contain @UpdateTimestamp when only creation pattern is set",
         sourceCode.contains("@UpdateTimestamp"));
-    System.out.println(sourceCode);
   }
 
   // Test 2: update timestamp enabled — only @UpdateTimestamp is present
@@ -463,7 +462,6 @@ public class SourceParserTest {
         sourceCode.contains("@UpdateTimestamp"));
     assertFalse("Should NOT contain @CreationTimestamp when only update pattern is set",
         sourceCode.contains("@CreationTimestamp"));
-    System.out.println(sourceCode);
   }
 
   // Test 3: useTimestampAnnotation=false — neither annotation is generated
@@ -486,7 +484,6 @@ public class SourceParserTest {
         sourceCode.contains("@CreationTimestamp"));
     assertFalse("Should NOT contain @UpdateTimestamp when useTimestampAnnotation=false",
         sourceCode.contains("@UpdateTimestamp"));
-    System.out.println(sourceCode);
   }
 
   // Test 4: useJpaAnnotation=false — timestamp annotations are never generated
@@ -509,7 +506,6 @@ public class SourceParserTest {
         sourceCode.contains("@CreationTimestamp"));
     assertFalse("Should NOT contain @UpdateTimestamp when useJpaAnnotation=false",
         sourceCode.contains("@UpdateTimestamp"));
-    System.out.println(sourceCode);
   }
 
   // Test 5: custom pattern — @CreationTimestamp matches a non-default column (f_name)
@@ -531,7 +527,6 @@ public class SourceParserTest {
         sourceCode.contains("@CreationTimestamp"));
     assertFalse("Should NOT contain @UpdateTimestamp when only creation pattern is set",
         sourceCode.contains("@UpdateTimestamp"));
-    System.out.println(sourceCode);
   }
 
   // Test 6: creation priority — when a column matches both patterns, @CreationTimestamp wins
@@ -554,7 +549,6 @@ public class SourceParserTest {
         sourceCode.contains("@CreationTimestamp"));
     assertFalse("Should NOT contain @UpdateTimestamp when creation pattern already matched",
         sourceCode.contains("@UpdateTimestamp"));
-    System.out.println(sourceCode);
   }
 
   private GeneratorConfig createGeneratorConfig() {
