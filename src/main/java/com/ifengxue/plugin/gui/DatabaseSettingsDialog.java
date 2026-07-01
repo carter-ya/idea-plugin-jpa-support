@@ -115,9 +115,7 @@ public class DatabaseSettingsDialog extends DialogWrapper {
   @Nullable
   @Override
   protected JComponent createCenterPanel() {
-    FileChooserDescriptor descriptor = new FileChooserDescriptor()
-        .withChooseJars(true)
-        .withChooseJarsAsFiles(true)
+    FileChooserDescriptor descriptor = new FileChooserDescriptor(false, false, true, true, false, false)
         .withShowHiddenFiles(true);
     try {
       Path m2Path = Paths.get(System.getProperty("user.home"), ".m2", "repository");
@@ -184,9 +182,8 @@ public class DatabaseSettingsDialog extends DialogWrapper {
     String driverPath = databaseSettings.getTextDriverPath().getText().trim();
     String driverClass = databaseSettings.getTextDriverClass().getText().trim();
     boolean isOracle = driverClass.toLowerCase().contains("oracle");
-    Properties connectionProps = null;
+    Properties connectionProps = new Properties();
     if (isOracle) {
-      connectionProps = new Properties();
       connectionProps.setProperty("remarksReporting", "true");
     }
     saveTextField(host, port, username, password);

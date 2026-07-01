@@ -65,6 +65,10 @@ public enum TestTemplateHelper {
                     .setUseJpa(moduleSettings.isRepositoryTypeJPA())
                     .setUseMybatisPlus(moduleSettings.isRepositoryTypeMybatisPlus())
                     .setUseTkMybatis(moduleSettings.isRepositoryTypeTkMybatis())
+                    .setUseJpaAnnotation(settingsState.isGenerateJpaAnnotation())
+                    .setUseTimestampAnnotation(settingsState.isGenerateTimestampAnnotation())
+                    .setCreationTimestampPatterns(settingsState.getCreationTimestampPatterns())
+                    .setUpdateTimestampPatterns(settingsState.getUpdateTimestampPatterns())
             );
         AbstractSourceParser sourceParser = newInstance(clazz);
         sourceParser.setVelocityEngine(VelocityUtil.getInstance(), "UTF-8");

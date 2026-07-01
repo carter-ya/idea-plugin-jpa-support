@@ -84,6 +84,9 @@ public class AutoGeneratorSettings {
   private JCheckBox chkBoxGenerateMapperXml;
   private ExpandableTextField textFileExtension;
   private JCheckBox chkBoxUseJakartaEE;
+  private JCheckBox chkBoxGenerateTimestampAnnotation;
+  private ExpandableTextField textCreationTimestampPatterns;
+  private ExpandableTextField textUpdateTimestampPatterns;
   private Color originalForegroundColor;
 
   public AutoGeneratorSettings() {
@@ -193,6 +196,9 @@ public class AutoGeneratorSettings {
       chkBoxUseJakartaEE.setSelected(JavaLibraryUtils.hasLibraryClass(Holder.getOrDefaultProject(),
           StringHelper.getJakartaEEClassNameOrNot(true, "Entity")));
     }
+    chkBoxGenerateTimestampAnnotation.setSelected(data.isGenerateTimestampAnnotation());
+    textCreationTimestampPatterns.setText(data.getCreationTimestampPatterns());
+    textUpdateTimestampPatterns.setText(data.getUpdateTimestampPatterns());
     textRepositorySuffix.setText(data.getRepositorySuffix());
   }
 
@@ -262,6 +268,9 @@ public class AutoGeneratorSettings {
     data.setGenerateJpaAnnotation(chkBoxGenerateJpaAnnotation.isSelected());
     data.setAddSchemaNameToTableName(chkBoxTableNameAddSchemaName.isSelected());
     data.setUseJakartaEE(chkBoxUseJakartaEE.isSelected());
+    data.setGenerateTimestampAnnotation(chkBoxGenerateTimestampAnnotation.isSelected());
+    data.setCreationTimestampPatterns(textCreationTimestampPatterns.getText());
+    data.setUpdateTimestampPatterns(textUpdateTimestampPatterns.getText());
     data.setRepositorySuffix(textRepositorySuffix.getText());
   }
 }

@@ -34,6 +34,8 @@
     <rowspec value="center:max(d;4px):noGrow"/>
     <rowspec value="top:3dlu:noGrow"/>
     <rowspec value="center:max(d;4px):noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
+    <rowspec value="center:max(d;4px):noGrow"/>
     <colspec value="fill:d:noGrow"/>
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="fill:d:grow"/>
@@ -446,9 +448,50 @@
           </component>
         </children>
       </grid>
+      <grid id="9509e" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+        <constraints>
+          <grid row="32" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="18eda" class="javax.swing.JCheckBox" binding="chkBoxGenerateTimestampAnnotation">
+            <constraints/>
+            <properties>
+              <selected value="true"/>
+              <text resource-bundle="bundles/ui_i18n" key="generate_timestamp_annotation"/>
+            </properties>
+          </component>
+          <component id="f680a" class="javax.swing.JLabel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="creation_timestamp_patterns"/>
+            </properties>
+          </component>
+          <component id="4e1f7" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textCreationTimestampPatterns">
+            <constraints/>
+            <properties>
+              <columns value="15"/>
+            </properties>
+          </component>
+          <component id="91cd2" class="javax.swing.JLabel">
+            <constraints/>
+            <properties>
+              <text resource-bundle="bundles/ui_i18n" key="update_timestamp_patterns"/>
+            </properties>
+          </component>
+          <component id="12d5c" class="com.intellij.ui.components.fields.ExpandableTextField" binding="textUpdateTimestampPatterns">
+            <constraints/>
+            <properties>
+              <columns value="15"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
       <tabbedpane id="d815" binding="extensionPane">
         <constraints>
-          <grid row="32" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="34" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="200"/>
           </grid>
           <forms/>

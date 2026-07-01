@@ -1,0 +1,9 @@
+{
+  "targets": {
+    "test": {
+      "test": "./gradlew test --tests \"{filter}\"",
+      "workdir": "."
+    }
+  },
+  "namespace": "plugin"
+}
