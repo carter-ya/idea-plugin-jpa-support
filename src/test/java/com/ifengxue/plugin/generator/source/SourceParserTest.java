@@ -420,6 +420,143 @@ public class SourceParserTest {
     new XmlSourceFileMerger().tryMerge(createGeneratorConfig(), createTable(), null, null);
   }
 
+  // === @CreationTimestamp / @UpdateTimestamp tests ===
+
+  // Test 1: creation timestamp enabled — only @CreationTimestamp is present
+  @Test
+  public void creationTimestampEnabled() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseTimestampAnnotation(true)
+            .setUseJpaAnnotation(true)
+            .setCreationTimestampPatterns("f_created_at")
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    assertTrue("Should contain @CreationTimestamp when pattern matches f_created_at",
+        sourceCode.contains("@CreationTimestamp"));
+    assertFalse("Should NOT contain @UpdateTimestamp when only creation pattern is set",
+        sourceCode.contains("@UpdateTimestamp"));
+    System.out.println(sourceCode);
+  }
+
+  // Test 2: update timestamp enabled — only @UpdateTimestamp is present
+  @Test
+  public void updateTimestampEnabled() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseTimestampAnnotation(true)
+            .setUseJpaAnnotation(true)
+            .setUpdateTimestampPatterns("f_updated_at")
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    assertTrue("Should contain @UpdateTimestamp when pattern matches f_updated_at",
+        sourceCode.contains("@UpdateTimestamp"));
+    assertFalse("Should NOT contain @CreationTimestamp when only update pattern is set",
+        sourceCode.contains("@CreationTimestamp"));
+    System.out.println(sourceCode);
+  }
+
+  // Test 3: useTimestampAnnotation=false — neither annotation is generated
+  @Test
+  public void timestampSwitchesDisabled() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseTimestampAnnotation(false)
+            .setUseJpaAnnotation(true)
+            .setCreationTimestampPatterns("f_created_at")
+            .setUpdateTimestampPatterns("f_updated_at")
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    assertFalse("Should NOT contain @CreationTimestamp when useTimestampAnnotation=false",
+        sourceCode.contains("@CreationTimestamp"));
+    assertFalse("Should NOT contain @UpdateTimestamp when useTimestampAnnotation=false",
+        sourceCode.contains("@UpdateTimestamp"));
+    System.out.println(sourceCode);
+  }
+
+  // Test 4: useJpaAnnotation=false — timestamp annotations are never generated
+  @Test
+  public void noJpaAnnotationNoTimestamp() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseTimestampAnnotation(true)
+            .setUseJpaAnnotation(false)
+            .setCreationTimestampPatterns("f_created_at")
+            .setUpdateTimestampPatterns("f_updated_at")
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    assertFalse("Should NOT contain @CreationTimestamp when useJpaAnnotation=false",
+        sourceCode.contains("@CreationTimestamp"));
+    assertFalse("Should NOT contain @UpdateTimestamp when useJpaAnnotation=false",
+        sourceCode.contains("@UpdateTimestamp"));
+    System.out.println(sourceCode);
+  }
+
+  // Test 5: custom pattern — @CreationTimestamp matches a non-default column (f_name)
+  @Test
+  public void customTimestampPattern() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseTimestampAnnotation(true)
+            .setUseJpaAnnotation(true)
+            .setCreationTimestampPatterns("f_name")
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    assertTrue("Should contain @CreationTimestamp when custom pattern matches f_name",
+        sourceCode.contains("@CreationTimestamp"));
+    assertFalse("Should NOT contain @UpdateTimestamp when only creation pattern is set",
+        sourceCode.contains("@UpdateTimestamp"));
+    System.out.println(sourceCode);
+  }
+
+  // Test 6: creation priority — when a column matches both patterns, @CreationTimestamp wins
+  @Test
+  public void creationTimestampPriority() throws IOException {
+    sourceParser = new EntitySourceParserV2();
+    initParser();
+
+    GeneratorConfig config = createGeneratorConfigWithSettings()
+        .setTablesConfig(createBaseTablesConfig()
+            .setUseTimestampAnnotation(true)
+            .setUseJpaAnnotation(true)
+            .setCreationTimestampPatterns("f_created_at")
+            .setUpdateTimestampPatterns("f_created_at")
+        );
+    String sourceCode = parseWithConfig(Constants.JPA_ENTITY_TEMPLATE_ID, config);
+    assertNotNull(sourceCode);
+    assertFalse(sourceCode.isEmpty());
+    assertTrue("Should contain @CreationTimestamp when column matches both patterns (creation priority)",
+        sourceCode.contains("@CreationTimestamp"));
+    assertFalse("Should NOT contain @UpdateTimestamp when creation pattern already matched",
+        sourceCode.contains("@UpdateTimestamp"));
+    System.out.println(sourceCode);
+  }
+
   private GeneratorConfig createGeneratorConfig() {
     GeneratorConfig config = new GeneratorConfig();
     config.setDriverConfig(
